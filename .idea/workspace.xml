@@ -5,22 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0db4488b-363f-4b08-8892-4f16f8091c25" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Prog_Mov_J.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/markdown.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-IA/.idea/AndroidProjectSystem.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-IA/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-IA/.idea/deploymentTargetSelector.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-IA/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-IA/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-IA/.idea/runConfigurations.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-IA/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-manual/.idea/.name" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-manual/.idea/deploymentTargetSelector.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Semana02/Lab-02-manual/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Semana02/Lab-02-manual/app/src/main/java/com/reyes/lab02carritokotlin/Carrito.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana02/Lab-02-manual/app/src/main/java/com/reyes/lab02carritokotlin/Carrito.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
