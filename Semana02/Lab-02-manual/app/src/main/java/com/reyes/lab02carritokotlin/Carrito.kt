@@ -1,132 +1,98 @@
 package com.reyes.lab02carritokotlin
 
-data class Producto(
-    val nombre: String,
-    val precio: Double,
-    var cantidad: Int
-)
+import com.reyes.lab02carritokotlin.model.Carrito
+import com.reyes.lab02carritokotlin.model.ProductoImportado
+import com.reyes.lab02carritokotlin.model.ProductoPerecible
+import com.reyes.lab02carritokotlin.model.ProductoRegular
 
 fun main() {
-    println("=========================================")
-    println(" CARRITO DE COMPRAS - TIENDA TECSUP ")
-    println("=========================================")
+    val carrito = Carrito("Jordan Reyes")
 
-    val nombreCliente = "Jordan Reyes"
-    val carrito = mutableListOf<Producto>()
+    // POLIMORFISMO: agregamos productos de DISTINTOS tipos a la misma lista.
+    // El carrito los trata a todos como "Producto" y cada uno calcula su
+    // importe a su manera (regular, con impuesto de importacion, o perecible).
+    carrito.agregar(ProductoImportado("Laptop HP", 2500.0, 1, 0.10))
+    carrito.agregar(ProductoRegular("Mouse Logitech", 45.5, 2))
+    carrito.agregar(ProductoImportado("iPhone 13 Pro Max", 4200.0, 1, 0.10))
+    carrito.agregar(ProductoRegular("Reloj Casio", 55.5, 3))
+    carrito.agregar(ProductoPerecible("Cafe en grano 1kg", 60.0, 2, 2))
 
-    println("Cliente: $nombreCliente")
+    imprimirBoleta(carrito)
 
-    carrito.add(Producto("Laptop HP", 2500.0, 1))
-    carrito.add(Producto("Mouse Logitech", 45.5, 2))
-    carrito.add(Producto("Iphone 13 pro max", 2500.0, 5))
-    carrito.add(Producto("Reloj Casio", 55.5, 3))
-
-    for (producto in carrito) {
-        println("Producto agregado: ${producto.nombre}")
-    }
+    // ---------- Reto: buscar y eliminar un producto ----------
     println()
-
-    mostrarDetalle(carrito)
-
-    println("Cantidad de productos : ${carrito.size}")
-
-    var subtotal = calcularSubtotal(carrito)
-    var igv = calcularIGV(subtotal)
-    var total = calcularTotal(subtotal, igv)
-
-    println(String.format("%-23s : S/ %8.2f", "Subtotal", subtotal))
-    println(String.format("%-23s : S/ %8.2f", "IGV (18%)", igv))
-    println(String.format("%-23s : S/ %8.2f", "TOTAL A PAGAR", total))
-    println()
-
-    val masCaro = carrito.maxByOrNull { it.precio }
-    if (masCaro != null) {
-        println(String.format("Producto mas caro: %s (S/%.2f)", masCaro.nombre, masCaro.precio))
-    }
-
-    var descuento = calcularDescuento(total)
-    if (descuento > 0) {
-        val porcentaje = if (total > 5000) "10%" else "5%"
-        val minMonto = if (total > 5000) 5000 else 3000
-        println("Descuento aplicado: $porcentaje por compra mayor a S/ $minMonto")
-    }
-
-    var totalConDescuento = total - descuento
-    println(String.format("TOTAL CON DESCUENTO : S/%.2f", totalConDescuento))
-    println()
-
     println("--- BUSQUEDA DE PRODUCTO ---")
-    val nombreBuscado = "Mouse Logitech"
-    val productoEncontrado = buscarProducto(carrito, nombreBuscado)
-    if (productoEncontrado != null) {
-        println("Producto encontrado: ${productoEncontrado.nombre} - S/ ${productoEncontrado.precio}")
+    val buscado = "Mouse Logitech"
+    val encontrado = carrito.buscar(buscado)
+    if (encontrado != null) {
+        println(String.format("Producto encontrado: %s - S/ %.2f", encontrado.nombre, encontrado.precioBase))
     } else {
-        println("El producto '$nombreBuscado' no se encuentra en el carrito.")
+        println("El producto '$buscado' no esta en el carrito.")
     }
-    println()
 
+    println()
     println("--- ELIMINACION DE PRODUCTO ---")
-    val nombreEliminar = "Mouse Logitech"
-    val seElimino = carrito.removeIf { it.nombre.equals(nombreEliminar, ignoreCase = true) }
-    if (seElimino) {
-        println("Se elimino '$nombreEliminar' del carrito.")
+    val aEliminar = "Reloj Casio"
+    if (carrito.eliminar(aEliminar)) {
+        println("Se elimino '$aEliminar' del carrito.")
+    } else {
+        println("No se encontro '$aEliminar'.")
     }
-    println()
 
+    println()
     println("--- CARRITO ACTUALIZADO ---")
-    mostrarDetalle(carrito)
-    println("Cantidad de productos : ${carrito.size}")
-
-    subtotal = calcularSubtotal(carrito)
-    igv = calcularIGV(subtotal)
-    total = calcularTotal(subtotal, igv)
-
-    println(String.format("%-23s : S/ %8.2f", "Subtotal", subtotal))
-    println(String.format("%-23s : S/ %8.2f", "IGV (18%)", igv))
-    println(String.format("%-23s : S/ %8.2f", "TOTAL A PAGAR", total))
-
-    descuento = calcularDescuento(total)
-    totalConDescuento = total - descuento
-    println(String.format("TOTAL CON DESCUENTO : S/%.2f", totalConDescuento))
-    println()
-    println("Gracias por su compra, $nombreCliente!")
+    imprimirBoleta(carrito)
 }
 
-fun mostrarDetalle(productos: List<Producto>) {
+/** Imprime la boleta completa con el formato de la Figura 1 de la guia. */
+fun imprimirBoleta(carrito: Carrito) {
+    println("=========================================")
+    println("     CARRITO DE COMPRAS - TIENDA TECSUP")
+    println("=========================================")
+    println("Cliente: ${carrito.nombreCliente}")
+    println()
+
+    for (p in carrito.listar()) {
+        println("Producto agregado: ${p.nombre}")
+    }
+    println()
+
+    mostrarDetalle(carrito)
+
+    println(String.format("%-23s : %d", "Cantidad de productos", carrito.cantidadItems()))
+    println(String.format("%-23s : S/ %8.2f", "Subtotal", carrito.subtotal()))
+    println(String.format("%-23s : S/ %8.2f", "IGV (18%)", carrito.igv()))
+    println(String.format("%-23s : S/ %8.2f", "TOTAL A PAGAR", carrito.total()))
+    println("---------------------------------------")
+
+    val masCaro = carrito.productoMasCaro()
+    if (masCaro != null) {
+        println(String.format("Producto mas caro: %s (S/ %.2f)", masCaro.nombre, masCaro.precioBase))
+    }
+
+    val descuento = carrito.descuento()
+    if (descuento > 0.0) {
+        val porcentaje = if (carrito.total() > 5000) "10%" else "5%"
+        val montoMinimo = if (carrito.total() > 5000) 5000 else 3000
+        println("Descuento aplicado: $porcentaje por compra mayor a S/ $montoMinimo")
+    } else {
+        println("Descuento aplicado: ninguno (el total no supera S/ 3000)")
+    }
+    println(String.format("%-23s : S/ %8.2f", "TOTAL CON DESCUENTO", carrito.totalConDescuento()))
+    println()
+    println("Gracias por su compra, ${carrito.nombreCliente}!")
+}
+
+/**
+ * Detalle del carrito con columnas alineadas.
+ * POLIMORFISMO: llama a p.importe() sin preguntar de que tipo es cada producto.
+ */
+fun mostrarDetalle(carrito: Carrito) {
     println("--------- DETALLE DEL CARRITO ---------")
     var i = 1
-    for (p in productos) {
-        val importe = p.precio * p.cantidad
-        println(String.format("%d. %-20s x%d  S/ %8.2f", i, p.nombre, p.cantidad, importe))
+    for (p in carrito.listar()) {
+        println(String.format("%d. %-20s x%d  S/ %8.2f", i, p.nombre, p.cantidad, p.importe()))
         i++
     }
     println("---------------------------------------")
-}
-
-fun calcularSubtotal(productos: List<Producto>): Double {
-    var subtotal = 0.0
-    for (p in productos) {
-        subtotal += p.precio * p.cantidad
-    }
-    return subtotal
-}
-
-fun calcularIGV(subtotal: Double): Double {
-    return subtotal * 0.18
-}
-
-fun calcularTotal(subtotal: Double, igv: Double): Double {
-    return subtotal + igv
-}
-
-fun calcularDescuento(total: Double): Double {
-    return when {
-        total > 5000 -> total * 0.10
-        total > 3000 -> total * 0.05
-        else -> 0.0
-    }
-}
-
-fun buscarProducto(productos: List<Producto>, nombre: String): Producto? {
-    return productos.find { it.nombre.equals(nombre, ignoreCase = true) }
 }
