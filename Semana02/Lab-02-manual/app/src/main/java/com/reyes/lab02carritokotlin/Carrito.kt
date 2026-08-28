@@ -6,43 +6,106 @@ import com.reyes.lab02carritokotlin.model.ProductoPerecible
 import com.reyes.lab02carritokotlin.model.ProductoRegular
 
 fun main() {
-    val carrito = Carrito("Jordan Reyes")
+    println("=========================================")
+    println("     CARRITO DE COMPRAS - TIENDA TECSUP")
+    println("=========================================")
 
-    // POLIMORFISMO: agregamos productos de DISTINTOS tipos a la misma lista.
-    // El carrito los trata a todos como "Producto" y cada uno calcula su
-    // importe a su manera (regular, con impuesto de importacion, o perecible).
-    carrito.agregar(ProductoImportado("Laptop HP", 2500.0, 1, 0.10))
-    carrito.agregar(ProductoRegular("Mouse Logitech", 45.5, 2))
-    carrito.agregar(ProductoImportado("iPhone 13 Pro Max", 4200.0, 1, 0.10))
-    carrito.agregar(ProductoRegular("Reloj Casio", 55.5, 3))
-    carrito.agregar(ProductoPerecible("Cafe en grano 1kg", 60.0, 2, 2))
+    // ---- Los datos ahora los ingresa el usuario por teclado ----
+    val nombreCliente = leerTexto("Ingrese el nombre del cliente: ")
+    val carrito = Carrito(nombreCliente)
 
-    imprimirBoleta(carrito)
+    val cuantos = leerEntero("Cuantos productos desea agregar?: ", minimo = 1)
+    for (n in 1..cuantos) {
+        println()
+        println("--- Producto $n de $cuantos ---")
+        val nombre = leerTexto("Nombre: ")
+        val precio = leerDouble("Precio unitario (S/): ", minimo = 0.01)
+        val cantidad = leerEntero("Cantidad: ", minimo = 1)
 
-    // ---------- Reto: buscar y eliminar un producto ----------
-    println()
-    println("--- BUSQUEDA DE PRODUCTO ---")
-    val buscado = "Mouse Logitech"
-    val encontrado = carrito.buscar(buscado)
-    if (encontrado != null) {
-        println(String.format("Producto encontrado: %s - S/ %.2f", encontrado.nombre, encontrado.precioBase))
-    } else {
-        println("El producto '$buscado' no esta en el carrito.")
+        // POLIMORFISMO: segun el tipo elegido se crea una subclase distinta,
+        // pero todas se guardan en el carrito como "Producto".
+        val producto = when (leerTipo()) {
+            1 -> ProductoRegular(nombre, precio, cantidad)
+            2 -> {
+                val porcentaje = leerDouble("  % de impuesto de importacion (ej. 10): ", minimo = 0.0)
+                ProductoImportado(nombre, precio, cantidad, porcentaje / 100.0)
+            }
+            else -> {
+                val dias = leerEntero("  Dias para vencer: ", minimo = 0)
+                ProductoPerecible(nombre, precio, cantidad, dias)
+            }
+        }
+        carrito.agregar(producto)
     }
 
     println()
-    println("--- ELIMINACION DE PRODUCTO ---")
-    val aEliminar = "Reloj Casio"
-    if (carrito.eliminar(aEliminar)) {
-        println("Se elimino '$aEliminar' del carrito.")
-    } else {
-        println("No se encontro '$aEliminar'.")
+    imprimirBoleta(carrito)
+
+    // ---------- Reto: consultar y quitar un producto ----------
+    print("\nConsultar un producto? Escriba el nombre (o Enter para omitir): ")
+    val consulta = readLine()?.trim()
+    if (!consulta.isNullOrEmpty()) {
+        val p = carrito.buscar(consulta)
+        if (p != null) println("Encontrado -> $p") else println("'$consulta' no esta en el carrito.")
     }
 
-    println()
-    println("--- CARRITO ACTUALIZADO ---")
-    imprimirBoleta(carrito)
+    print("\nQuitar un producto? Escriba el nombre (o Enter para terminar): ")
+    val quitar = readLine()?.trim()
+    if (!quitar.isNullOrEmpty()) {
+        if (carrito.eliminar(quitar)) {
+            println("Se elimino '$quitar'.")
+            println()
+            imprimirBoleta(carrito)
+        } else {
+            println("No se encontro '$quitar' en el carrito.")
+        }
+    }
 }
+
+// ============================ LECTURA DE DATOS ============================
+// Cada funcion vuelve a preguntar hasta que el dato sea valido (no revienta
+// el programa si el usuario escribe algo incorrecto).
+
+private fun leerTexto(mensaje: String): String {
+    while (true) {
+        print(mensaje)
+        val entrada = readLine()?.trim()
+        if (!entrada.isNullOrEmpty()) return entrada
+        println("  * El dato no puede estar vacio.")
+    }
+}
+
+private fun leerEntero(mensaje: String, minimo: Int): Int {
+    while (true) {
+        print(mensaje)
+        val valor = readLine()?.trim()?.toIntOrNull()
+        if (valor != null && valor >= minimo) return valor
+        println("  * Ingrese un numero entero valido (>= $minimo).")
+    }
+}
+
+private fun leerDouble(mensaje: String, minimo: Double): Double {
+    while (true) {
+        print(mensaje)
+        val valor = readLine()?.trim()?.replace(",", ".")?.toDoubleOrNull()
+        if (valor != null && valor >= minimo) return valor
+        println("  * Ingrese un numero valido (>= $minimo).")
+    }
+}
+
+private fun leerTipo(): Int {
+    while (true) {
+        print("Tipo (1=Regular, 2=Importado, 3=Perecible): ")
+        when (readLine()?.trim()?.toIntOrNull()) {
+            1 -> return 1
+            2 -> return 2
+            3 -> return 3
+            else -> println("  * Opcion invalida. Elija 1, 2 o 3.")
+        }
+    }
+}
+
+// ============================ SALIDA / BOLETA ============================
 
 /** Imprime la boleta completa con el formato de la Figura 1 de la guia. */
 fun imprimirBoleta(carrito: Carrito) {
