@@ -11,7 +11,7 @@ fun main() {
     println("=========================================")
 
     // ---- Los datos ahora los ingresa el usuario por teclado ----
-    val nombreCliente = leerTexto("Ingrese el nombre del cliente: ")
+    val nombreCliente = leerTexto("Ingrese el nombre del cliente: ", soloLetras = true)
     val carrito = Carrito(nombreCliente)
 
     val cuantos = leerEntero("Cuantos productos desea agregar?: ", minimo = 1)
@@ -66,12 +66,18 @@ fun main() {
 // Cada funcion vuelve a preguntar hasta que el dato sea valido (no revienta
 // el programa si el usuario escribe algo incorrecto).
 
-private fun leerTexto(mensaje: String): String {
+private fun leerTexto(mensaje: String, soloLetras: Boolean = false): String {
     while (true) {
         print(mensaje)
         val entrada = readLine()?.trim()
-        if (!entrada.isNullOrEmpty()) return entrada
-        println("  * El dato no puede estar vacio.")
+        when {
+            entrada.isNullOrEmpty() ->
+                println("  * El dato no puede estar vacio.")
+            soloLetras && !entrada.all { it.isLetter() || it.isWhitespace() } ->
+                println("  * Solo se permiten letras y espacios (sin numeros ni simbolos).")
+            else ->
+                return entrada
+        }
     }
 }
 
