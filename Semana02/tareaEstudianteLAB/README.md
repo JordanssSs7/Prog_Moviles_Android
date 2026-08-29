@@ -30,9 +30,7 @@ cuotas.
 
 ## Como ejecutarlo
 
-Abrir `app/src/main/java/com/reyes/tareaestudiante/Estudiante.kt` y pulsar el
-boton verde (Run) junto a `fun main()`. La entrada y la salida se ven en la
-ventana Run, sin necesidad de emulador.
+Abrir `app/src/main/java/com/reyes/tareaestudiante/Estudiante.kt` , Dar clic derecho dentro de ese file y presionar Run'Estudiante.KT' with Coverage . La entrada y la salida se ven en la ventana Run, sin necesidad de emulador.
 
 ## Ejemplo de salida
 
@@ -52,5 +50,6 @@ Forma de Pago: 3 cuotas de S/ 540.00
 
 ## Captura de la consola
 
-<!-- Reemplazar por la captura real de la ejecucion -->
-_(pendiente: subir la captura de la ventana Run con el resultado final)_
+<img width="691" height="704" alt="image" src="https://github.com/user-attachments/assets/ab5473e3-76e0-4923-9a90-7b8a6ef7dfa3" />
+<img width="666" height="442" alt="image" src="https://github.com/user-attachments/assets/e36202ee-1e8b-4f7a-8bd9-534127122d36" />
+
