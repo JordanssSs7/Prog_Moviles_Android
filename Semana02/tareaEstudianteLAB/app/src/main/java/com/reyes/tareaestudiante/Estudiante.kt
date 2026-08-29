@@ -40,11 +40,32 @@ fun main() {
         totalAPagar += costoCurso
     }
 
+    var cargaAcademica = ""
+    if (totalCreditos <= 12) {
+        cargaAcademica = "Malla Regular (M.R.)"
+    } else if (totalCreditos in 13..18) {
+        cargaAcademica = "Carga Completa"
+    } else {
+        cargaAcademica = "Requiere Autorizacion"
+    }
+
+
+    val numeroCuotas: Int
+    if (totalAPagar > 1500) {
+        numeroCuotas = 3
+    } else {
+        numeroCuotas = 2
+    }
+    val montoPorCuota = totalAPagar / numeroCuotas
+
     println("\n=== Resultado Final ===")
     println("Nombre del estudiante: $nombreEstudiante")
     println("Total de cursos matriculados: $cantidadCursos")
     println("Total de creditos acumulados: $totalCreditos")
     println("Total a pagar: S/ $totalAPagar")
+
+    println("Carga Academica: $cargaAcademica")
+    println("Forma de Pago: $numeroCuotas cuotas de S/ $montoPorCuota")
 
     scanner.close()
 }
