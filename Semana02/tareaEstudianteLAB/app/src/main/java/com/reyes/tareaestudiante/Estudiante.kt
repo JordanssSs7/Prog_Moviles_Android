@@ -23,6 +23,7 @@ fun main() {
     var cursoActual = ""
     var creditosCurso = 0
     var costoCurso = 0.0
+    var detalleCursos = ""
 
     println("\n=== Ingreso de Cursos ===")
     for (i in 0 until cantidadCursos) {
@@ -34,7 +35,12 @@ fun main() {
         scanner.nextLine()
 
         costoCurso = creditosCurso * valorPorCreditos
-        println("  Costo: S/ $costoCurso")
+        detalleCursos += String.format(
+            "  - %-20s | %d creditos | S/ %.2f%n",
+            cursoActual, creditosCurso, costoCurso
+        )
+
+        println(String.format("  Costo: S/ %.2f", costoCurso))
 
         totalCreditos += creditosCurso
         totalAPagar += costoCurso
@@ -61,11 +67,14 @@ fun main() {
     println("\n=== Resultado Final ===")
     println("Nombre del estudiante: $nombreEstudiante")
     println("Total de cursos matriculados: $cantidadCursos")
+    println("Detalle de cursos:")
+    print(detalleCursos)
+
     println("Total de creditos acumulados: $totalCreditos")
-    println("Total a pagar: S/ $totalAPagar")
+    println(String.format("Total a pagar: S/ %.2f", totalAPagar))
 
     println("Carga Academica: $cargaAcademica")
-    println("Forma de Pago: $numeroCuotas cuotas de S/ $montoPorCuota")
+    println(String.format("Forma de Pago: %d cuotas de S/ %.2f", numeroCuotas, montoPorCuota))
 
     scanner.close()
 }
