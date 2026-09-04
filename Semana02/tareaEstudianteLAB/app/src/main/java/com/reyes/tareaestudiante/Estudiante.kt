@@ -10,10 +10,21 @@ fun main() {
     print("Nombre del estudiante: ")
     val nombreEstudiante = scanner.nextLine().trim()
 
-    // --- NUEVO: Petición del turno ---
     print("Turno (1=Mañana, 2=Tarde, 3=Noche): ")
     val turno = scanner.nextInt()
     scanner.nextLine()
+
+    // --- NUEVO: Petición de la categoría ---
+    print("Categoria (1=Ordinario, 2=Becario): ")
+    val categoria = scanner.nextInt()
+    scanner.nextLine()
+
+    var costoMatricula = 0.0
+    if (categoria == 1) {
+        print("Ingrese el costo de matricula (S/): ")
+        costoMatricula = scanner.nextDouble()
+        scanner.nextLine()
+    }
 
     print("Cantidad de cursos a llevar: ")
     val cantidadCursos = scanner.nextInt()
@@ -51,7 +62,6 @@ fun main() {
         totalAPagar += costoCurso
     }
 
-    // --- NUEVO: Cálculo del recargo por turno ---
     var recargoTurno = 0.0
     if (turno == 1) {
         recargoTurno = totalAPagar * 0.10
@@ -61,6 +71,9 @@ fun main() {
         recargoTurno = totalAPagar * 0.20
     }
     totalAPagar += recargoTurno
+
+    // --- NUEVO: Sumar el costo de matrícula al total ---
+    totalAPagar += costoMatricula
 
     var cargaAcademica = ""
     if (totalCreditos <= 12) {
@@ -86,8 +99,9 @@ fun main() {
     print(detalleCursos)
 
     println("Total de creditos acumulados: $totalCreditos")
-
     println(String.format("Recargo por turno: S/ %.2f", recargoTurno))
+
+    println(String.format("Costo de matricula: S/ %.2f", costoMatricula))
     println(String.format("Total a pagar: S/ %.2f", totalAPagar))
 
     println("Carga Academica: $cargaAcademica")
