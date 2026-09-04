@@ -27,7 +27,6 @@ fun main() {
             println("Error: Ingrese un turno valido (Mañana, Tarde o Noche).")
         }
 
-        // --- NUEVO: Validación estricta de la Categoría por palabra ---
         var categoria = ""
         while (true) {
             print("Categoria (Ordinario, Becario): ")
@@ -128,12 +127,19 @@ fun main() {
         println("Carga Academica: $cargaAcademica")
         println(String.format("Forma de Pago: %d cuotas de S/ %.2f", numeroCuotas, montoPorCuota))
 
+        // --- NUEVO: Validación estricta para continuar (Si/No) ---
         if (alumno < aforo) {
-            print("\n¿Desea matricular a otro alumno? (1=Si, 2=No): ")
-            val continuar = scanner.nextInt()
-            scanner.nextLine()
+            var continuar = ""
+            while (true) {
+                print("\n¿Desea matricular a otro alumno? (Si/No): ")
+                continuar = scanner.nextLine().trim().lowercase()
+                if (continuar == "si" || continuar == "sí" || continuar == "no") {
+                    break
+                }
+                println("Error: Por favor, responda 'Si' o 'No'.")
+            }
 
-            if (continuar == 2) {
+            if (continuar == "no") {
                 println("Finalizando las matriculas por decision del usuario...")
                 break
             }
