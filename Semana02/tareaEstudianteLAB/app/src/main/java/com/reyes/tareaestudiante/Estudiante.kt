@@ -7,28 +7,32 @@ fun main() {
 
     println("=== Sistema de Matricula Universitaria ===")
 
-    // --- NUEVO: Petición del aforo ---
     print("Ingrese el aforo (cantidad maxima de alumnos a matricular): ")
     val aforo = scanner.nextInt()
     scanner.nextLine()
 
-    // --- NUEVO: Bucle for que envuelve todo el registro ---
     for (alumno in 1..aforo) {
         println("\n--- Registrando Alumno $alumno de $aforo ---")
 
         print("Nombre del estudiante: ")
         val nombreEstudiante = scanner.nextLine().trim()
 
-        print("Turno (1=Mañana, 2=Tarde, 3=Noche): ")
-        val turno = scanner.nextInt()
-        scanner.nextLine()
 
-        print("Categoria (1=Ordinario, 2=Becario): ")
-        val categoria = scanner.nextInt()
-        scanner.nextLine()
+        var turno = ""
+        while (true) {
+            print("Turno (Mañana, Tarde, Noche): ")
+            turno = scanner.nextLine().trim().lowercase()
+            if (turno == "mañana" || turno == "manana" || turno == "tarde" || turno == "noche") {
+                break
+            }
+            println("Error: Ingrese un turno valido (Mañana, Tarde o Noche).")
+        }
+
+        print("Categoria (Ordinario, Becario): ")
+        val categoria = scanner.nextLine().trim().lowercase()
 
         var costoMatricula = 0.0
-        if (categoria == 1) {
+        if (categoria == "ordinario") {
             print("Ingrese el costo de matricula (S/): ")
             costoMatricula = scanner.nextDouble()
             scanner.nextLine()
@@ -71,11 +75,11 @@ fun main() {
         }
 
         var recargoTurno = 0.0
-        if (turno == 1) {
+        if (turno == "mañana" || turno == "manana") {
             recargoTurno = totalAPagar * 0.10
-        } else if (turno == 2) {
+        } else if (turno == "tarde") {
             recargoTurno = totalAPagar * 0.15
-        } else if (turno == 3) {
+        } else if (turno == "noche") {
             recargoTurno = totalAPagar * 0.20
         }
         totalAPagar += recargoTurno
@@ -117,7 +121,6 @@ fun main() {
         println("Carga Academica: $cargaAcademica")
         println(String.format("Forma de Pago: %d cuotas de S/ %.2f", numeroCuotas, montoPorCuota))
 
-        // --- NUEVO: Opción para salir antes de que se acabe el aforo ---
         if (alumno < aforo) {
             print("\n¿Desea matricular a otro alumno? (1=Si, 2=No): ")
             val continuar = scanner.nextInt()
@@ -125,7 +128,7 @@ fun main() {
 
             if (continuar == 2) {
                 println("Finalizando las matriculas por decision del usuario...")
-                break // Rompe el bucle for
+                break
             }
         }
         println("-------------------------------------------\n")
