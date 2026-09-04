@@ -17,7 +17,6 @@ fun main() {
         print("Nombre del estudiante: ")
         val nombreEstudiante = scanner.nextLine().trim()
 
-
         var turno = ""
         while (true) {
             print("Turno (Mañana, Tarde, Noche): ")
@@ -28,8 +27,16 @@ fun main() {
             println("Error: Ingrese un turno valido (Mañana, Tarde o Noche).")
         }
 
-        print("Categoria (Ordinario, Becario): ")
-        val categoria = scanner.nextLine().trim().lowercase()
+        // --- NUEVO: Validación estricta de la Categoría por palabra ---
+        var categoria = ""
+        while (true) {
+            print("Categoria (Ordinario, Becario): ")
+            categoria = scanner.nextLine().trim().lowercase()
+            if (categoria == "ordinario" || categoria == "becario") {
+                break
+            }
+            println("Error: Ingrese una categoria valida (Ordinario o Becario).")
+        }
 
         var costoMatricula = 0.0
         if (categoria == "ordinario") {
