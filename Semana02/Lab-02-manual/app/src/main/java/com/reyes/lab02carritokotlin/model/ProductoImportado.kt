@@ -14,6 +14,7 @@ class ProductoImportado(
         require(impuestoImportacion >= 0.0) { "El impuesto de importacion no puede ser negativo" }
     }
 
+    //override = sobreescribir
     override val tipo: String = "Importado"
 
     // El importe suma el impuesto de importacion al precio base de cada unidad.
@@ -28,3 +29,9 @@ class ProductoImportado(
         )
     }
 }
+// %s : string(texto)
+//%-20s : string, -20 hace que el texto ocupe 20 espacios alineados a la izquierda
+//8.2f : ocupa 8 espacios en total y seran 2 decimales
+//x%d : %d para digitos numeros enteroos
+// (+%d%% imp.) : entero, %d es para el porocentaje, %% imprime el simboolo de porcentaje real
+//ej : [Electrónico] Laptop HP            S/  2500.00 x2 (+18% imp.)

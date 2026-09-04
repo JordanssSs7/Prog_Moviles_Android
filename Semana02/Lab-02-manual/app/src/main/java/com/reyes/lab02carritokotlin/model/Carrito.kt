@@ -66,6 +66,8 @@ class Carrito(val nombreCliente: String) {
     /** Producto de mayor precio base; null si el carrito esta vacio. */
     fun productoMasCaro(): Producto? = items.maxByOrNull { it.precioBase }
 
+
+    //variables estaticas para tener elc codigo mas limpio , nunca cambian
     private companion object {
         const val IGV = 0.18
         const val MONTO_DESC_5 = 3000.0

@@ -1,0 +1,47 @@
+Index: Semana02/tareaEstudianteLAB/.idea/gradle.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"GradleSettings\">\r\n    <option name=\"linkedExternalProjectsSettings\">\r\n      <GradleProjectSettings>\r\n        <option name=\"testRunner\" value=\"CHOOSE_PER_TEST\" />\r\n        <option name=\"externalProjectPath\" value=\"$PROJECT_DIR$\" />\r\n        <option name=\"modules\">\r\n          <set>\r\n            <option value=\"$PROJECT_DIR$\" />\r\n            <option value=\"$PROJECT_DIR$/app\" />\r\n          </set>\r\n        </option>\r\n      </GradleProjectSettings>\r\n    </option>\r\n  </component>\r\n</project>
+===================================================================
+diff --git a/Semana02/tareaEstudianteLAB/.idea/gradle.xml b/Semana02/tareaEstudianteLAB/.idea/gradle.xml
+--- a/Semana02/tareaEstudianteLAB/.idea/gradle.xml	(revision 6c22ed6e29f6819e5a746b861104b90bff30ada0)
++++ b/Semana02/tareaEstudianteLAB/.idea/gradle.xml	(date 1788485706797)
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="GradleMigrationSettings" migrationVersion="1" />
+   <component name="GradleSettings">
+     <option name="linkedExternalProjectsSettings">
+       <GradleProjectSettings>
+Index: Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/Estudiante.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.reyes.tareaestudiante\r\n\r\nimport java.util.Scanner\r\n\r\nfun main() {\r\n    val scanner = Scanner(System.`in`)\r\n\r\n    println(\"=== Sistema de Matricula Universitaria ===\")\r\n\r\n    print(\"Nombre del estudiante: \")\r\n    val nombreEstudiante = scanner.nextLine().trim()\r\n\r\n    print(\"Cantidad de cursos a llevar: \")\r\n    val cantidadCursos = scanner.nextInt()\r\n    scanner.nextLine()\r\n\r\n    print(\"Valor de cada credito (S/): \")\r\n    val valorPorCreditos = scanner.nextDouble()\r\n    scanner.nextLine()\r\n\r\n    var totalCreditos = 0\r\n    var totalAPagar = 0.0\r\n    var cursoActual = \"\"\r\n    var creditosCurso = 0\r\n    var costoCurso = 0.0\r\n    var detalleCursos = \"\"\r\n\r\n    println(\"\\n=== Ingreso de Cursos ===\")\r\n    for (i in 0 until cantidadCursos) {\r\n        print(\"Nombre del curso ${i + 1}: \")\r\n        cursoActual = scanner.nextLine().trim()\r\n\r\n        print(\"Cantidad de creditos: \")\r\n        creditosCurso = scanner.nextInt()\r\n        scanner.nextLine()\r\n\r\n        costoCurso = creditosCurso * valorPorCreditos\r\n        detalleCursos += String.format(\r\n            \"  - %-20s | %d creditos | S/ %.2f%n\",\r\n            cursoActual, creditosCurso, costoCurso\r\n        )\r\n\r\n        println(String.format(\"  Costo: S/ %.2f\", costoCurso))\r\n\r\n        totalCreditos += creditosCurso\r\n        totalAPagar += costoCurso\r\n    }\r\n\r\n    var cargaAcademica = \"\"\r\n    if (totalCreditos <= 12) {\r\n        cargaAcademica = \"Malla Regular (M.R.)\"\r\n    } else if (totalCreditos in 13..18) {\r\n        cargaAcademica = \"Carga Completa\"\r\n    } else {\r\n        cargaAcademica = \"Requiere Autorizacion\"\r\n    }\r\n\r\n\r\n    val numeroCuotas: Int\r\n    if (totalAPagar > 1500) {\r\n        numeroCuotas = 3\r\n    } else {\r\n        numeroCuotas = 2\r\n    }\r\n    val montoPorCuota = totalAPagar / numeroCuotas\r\n\r\n    println(\"\\n=== Resultado Final ===\")\r\n    println(\"Nombre del estudiante: $nombreEstudiante\")\r\n    println(\"Total de cursos matriculados: $cantidadCursos\")\r\n    println(\"Detalle de cursos:\")\r\n    print(detalleCursos)\r\n\r\n    println(\"Total de creditos acumulados: $totalCreditos\")\r\n    println(String.format(\"Total a pagar: S/ %.2f\", totalAPagar))\r\n\r\n    println(\"Carga Academica: $cargaAcademica\")\r\n    println(String.format(\"Forma de Pago: %d cuotas de S/ %.2f\", numeroCuotas, montoPorCuota))\r\n\r\n    scanner.close()\r\n}\r\n
+===================================================================
+diff --git a/Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/Estudiante.kt b/Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/Estudiante.kt
+--- a/Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/Estudiante.kt	(revision 6c22ed6e29f6819e5a746b861104b90bff30ada0)
++++ b/Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/Estudiante.kt	(date 1788496182905)
+@@ -45,7 +45,6 @@
+         totalCreditos += creditosCurso
+         totalAPagar += costoCurso
+     }
+-
+     var cargaAcademica = ""
+     if (totalCreditos <= 12) {
+         cargaAcademica = "Malla Regular (M.R.)"
+Index: Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/MainActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.reyes.tareaestudiante\r\n\r\nimport android.os.Bundle\r\nimport androidx.activity.ComponentActivity\r\nimport androidx.activity.compose.setContent\r\nimport androidx.activity.enableEdgeToEdge\r\nimport androidx.compose.foundation.layout.fillMaxSize\r\nimport androidx.compose.foundation.layout.padding\r\nimport androidx.compose.material3.Scaffold\r\nimport androidx.compose.material3.Text\r\nimport androidx.compose.runtime.Composable\r\nimport androidx.compose.ui.Modifier\r\nimport androidx.compose.ui.tooling.preview.Preview\r\nimport com.reyes.tareaestudiante.ui.theme.TareaEstudianteTheme\r\n\r\nclass MainActivity : ComponentActivity() {\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n        enableEdgeToEdge()\r\n        setContent {\r\n            TareaEstudianteTheme {\r\n                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->\r\n                    Greeting(\r\n                        name = \"Android\",\r\n                        modifier = Modifier.padding(innerPadding)\r\n                    )\r\n                }\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n@Composable\r\nfun Greeting(name: String, modifier: Modifier = Modifier) {\r\n    Text(\r\n        text = \"Hello $name!\",\r\n        modifier = modifier\r\n    )\r\n}\r\n\r\n@Preview(showBackground = true)\r\n@Composable\r\nfun GreetingPreview() {\r\n    TareaEstudianteTheme {\r\n        Greeting(\"Android\")\r\n    }\r\n}
+===================================================================
+diff --git a/Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/MainActivity.kt b/Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/MainActivity.kt
+--- a/Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/MainActivity.kt	(revision 6c22ed6e29f6819e5a746b861104b90bff30ada0)
++++ b/Semana02/tareaEstudianteLAB/app/src/main/java/com/reyes/tareaestudiante/MainActivity.kt	(date 1788492058613)
+@@ -12,6 +12,7 @@
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.tooling.preview.Preview
+ import com.reyes.tareaestudiante.ui.theme.TareaEstudianteTheme
++import com.reyes.tareaestudiante.main
+ 
+ class MainActivity : ComponentActivity() {
+     override fun onCreate(savedInstanceState: Bundle?) {
