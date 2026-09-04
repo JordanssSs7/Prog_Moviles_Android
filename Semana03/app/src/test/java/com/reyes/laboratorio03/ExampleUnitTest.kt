@@ -1,4 +1,4 @@
-package com.ponce.lab03
+package com.reyes.laboratorio03
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.ponce.lab03.ui.theme
+package com.reyes.laboratorio03.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun Lab03Theme(
+fun Laboratorio03Theme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

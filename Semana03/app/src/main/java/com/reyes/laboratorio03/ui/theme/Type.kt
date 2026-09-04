@@ -1,4 +1,4 @@
-package com.ponce.lab03.ui.theme
+package com.reyes.laboratorio03.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.ponce.lab03"
+    namespace = "com.reyes.laboratorio03"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.ponce.lab03"
+        applicationId = "com.reyes.laboratorio03"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
