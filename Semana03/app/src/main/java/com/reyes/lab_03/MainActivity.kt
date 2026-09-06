@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -153,6 +154,27 @@ fun RegistroNotasScreen() {
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        nota1 = 0f
+                        nota2 = 0f
+                        nota3 = 0f
+                        nota4 = 0f
+                        redondear = false
+                        confirmado = false
+                        mostrarResultado = false
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    border = BorderStroke(1.dp, primaryPurple),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = primaryPurple)
+                ) {
+                    Text(
+                        text = "LIMPIAR",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
                     )
                 }
             }
