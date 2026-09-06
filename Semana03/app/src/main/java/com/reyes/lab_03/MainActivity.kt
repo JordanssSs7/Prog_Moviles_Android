@@ -40,6 +40,10 @@ fun RegistroNotasScreen() {
     var nota3 by remember { mutableStateOf(0f) }
     var nota4 by remember { mutableStateOf(0f) }
 
+    var redondear by remember { mutableStateOf(false) }
+    var confirmado by remember { mutableStateOf(false) }
+    var mostrarResultado by remember { mutableStateOf(false) }
+
     val primaryPurple = Color(0xFF6750A4)
 
     val backgroundGradient = Brush.verticalGradient(
@@ -96,6 +100,60 @@ fun RegistroNotasScreen() {
             CursoSlider(titulo = "Programación Orientada a Objetos", peso = "(25%)", nota = nota2) { nota2 = it }
             CursoSlider(titulo = "Programación en Móviles", peso = "(30%)", nota = nota3) { nota3 = it }
             CursoSlider(titulo = "Base de Datos", peso = "(25%)", nota = nota4) { nota4 = it }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Redondear promedio final", color = Color.Black)
+                Switch(
+                    checked = redondear,
+                    onCheckedChange = { redondear = it },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = primaryPurple
+                    )
+                )
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = confirmado,
+                    onCheckedChange = { confirmado = it },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = primaryPurple,
+                        checkmarkColor = Color.White
+                    )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Confirmo que las notas son correctas", color = Color.Black)
+            }
+
+            Button(
+                onClick = { mostrarResultado = true },
+                enabled = confirmado,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = primaryPurple)
+            ) {
+                Text(
+                    text = "CALCULAR PROMEDIO",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            }
+
+            if (!mostrarResultado) {
+                Text("Asigna las notas y confirma para calcular", color = Color.Gray)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Desarrollado por: Jordan Reyes Saravia",
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
 
             Spacer(modifier = Modifier.height(10.dp))
         }
