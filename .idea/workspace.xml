@@ -5,8 +5,48 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0db4488b-363f-4b08-8892-4f16f8091c25" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Semana03/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/androidTest/java/com/reyes/lab_03/ExampleInstrumentedTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/java/com/reyes/lab_03/MainActivity.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/java/com/reyes/lab_03/ui/theme/Color.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/java/com/reyes/lab_03/ui/theme/Theme.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/java/com/reyes/lab_03/ui/theme/Type.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/keepRules/rules.keep" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/drawable/ic_launcher_background.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/drawable/ic_launcher_foreground.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-hdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-hdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-mdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-mdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-xhdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-xhdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-xxhdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/values/colors.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/values/themes.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/xml/backup_rules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/main/res/xml/data_extraction_rules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/app/src/test/java/com/reyes/lab_03/ExampleUnitTest.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/gradle.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/gradle/libs.versions.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/gradlew" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/gradlew.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Semana03/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Semana02/Lab-02-manual/app/src/main/java/com/reyes/lab02carritokotlin/Carrito.kt" beforeDir="false" afterPath="$PROJECT_DIR$/Semana02/Lab-02-manual/app/src/main/java/com/reyes/lab02carritokotlin/Carrito.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana02/Lab-02-manual/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Semana02/Lab-02-manual/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Semana03/Laboratorio03" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,24 +57,29 @@
     <option name="formatViaClangd" value="false" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="LaboratoriosIA" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "JordanssSs7"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;JordanssSs7&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/JordanssSs7/Prog_Moviles_Android.git",
-    "accountId": "9fdf9e92-f488-4c03-9f61-f3a1a87321e8"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/JordanssSs7/Prog_Moviles_Android.git&quot;,
+    &quot;accountId&quot;: &quot;9fdf9e92-f488-4c03-9f61-f3a1a87321e8&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 1,
-  "fromUser": false
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3IRYAMKtYMgawmtswQuFAE5sxhG" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
