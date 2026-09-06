@@ -4,14 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -103,52 +106,69 @@ fun RegistroNotasScreen() {
             CursoSlider(titulo = "Programación en Móviles", peso = "(30%)", nota = nota3) { nota3 = it }
             CursoSlider(titulo = "Base de Datos", peso = "(25%)", nota = nota4) { nota4 = it }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Redondear promedio final", color = Color.Black)
-                Switch(
-                    checked = redondear,
-                    onCheckedChange = { redondear = it },
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = primaryPurple
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Redondear promedio final",
+                        color = Color.Black
                     )
-                )
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = confirmado,
-                    onCheckedChange = { confirmado = it },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = primaryPurple,
-                        checkmarkColor = Color.White
+                    Switch(
+                        checked = redondear,
+                        onCheckedChange = { redondear = it },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = primaryPurple
+                        )
                     )
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Confirmo que las notas son correctas", color = Color.Black)
-            }
+                }
 
-            Button(
-                onClick = { mostrarResultado = true },
-                enabled = confirmado,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = primaryPurple)
-            ) {
-                Text(
-                    text = "CALCULAR PROMEDIO",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = confirmado,
+                        onCheckedChange = { confirmado = it },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = primaryPurple,
+                            checkmarkColor = Color.White
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Confirmo que las notas son correctas",
+                        color = Color.Black
+                    )
+                }
+
+                Button(
+                    onClick = { mostrarResultado = true },
+                    enabled = confirmado,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = primaryPurple)
+                ) {
+                    Text(
+                        text = "CALCULAR PROMEDIO",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp
+                    )
+                }
             }
 
             if (!mostrarResultado) {
-                Text("Asigna las notas y confirma para calcular", color = Color.Gray)
+                Text(
+                    text = "Asigna las notas y confirma para calcular",
+                    color = Color.Gray
+                )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = "Desarrollado por: Jordan Reyes Saravia",
                     modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -179,7 +199,9 @@ fun RegistroNotasScreen() {
                         modifier = Modifier.padding(20.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(text = "Promedio ponderado: %.2f".format(Locale.US, ponderado))
+                        Text(
+                            text = "Promedio ponderado: %.2f".format(Locale.US, ponderado)
+                        )
                         Text(
                             text = "Promedio final: ${if (redondear) "%.0f".format(Locale.US, promedioFinal) else "%.2f".format(Locale.US, promedioFinal)}",
                             fontSize = 20.sp,
@@ -187,19 +209,23 @@ fun RegistroNotasScreen() {
                             color = primaryPurple
                         )
                         if (redondear) {
-                            Text(text = "(redondeado)", style = MaterialTheme.typography.bodySmall)
+                            Text(
+                                text = "(redondeado)",
+                                style = MaterialTheme.typography.bodySmall
+                            )
                         }
 
                         Surface(
                             color = colorChipBg,
-                            shape = MaterialTheme.shapes.small
+                            shape = CircleShape
                         ) {
                             Text(
                                 text = observacion,
                                 color = colorChipText,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                                modifier = Modifier.padding(horizontal = 24.dp, vertical = 10.dp),
                                 style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 17.sp
                             )
                         }
                     }
@@ -229,6 +255,7 @@ fun RegistroNotasScreen() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CursoSlider(
     titulo: String,
@@ -241,8 +268,12 @@ fun CursoSlider(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = titulo,
                     fontSize = 17.sp,
@@ -253,6 +284,7 @@ fun CursoSlider(
                 Text(
                     text = peso,
                     fontSize = 15.sp,
+                    fontWeight = FontWeight.Normal,
                     color = Color(0xFF6750A4)
                 )
             }
@@ -262,10 +294,39 @@ fun CursoSlider(
                 onValueChange = { onNotaChanged(it.roundToInt().toFloat()) },
                 valueRange = 0f..20f,
                 steps = 19,
-                colors = SliderDefaults.colors(
-                    thumbColor = Color(0xFF6750A4),
-                    activeTrackColor = Color(0xFF6750A4)
-                )
+                modifier = Modifier
+                    .offset(x = (-8).dp)
+                    .fillMaxWidth(),
+                thumb = {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .background(Color(0xFF6750A4), shape = CircleShape)
+                    )
+                },
+                track = { sliderState ->
+                    Canvas(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(7.dp)
+                    ) {
+                        val trackHeight = size.height
+                        val strokeRadius = trackHeight / 2
+                        val fraction = (sliderState.value - sliderState.valueRange.start) /
+                                (sliderState.valueRange.endInclusive - sliderState.valueRange.start)
+                        val activeWidth = size.width * fraction
+
+                        drawRoundRect(
+                            color = Color(0xFFE6E0E9),
+                            cornerRadius = CornerRadius(strokeRadius, strokeRadius)
+                        )
+                        drawRoundRect(
+                            color = Color(0xFF6750A4),
+                            size = size.copy(width = activeWidth),
+                            cornerRadius = CornerRadius(strokeRadius, strokeRadius)
+                        )
+                    }
+                }
             )
         }
 
