@@ -106,9 +106,7 @@ fun RegistroNotasScreen() {
             CursoSlider(titulo = "Programación en Móviles", peso = "(30%)", nota = nota3) { nota3 = it }
             CursoSlider(titulo = "Base de Datos", peso = "(25%)", nota = nota4) { nota4 = it }
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -128,9 +126,7 @@ fun RegistroNotasScreen() {
                     )
                 }
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked = confirmado,
                         onCheckedChange = { confirmado = it },
@@ -156,7 +152,7 @@ fun RegistroNotasScreen() {
                         text = "CALCULAR PROMEDIO",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
+                        fontSize = 20.sp
                     )
                 }
             }
@@ -181,7 +177,12 @@ fun RegistroNotasScreen() {
                 val n3 = nota3.roundToInt()
                 val n4 = nota4.roundToInt()
 
-                val ponderado = (n1 * 0.20) + (n2 * 0.25) + (n3 * 0.30) + (n4 * 0.25)
+                val aporte1 = n1 * 0.20
+                val aporte2 = n2 * 0.25
+                val aporte3 = n3 * 0.30
+                val aporte4 = n4 * 0.25
+
+                val ponderado = aporte1 + aporte2 + aporte3 + aporte4
                 val promedioFinal = if (redondear) round(ponderado) else ponderado
 
                 val (observacion, colorChipBg, colorChipText) = when {
@@ -200,10 +201,44 @@ fun RegistroNotasScreen() {
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Promedio ponderado: %.2f".format(Locale.US, ponderado)
+                            text = "Desglose por curso:",
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
                         )
                         Text(
-                            text = "Promedio final: ${if (redondear) "%.0f".format(Locale.US, promedioFinal) else "%.2f".format(Locale.US, promedioFinal)}",
+                            text = "Fundamentos: $n1 × 20% = " + String.format(Locale.US, "%.2f", aporte1),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.DarkGray
+                        )
+                        Text(
+                            text = "POO: $n2 × 25% = " + String.format(Locale.US, "%.2f", aporte2),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.DarkGray
+                        )
+                        Text(
+                            text = "Móviles: $n3 × 30% = " + String.format(Locale.US, "%.2f", aporte3),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.DarkGray
+                        )
+                        Text(
+                            text = "Base de Datos: $n4 × 25% = " + String.format(Locale.US, "%.2f", aporte4),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.DarkGray
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .height(1.dp)
+                                .background(Color(0xFFE0E0E0))
+                        )
+
+                        Text(
+                            text = "Promedio ponderado: " + String.format(Locale.US, "%.2f", ponderado)
+                        )
+                        Text(
+                            text = "Promedio final: " + (if (redondear) String.format(Locale.US, "%.0f", promedioFinal) else String.format(Locale.US, "%.2f", promedioFinal)),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = primaryPurple
