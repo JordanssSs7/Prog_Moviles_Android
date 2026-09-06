@@ -18,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.lab_03.ui.theme.Lab03Theme
+import java.util.Locale
+import kotlin.math.round
 import kotlin.math.roundToInt
 
 class MainActivity : ComponentActivity() {
@@ -153,6 +155,73 @@ fun RegistroNotasScreen() {
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
+            } else {
+                val n1 = nota1.roundToInt()
+                val n2 = nota2.roundToInt()
+                val n3 = nota3.roundToInt()
+                val n4 = nota4.roundToInt()
+
+                val ponderado = (n1 * 0.20) + (n2 * 0.25) + (n3 * 0.30) + (n4 * 0.25)
+                val promedioFinal = if (redondear) round(ponderado) else ponderado
+
+                val (observacion, colorChipBg, colorChipText) = when {
+                    promedioFinal >= 17.0 -> Triple("EXCELENTE", Color(0xFF1B5E20), Color(0xFFC8E6C9))
+                    promedioFinal >= 13.0 -> Triple("APROBADO", Color(0xFFDCEDC8), Color(0xFF2E7D32))
+                    promedioFinal >= 10.0 -> Triple("EN RECUPERACIÓN", Color(0xFFFFF9C4), Color(0xFFF57F17))
+                    else -> Triple("DESAPROBADO", Color(0xFFFFCDD2), Color(0xFFC62828))
+                }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(text = "Promedio ponderado: %.2f".format(Locale.US, ponderado))
+                        Text(
+                            text = "Promedio final: ${if (redondear) "%.0f".format(Locale.US, promedioFinal) else "%.2f".format(Locale.US, promedioFinal)}",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = primaryPurple
+                        )
+                        if (redondear) {
+                            Text(text = "(redondeado)", style = MaterialTheme.typography.bodySmall)
+                        }
+
+                        Surface(
+                            color = colorChipBg,
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = observacion,
+                                color = colorChipText,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "✓ Promedio calculado correctamente",
+                        color = Color(0xFF2E7D32),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = "Desarrollado por: Jordan Reyes Saravia",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
