@@ -30,3 +30,16 @@ data class Producto(
 
 El programa actualizado con el reto se implementó la función buscarProducto utilizando .find para localizador un producto por nombre dentro de la lista, también se integró la eliminación de elementos con removeIf para quitar un ítem en específico , y también se cambiaron los totales a las variables var para hacer un nuevo cálculo del subtotal, igv y subtotal.
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Lab03 -> Layout
+---------------
+
+Aplicación móvil en Jetpack Compose para calcular el promedio ponderado de cuatro cursos mediante sliders enteros con retroalimentación visual tipo semáforo. Incluye opciones de confirmación por checkbox, redondeo final con switch y desglose detallado del aporte de cada materia. Presenta los resultados en una tarjeta dinámica con observaciones académicas por color y un botón para reiniciar el estado completo.
+
+Incluido retos opcionales.
+--------------------------
+
+<img width="415" height="841" alt="image" src="https://github.com/user-attachments/assets/d4965c57-e1f0-49bf-ade6-625efa636bf0" />
+<img width="405" height="853" alt="image" src="https://github.com/user-attachments/assets/c70b3ea4-623d-48f8-90cf-5c1aaa182887" />
+
