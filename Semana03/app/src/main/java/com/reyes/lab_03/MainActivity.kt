@@ -298,6 +298,10 @@ fun CursoSlider(
     nota: Float,
     onNotaChanged: (Float) -> Unit
 ) {
+    val valorEntero = nota.roundToInt()
+    val badgeFondo = if (valorEntero < 13) Color(0xFFFFCDD2) else Color(0xFFDCEDC8)
+    val badgeTexto = if (valorEntero < 13) Color(0xFFC62828) else Color(0xFF2E7D32)
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -366,15 +370,15 @@ fun CursoSlider(
         }
 
         Surface(
-            color = Color(0xFFE8DEF8),
+            color = badgeFondo,
             shape = MaterialTheme.shapes.extraSmall
         ) {
             Text(
-                text = "${nota.roundToInt()}",
+                text = "$valorEntero",
                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF6750A4)
+                color = badgeTexto
             )
         }
     }
