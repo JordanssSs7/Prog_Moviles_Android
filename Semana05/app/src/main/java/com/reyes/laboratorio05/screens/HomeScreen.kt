@@ -1,4 +1,4 @@
-package com.reyes.laboratorio05.navigation
+package com.reyes.laboratorio05.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
