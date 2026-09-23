@@ -163,7 +163,7 @@ fun ClinicaSaludApp() {
             composable("perfil") {
                 Scaffold(topBar = { TopAppBar(title = { Text("Perfil") }) }) { padding ->
                     Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                        Text("Configuración y datos de tu perfil.", color = Color.Gray)
+                        Text("Configuración y datos de perfil.", color = Color.Gray)
                     }
                 }
             }
