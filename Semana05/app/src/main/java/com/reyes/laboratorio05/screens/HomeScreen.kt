@@ -8,6 +8,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.reyes.laboratorio05.navigation.Screen
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -31,7 +34,11 @@ fun HomeScreen(navController: NavController) {
         // Botón primario de relleno: onClick -> navigate(Screen.List.route)
         Button(
             onClick = { navController.navigate(Screen.List.route) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF6750A4), // Tono morado oficial de Material 3
+                contentColor = Color.White
+            )
         ) {
             Text("Ver lista de elementos")
         }
@@ -42,7 +49,11 @@ fun HomeScreen(navController: NavController) {
         // Botón secundario solo borde: onClick -> navigate(Screen.Profile.route)
         OutlinedButton(
             onClick = { navController.navigate(Screen.Profile.route) },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFF6750A4) // Color morado para el texto e icono
+            ),
+            border = BorderStroke(1.dp, Color(0xFF6750A4)) // Borde morado
         ) {
             Text("Mi perfil")
         }

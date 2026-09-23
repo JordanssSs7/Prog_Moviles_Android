@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.reyes.laboratorio05.navigation.Screen
+import androidx.compose.ui.graphics.Color
 
 // Esta pantalla no tiene TopAppBar; el botón con popUpTo gestiona el retorno limpiando el stack
 @Composable
@@ -27,7 +28,7 @@ fun ProfileScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Juan León Suiyon",
+            text = "Jordan Reyes Saravia",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -38,10 +39,15 @@ fun ProfileScreen(navController: NavController) {
         Button(
             onClick = {
                 navController.navigate(Screen.Home.route) {
+                    // Limpia el stack para evitar acumular instancias de Home
                     popUpTo(Screen.Home.route) { inclusive = true }
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF6750A4),
+                contentColor = Color.White
+            )
         ) {
             Text("Ir al inicio")
         }
