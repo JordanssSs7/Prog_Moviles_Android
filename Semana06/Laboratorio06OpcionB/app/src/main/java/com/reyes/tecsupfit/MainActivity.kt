@@ -107,7 +107,7 @@ fun TecsupFitApp() {
                 route = "detalle_clase/{claseId}",
                 arguments = listOf(navArgument("claseId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val claseId = backStackEntry.arguments?.getInt("claseId") ?: 1
+                val claseId = backStackEntry.arguments?.getInt("claseId") ?: 1 //id
                 DetalleClaseScreen(
                     claseId = claseId,
                     onBackClick = { navController.popBackStack() },
