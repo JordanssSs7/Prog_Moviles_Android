@@ -1,4 +1,4 @@
-package com.example.clinicasalud.screen
+package com.reyes.clinicasalud.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

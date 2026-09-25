@@ -1,4 +1,4 @@
-package com.example.clinicasalud
+package com.reyes.clinicasalud
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -19,7 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.clinicasalud.screen.*
+import com.reyes.clinicasalud.screen.*
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
