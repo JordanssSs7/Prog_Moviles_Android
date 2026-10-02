@@ -265,6 +265,7 @@ fun MisPedidosScreen(pedidos: List<Pedido>) {
                                     color = if (p.estado == "Entregado") Color(0xFF2E7D32) else Color(0xFFE65100),
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                                 )
+                                //-
                             }
                         }
                     }
