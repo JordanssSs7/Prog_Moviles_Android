@@ -25,13 +25,23 @@ enum class DestinoDrawer(val titulo: String) {
 
 @Composable
 fun AppDrawerContent(
+    userName: String,
+    userEmail: String,
     currentRoute: DestinoDrawer,
+    badgeFavoritosCount: Int,
+    badgePedidosCount: Int,
     onNavigateTo: (DestinoDrawer) -> Unit,
     closeDrawer: () -> Unit
 ) {
     val purpleBrand = Color(0xFF5E2E8C)
     val lightPurpleActive = Color(0xFFF3EAFB)
     val circleBorderColor = Color(0xFF2C2C34)
+
+    val iniciales = userName.split(" ")
+        .mapNotNull { it.firstOrNull()?.toString() }
+        .take(2)
+        .joinToString("")
+        .ifEmpty { "JR" }
 
     ModalDrawerSheet(
         modifier = Modifier.width(310.dp),
@@ -53,7 +63,7 @@ fun AppDrawerContent(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "JR",
+                    text = iniciales,
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp,
                     color = purpleBrand
@@ -64,14 +74,14 @@ fun AppDrawerContent(
 
             Column {
                 Text(
-                    text = "Jordan Reyes",
+                    text = userName,
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp,
                     color = Color(0xFF1E1E24)
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "jordan.reyes@tecsup.edu.pe",
+                    text = userEmail,
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
@@ -113,6 +123,17 @@ fun AppDrawerContent(
                                 shape = CircleShape
                             )
                     )
+                },
+                badge = {
+                    if (destino == DestinoDrawer.FAVORITOS && badgeFavoritosCount > 0) {
+                        Badge(containerColor = purpleBrand, contentColor = Color.White) {
+                            Text(text = badgeFavoritosCount.toString(), fontWeight = FontWeight.Bold)
+                        }
+                    } else if (destino == DestinoDrawer.MIS_PEDIDOS && badgePedidosCount > 0) {
+                        Badge(containerColor = Color(0xFF4CAF50), contentColor = Color.White) {
+                            Text(text = badgePedidosCount.toString(), fontWeight = FontWeight.Bold)
+                        }
+                    }
                 },
                 shape = RoundedCornerShape(16.dp),
                 colors = NavigationDrawerItemDefaults.colors(
