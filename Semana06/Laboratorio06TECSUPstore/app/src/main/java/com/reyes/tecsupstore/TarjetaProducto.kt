@@ -5,7 +5,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -26,9 +30,13 @@ data class Producto(
 @Composable
 fun TarjetaProducto(
     producto: Producto,
-    isHighlighted: Boolean = false
+    isHighlighted: Boolean = false,
+    onFavoritoClick: () -> Unit = {},
+    onCompartirClick: () -> Unit = {},
+    onReportarClick: () -> Unit = {}
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
+
     val purpleBrand = Color(0xFF5E2E8C)
     val lightPurpleBg = Color(0xFFF3EAFB)
 
@@ -41,11 +49,7 @@ fun TarjetaProducto(
                 else Modifier
             ),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isHighlighted) Color.White else Color(
-                0xFFF7F7FA
-            )
-        ),
+        colors = CardDefaults.cardColors(containerColor = if (isHighlighted) Color.White else Color(0xFFF7F7FA)),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isHighlighted) 0.dp else 1.dp)
     ) {
         Row(
@@ -79,7 +83,11 @@ fun TarjetaProducto(
                     color = Color(0xFF1E1E24)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = producto.precio, fontSize = 14.sp, color = Color.Gray)
+                Text(
+                    text = producto.precio,
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
             }
 
             Box {
@@ -93,19 +101,58 @@ fun TarjetaProducto(
 
                 DropdownMenu(
                     expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false }
+                    onDismissRequest = { menuExpanded = false },
+                    offset = DpOffset(x = 0.dp, y = 4.dp),
+                    modifier = Modifier
+                        .background(Color.White)
+                        .clip(RoundedCornerShape(12.dp))
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Favoritos") },
-                        onClick = { menuExpanded = false }
+                        text = { Text("Favoritos", fontSize = 14.sp) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Favorite,
+                                contentDescription = null,
+                                tint = Color.DarkGray,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onFavoritoClick()
+                        }
                     )
+                    HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 0.8.dp)
                     DropdownMenuItem(
-                        text = { Text("Compartir") },
-                        onClick = { menuExpanded = false }
+                        text = { Text("Compartir", fontSize = 14.sp) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = null,
+                                tint = Color.DarkGray,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onCompartirClick()
+                        }
                     )
+                    HorizontalDivider(color = Color(0xFFEEEEEE), thickness = 0.8.dp)
                     DropdownMenuItem(
-                        text = { Text("Reportar") },
-                        onClick = { menuExpanded = false }
+                        text = { Text("Reportar", fontSize = 14.sp) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = Color.DarkGray,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onReportarClick()
+                        }
                     )
                 }
             }
