@@ -41,7 +41,11 @@ fun TarjetaProducto(
                 else Modifier
             ),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = if (isHighlighted) Color.White else Color(0xFFF7F7FA)),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isHighlighted) Color.White else Color(
+                0xFFF7F7FA
+            )
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (isHighlighted) 0.dp else 1.dp)
     ) {
         Row(
@@ -68,14 +72,41 @@ fun TarjetaProducto(
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = producto.nombre, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFF1E1E24))
+                Text(
+                    text = producto.nombre,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color(0xFF1E1E24)
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = producto.precio, fontSize = 14.sp, color = Color.Gray)
             }
 
             Box {
                 IconButton(onClick = { menuExpanded = true }) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Opciones", tint = Color.DarkGray)
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Opciones",
+                        tint = Color.DarkGray
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Favoritos") },
+                        onClick = { menuExpanded = false }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Compartir") },
+                        onClick = { menuExpanded = false }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Reportar") },
+                        onClick = { menuExpanded = false }
+                    )
                 }
             }
         }
