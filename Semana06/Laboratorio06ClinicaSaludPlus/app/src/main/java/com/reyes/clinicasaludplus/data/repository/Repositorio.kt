@@ -26,14 +26,66 @@ object Repositorio {
         Especialidad("esp7", "Oftalmología", "Salud y visión ocular", "oftalmologia", esDestacada = false)
     )
 
-    // Colección de médicos en memoria
     private val medicos = listOf(
-        Medico("m1", "Dra. Ana Torres", "esp3", "CMP: 12345", 4.9, 80.0),
-        Medico("m2", "Dra. Claudia Rojas", "esp3", "CMP: 45123", 4.8, 75.0),
-        Medico("m3", "Dr. Luis Ramírez", "esp3", "CMP: 67189", 4.7, 70.0),
-        Medico("m4", "Dra. Mariana Soto", "esp3", "CMP: 83712", 4.9, 85.0),
-        Medico("m5", "Dr. Carlos Mendoza", "esp1", "CMP: 32154", 4.8, 60.0),
-        Medico("m6", "Dra. Elena Ramos", "esp2", "CMP: 95412", 4.9, 80.0)
+        // Ginecólogos (esp3)
+        Medico(
+            id = "m1",
+            nombre = "Dra. Ana Torres",
+            especialidadId = "esp3",
+            cmp = "Ginecóloga",
+            calificacion = 4.9,
+            precioConsulta = 120.0,
+            fotoRes = com.reyes.clinicasaludplus.R.drawable.doc_ana_torres
+        ),
+        Medico(
+            id = "m2",
+            nombre = "Dra. Claudia Rojas",
+            especialidadId = "esp3",
+            cmp = "Ginecóloga",
+            calificacion = 4.8,
+            precioConsulta = 95.0,
+            fotoRes = com.reyes.clinicasaludplus.R.drawable.doc_claudia_rojas
+        ),
+        Medico(
+            id = "m3",
+            nombre = "Dr. Luis Ramírez",
+            especialidadId = "esp3",
+            cmp = "Ginecólogo",
+            calificacion = 4.7,
+            precioConsulta = 88.0,
+            fotoRes = com.reyes.clinicasaludplus.R.drawable.doc_luis_ramirez
+        ),
+        Medico(
+            id = "m4",
+            nombre = "Dra. Mariana Soto",
+            especialidadId = "esp3",
+            cmp = "Ginecóloga",
+            calificacion = 4.6,
+            precioConsulta = 76.0,
+            fotoRes = com.reyes.clinicasaludplus.R.drawable.doc_mariana_soto
+        ),
+
+        // Medicina General (esp1)
+        Medico(
+            id = "m5",
+            nombre = "Dr. Carlos Mendoza",
+            especialidadId = "esp1",
+            cmp = "Médico General",
+            calificacion = 4.8,
+            precioConsulta = 110.0,
+            fotoRes = com.reyes.clinicasaludplus.R.drawable.doc_carlos_mendoza
+        ),
+
+        // Pediatría (esp2)
+        Medico(
+            id = "m6",
+            nombre = "Dra. Elena Ramos",
+            especialidadId = "esp2",
+            cmp = "Pediatra",
+            calificacion = 4.9,
+            precioConsulta = 130.0,
+            fotoRes = com.reyes.clinicasaludplus.R.drawable.doc_elena_ramos
+        )
     )
 
     // Colección de citas agendadas
@@ -137,4 +189,19 @@ object Repositorio {
     fun estaHorarioOcupado(medicoId: String, fecha: String, hora: String): Boolean {
         return citas.any { it.medicoId == medicoId && it.fecha == fecha && it.hora == hora && it.estado != "Cancelada" }
     }
+
+    // Asocia cada ID de especialidad a su recurso en drawable
+    fun obtenerIconoDrawable(id: String): Int {
+        return when (id) {
+            "esp1" -> com.reyes.clinicasaludplus.R.drawable.ic_esp_general
+            "esp2" -> com.reyes.clinicasaludplus.R.drawable.ic_esp_pediatria
+            "esp3" -> com.reyes.clinicasaludplus.R.drawable.ic_esp_ginecologia
+            "esp4" -> com.reyes.clinicasaludplus.R.drawable.ic_esp_cardiologia
+            "esp5" -> com.reyes.clinicasaludplus.R.drawable.ic_esp_dermatologia
+            "esp6" -> com.reyes.clinicasaludplus.R.drawable.ic_esp_traumatologia
+            "esp7" -> com.reyes.clinicasaludplus.R.drawable.ic_esp_oftalmologia
+            else -> com.reyes.clinicasaludplus.R.drawable.ic_esp_general
+        }
+    }
+
 }

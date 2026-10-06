@@ -31,8 +31,8 @@ fun LoginScreen(
     alIrARegistro: () -> Unit
 ) {
     val context = LocalContext.current
-    var correo by remember { mutableStateOf("juan@correo.com") }
-    var contrasena by remember { mutableStateOf("123456") }
+    var correo by remember { mutableStateOf("") }
+    var contrasena by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier

@@ -1,9 +1,12 @@
 package com.reyes.clinicasaludplus.ui.screens.auth
 
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -15,17 +18,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
-import com.reyes.clinicasaludplus.ui.theme.TextoGris
-import com.reyes.clinicasaludplus.ui.theme.TextoOscuro
+import com.reyes.clinicasaludplus.ui.theme.*
 
 @Composable
 fun RegistroScreen(
@@ -41,85 +48,93 @@ fun RegistroScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Blanco)
+            .statusBarsPadding()
+            .navigationBarsPadding()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+            .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Encabezado
         Text(
             text = "Crear cuenta",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            color = TextoOscuro
+            color = Color(0xFF1E293B)
         )
+        Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "Regístrate para agendar tus citas",
             fontSize = 14.sp,
-            color = TextoGris
+            color = Color(0xFF64748B)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        OutlinedTextField(
-            value = nombre,
+        // Campo 1: Nombre completo
+        CampoRegistroPersonalizado(
+            etiqueta = "Nombre completo",
+            valor = nombre,
             onValueChange = { nombre = it },
-            label = { Text("Nombre completo") },
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            icono = Icons.Default.Person
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = telefono,
+        // Campo 2: Teléfono
+        CampoRegistroPersonalizado(
+            etiqueta = "Teléfono",
+            valor = telefono,
             onValueChange = { telefono = it },
-            label = { Text("Teléfono") },
-            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            icono = Icons.Default.Phone,
+            keyboardType = KeyboardType.Phone
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = correo,
+        // Campo 3: Correo (opcional)
+        CampoRegistroPersonalizado(
+            etiqueta = "Correo (opcional)",
+            valor = correo,
             onValueChange = { correo = it },
-            label = { Text("Correo electrónico") },
-            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            icono = Icons.Default.Email,
+            keyboardType = KeyboardType.Email
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = contrasena,
+        // Campo 4: Contraseña
+        CampoRegistroPersonalizado(
+            etiqueta = "Contraseña",
+            valor = contrasena,
             onValueChange = { contrasena = it },
-            label = { Text("Contraseña") },
-            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            icono = Icons.Default.Lock,
+            esPassword = true,
+            keyboardType = KeyboardType.Password
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
+        // Botón Registrarme
         BotonPrimario(
-            texto = "Registrarse",
+            texto = "Registrarme",
             onClick = {
-                if (nombre.isBlank() || telefono.isBlank() || correo.isBlank() || contrasena.isBlank()) {
-                    Toast.makeText(context, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
+                if (nombre.isBlank() || telefono.isBlank() || contrasena.isBlank()) {
+                    Toast.makeText(context, "Por favor completa los campos requeridos", Toast.LENGTH_SHORT).show()
                 } else {
-                    val exito = Repositorio.registrarUsuario(nombre, telefono, correo, contrasena)
+                    val exito = Repositorio.registrarUsuario(
+                        nombre = nombre,
+                        telefono = telefono,
+                        correo = if (correo.isBlank()) "$telefono@saludplus.com" else correo,
+                        contrasena = contrasena
+                    )
                     if (exito) {
                         Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
                         alRegistrarExitoso()
                     } else {
-                        Toast.makeText(context, "El correo ya está registrado", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "El usuario ya está registrado", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -127,12 +142,110 @@ fun RegistroScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = alIrALogin) {
+        // Términos y condiciones
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "¿Ya tienes cuenta? Iniciar sesión",
-                color = AzulPrimario,
-                fontWeight = FontWeight.SemiBold
+                text = "Al registrarte aceptas nuestros",
+                fontSize = 12.sp,
+                color = Color(0xFF64748B)
             )
+            Text(
+                text = "Términos y Condiciones",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = AzulPrimario
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Iniciar sesión
+        TextButton(onClick = alIrALogin) {
+            Row {
+                Text(
+                    text = "¿Ya tienes cuenta? ",
+                    fontSize = 13.sp,
+                    color = Color(0xFF64748B)
+                )
+                Text(
+                    text = "Iniciar sesión",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AzulPrimario
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CampoRegistroPersonalizado(
+    etiqueta: String,
+    valor: String,
+    onValueChange: (String) -> Unit,
+    icono: ImageVector,
+    esPassword: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Cuadro independiente del icono con sombra suave
+        Surface(
+            modifier = Modifier.size(52.dp),
+            shape = RoundedCornerShape(12.dp),
+            color = Blanco,
+            shadowElevation = 2.dp,
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9))
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icono,
+                    contentDescription = etiqueta,
+                    tint = AzulPrimario,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        // Caja de entrada con etiqueta superior integrada
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(52.dp)
+                .background(Blanco, RoundedCornerShape(12.dp))
+                .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Text(
+                    text = etiqueta,
+                    fontSize = 11.sp,
+                    color = Color(0xFF94A3B8),
+                    lineHeight = 12.sp
+                )
+                BasicTextField(
+                    value = valor,
+                    onValueChange = onValueChange,
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        color = Color(0xFF1E293B),
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp
+                    ),
+                    visualTransformation = if (esPassword) PasswordVisualTransformation() else VisualTransformation.None,
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    cursorBrush = SolidColor(AzulPrimario),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
