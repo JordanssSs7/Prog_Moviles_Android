@@ -116,7 +116,7 @@ fun MisCitasScreen(
     DialogoConfirmacion(
         mostrar = mostrarDialogo,
         titulo = "¿Cancelar cita médica?",
-        mensaje = "¿Estás seguro de que deseas cancelar esta cita? El horario volverá a quedar disponible.",
+        mensaje = "¿Estás seguro de quedeseas cancelar esta cita? El horario volverá a quedar disponible.",
         onConfirmar = {
             citaACancelar?.let {
                 Repositorio.cancelarCita(it.id)

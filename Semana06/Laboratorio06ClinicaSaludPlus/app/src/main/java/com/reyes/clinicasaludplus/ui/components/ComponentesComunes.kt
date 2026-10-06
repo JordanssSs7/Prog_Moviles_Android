@@ -66,37 +66,37 @@ fun BarraSuperiorConVolver(
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
     )
+}
 
-    @Composable
-    fun DialogoConfirmacion(
-        mostrar: Boolean,
-        titulo: String,
-        mensaje: String,
-        onConfirmar: () -> Unit,
-        onDescartar: () -> Unit
-    ) {
-        if (mostrar) {
-            AlertDialog(
-                onDismissRequest = onDescartar,
-                title = {
-                    Text(text = titulo, fontWeight = FontWeight.Bold, color = TextoOscuro)
-                },
-                text = {
-                    Text(text = mensaje, color = TextoGris)
-                },
-                confirmButton = {
-                    TextButton(onClick = onConfirmar) {
-                        Text(text = "Confirmar", color = RojoAlerta, fontWeight = FontWeight.Bold)
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = onDescartar) {
-                        Text(text = "Cancelar", color = TextoGris)
-                    }
-                },
-                containerColor = Blanco,
-                shape = RoundedCornerShape(14.dp)
-            )
-        }
+@Composable
+fun DialogoConfirmacion(
+    mostrar: Boolean,
+    titulo: String,
+    mensaje: String,
+    onConfirmar: () -> Unit,
+    onDescartar: () -> Unit
+) {
+    if (mostrar) {
+        AlertDialog(
+            onDismissRequest = onDescartar,
+            title = {
+                Text(text = titulo, fontWeight = FontWeight.Bold, color = TextoOscuro)
+            },
+            text = {
+                Text(text = mensaje, color = TextoGris)
+            },
+            confirmButton = {
+                TextButton(onClick = onConfirmar) {
+                    Text(text = "Confirmar", color = RojoAlerta, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDescartar) {
+                    Text(text = "Cancelar", color = TextoGris)
+                }
+            },
+            containerColor = Blanco,
+            shape = RoundedCornerShape(14.dp)
+        )
     }
 }
