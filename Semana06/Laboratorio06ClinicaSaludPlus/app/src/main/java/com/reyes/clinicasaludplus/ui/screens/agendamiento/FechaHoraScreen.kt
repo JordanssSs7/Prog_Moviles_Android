@@ -25,6 +25,8 @@ import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BarraSuperiorConVolver
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
 import com.reyes.clinicasaludplus.ui.theme.*
+import com.reyes.clinicasaludplus.util.FechaUtils
+import java.time.LocalDate
 
 @Composable
 fun FechaHoraScreen(
@@ -34,23 +36,15 @@ fun FechaHoraScreen(
 ) {
     val medico = remember(medicoId) { Repositorio.obtenerMedico(medicoId) }
 
-    // Días fijos para la Fase 1
-    val dias = listOf(
-        Pair("Lun", "15"),
-        Pair("Mar", "16"),
-        Pair("Mié", "17"),
-        Pair("Jue", "18"),
-        Pair("Vie", "19")
-    )
-    var diaSeleccionado by remember { mutableStateOf("16") }
+    // Estados dinámicos de semana y fecha
+    var semanaOffset by remember { mutableStateOf(0L) }
+    val diasHabiles = remember(semanaOffset) { FechaUtils.obtenerDiasHabiles(semanaOffset) }
+    var fechaSeleccionada by remember(semanaOffset) { mutableStateOf(diasHabiles.first().fecha) }
     var horaSeleccionada by remember { mutableStateOf<String?>(null) }
 
-    // Fecha armada para el repositorio en Fase 1
-    val fechaCompleta = "2026-09-$diaSeleccionado"
-
-    // Recalcular horarios reactivamente
-    val horariosDisponibles = remember(medicoId, fechaCompleta) {
-        Repositorio.horariosDisponibles(medicoId, fechaCompleta)
+    // Recálculo automático de horarios disponibles en memoria
+    val horariosDisponibles = remember(medicoId, fechaSeleccionada) {
+        Repositorio.horariosDisponibles(medicoId, fechaSeleccionada.toString())
     }
 
     Scaffold(
@@ -72,7 +66,7 @@ fun FechaHoraScreen(
                         habilitado = horaSeleccionada != null,
                         onClick = {
                             horaSeleccionada?.let { hora ->
-                                alContinuar(fechaCompleta, hora)
+                                alContinuar(fechaSeleccionada.toString(), hora)
                             }
                         }
                     )
@@ -87,7 +81,7 @@ fun FechaHoraScreen(
                 .background(FondoGris)
                 .padding(16.dp)
         ) {
-            // Tarjeta superior resumen del médico
+            // Médico seleccionado
             medico?.let {
                 Row(
                     modifier = Modifier
@@ -113,51 +107,82 @@ fun FechaHoraScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-            // Selector de mes y flechas (Fase 1 visual)
+            // Selector dinámico de mes con flechas
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { /* Fase 2 */ }) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Mes anterior", tint = TextoGris)
+                IconButton(
+                    onClick = {
+                        if (semanaOffset > 0) {
+                            semanaOffset--
+                            horaSeleccionada = null
+                        }
+                    },
+                    enabled = semanaOffset > 0
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Semana anterior",
+                        tint = if (semanaOffset > 0) TextoOscuro else TextoGris.copy(alpha = 0.4f)
+                    )
                 }
-                Text("Setiembre 2026", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TextoOscuro)
-                IconButton(onClick = { /* Fase 2 */ }) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Mes siguiente", tint = TextoGris)
+
+                Text(
+                    text = FechaUtils.obtenerEncabezadoMes(fechaSeleccionada),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = TextoOscuro
+                )
+
+                IconButton(
+                    onClick = {
+                        semanaOffset++
+                        horaSeleccionada = null
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "Semana siguiente",
+                        tint = TextoOscuro
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Fila de días
+            // Fila de días hábiles dinámicos
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                dias.forEach { (nombreDia, numDia) ->
-                    val esSeleccionado = diaSeleccionado == numDia
+                diasHabiles.forEach { dia ->
+                    val esSeleccionado = dia.fecha == fechaSeleccionada
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = 4.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(if (esSeleccionado) AzulPrimario else Blanco)
                             .clickable {
-                                diaSeleccionado = numDia
-                                horaSeleccionada = null // Reiniciar hora al cambiar día
+                                fechaSeleccionada = dia.fecha
+                                horaSeleccionada = null // Reinicia hora seleccionada
                             }
-                            .padding(vertical = 12.dp, horizontal = 14.dp)
+                            .padding(vertical = 12.dp)
                     ) {
                         Text(
-                            text = nombreDia,
+                            text = dia.nombreDia,
                             fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
                             color = if (esSeleccionado) Blanco else TextoGris
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = numDia,
+                            text = dia.numeroDia,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (esSeleccionado) Blanco else TextoOscuro
@@ -170,34 +195,45 @@ fun FechaHoraScreen(
             Text("Horarios disponibles", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TextoOscuro)
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Cuadrícula de horarios (LazyVerticalGrid)
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(horariosDisponibles) { hora ->
-                    val estaSeleccionada = horaSeleccionada == hora
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(if (estaSeleccionada) AzulPrimario else Blanco)
-                            .border(
-                                width = 1.dp,
-                                color = if (estaSeleccionada) AzulPrimario else BordeGris,
-                                shape = RoundedCornerShape(10.dp)
+            // Grilla de horarios con LazyVerticalGrid
+            if (horariosDisponibles.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No hay turnos disponibles para esta fecha.", color = TextoGris, fontSize = 14.sp)
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(horariosDisponibles) { hora ->
+                        val estaSeleccionada = horaSeleccionada == hora
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(if (estaSeleccionada) AzulPrimario else Blanco)
+                                .border(
+                                    width = 1.dp,
+                                    color = if (estaSeleccionada) AzulPrimario else BordeGris,
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                                .clickable { horaSeleccionada = hora }
+                                .padding(vertical = 12.dp)
+                        ) {
+                            Text(
+                                text = hora,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = if (estaSeleccionada) Blanco else TextoOscuro
                             )
-                            .clickable { horaSeleccionada = hora }
-                            .padding(vertical = 12.dp)
-                    ) {
-                        Text(
-                            text = hora,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = if (estaSeleccionada) Blanco else TextoOscuro
-                        )
+                        }
                     }
                 }
             }
