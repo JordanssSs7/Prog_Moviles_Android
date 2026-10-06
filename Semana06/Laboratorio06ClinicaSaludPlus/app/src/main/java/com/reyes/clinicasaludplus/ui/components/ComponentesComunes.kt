@@ -13,6 +13,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
 import com.reyes.clinicasaludplus.ui.theme.Blanco
+import com.reyes.clinicasaludplus.ui.theme.RojoAlerta
+import com.reyes.clinicasaludplus.ui.theme.TextoGris
 import com.reyes.clinicasaludplus.ui.theme.TextoOscuro
 
 @Composable
@@ -64,4 +66,37 @@ fun BarraSuperiorConVolver(
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
     )
+
+    @Composable
+    fun DialogoConfirmacion(
+        mostrar: Boolean,
+        titulo: String,
+        mensaje: String,
+        onConfirmar: () -> Unit,
+        onDescartar: () -> Unit
+    ) {
+        if (mostrar) {
+            AlertDialog(
+                onDismissRequest = onDescartar,
+                title = {
+                    Text(text = titulo, fontWeight = FontWeight.Bold, color = TextoOscuro)
+                },
+                text = {
+                    Text(text = mensaje, color = TextoGris)
+                },
+                confirmButton = {
+                    TextButton(onClick = onConfirmar) {
+                        Text(text = "Confirmar", color = RojoAlerta, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = onDescartar) {
+                        Text(text = "Cancelar", color = TextoGris)
+                    }
+                },
+                containerColor = Blanco,
+                shape = RoundedCornerShape(14.dp)
+            )
+        }
+    }
 }

@@ -22,6 +22,7 @@ import com.reyes.clinicasaludplus.data.model.Cita
 import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BarraSuperiorConVolver
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
+import com.reyes.clinicasaludplus.ui.components.DialogoConfirmacion
 import com.reyes.clinicasaludplus.ui.theme.*
 
 @Composable
@@ -30,6 +31,8 @@ fun MisCitasScreen(
     alVolver: () -> Unit
 ) {
     var citas by remember { mutableStateOf(Repositorio.citasDelUsuario()) }
+    var citaACancelar by remember { mutableStateOf<Cita?>(null) }
+    var mostrarDialogo by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -99,8 +102,8 @@ fun MisCitasScreen(
                         TarjetaItemCita(
                             cita = cita,
                             alCancelar = {
-                                Repositorio.cancelarCita(cita.id)
-                                citas = Repositorio.citasDelUsuario()
+                                citaACancelar = cita
+                                mostrarDialogo = true
                             }
                         )
                     }
@@ -108,6 +111,25 @@ fun MisCitasScreen(
             }
         }
     }
+
+    // Diálogo de confirmación antes de borrar la cita
+    DialogoConfirmacion(
+        mostrar = mostrarDialogo,
+        titulo = "¿Cancelar cita médica?",
+        mensaje = "¿Estás seguro de que deseas cancelar esta cita? El horario volverá a quedar disponible.",
+        onConfirmar = {
+            citaACancelar?.let {
+                Repositorio.cancelarCita(it.id)
+                citas = Repositorio.citasDelUsuario()
+            }
+            mostrarDialogo = false
+            citaACancelar = null
+        },
+        onDescartar = {
+            mostrarDialogo = false
+            citaACancelar = null
+        }
+    )
 }
 
 @Composable
