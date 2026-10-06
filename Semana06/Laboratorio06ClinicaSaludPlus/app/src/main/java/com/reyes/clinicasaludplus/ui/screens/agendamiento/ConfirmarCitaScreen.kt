@@ -22,6 +22,8 @@ import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BarraSuperiorConVolver
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
 import com.reyes.clinicasaludplus.ui.theme.*
+import com.reyes.clinicasaludplus.util.FechaUtils
+import java.time.LocalDate
 
 @Composable
 fun ConfirmarCitaScreen(
@@ -35,6 +37,16 @@ fun ConfirmarCitaScreen(
     val medico = remember(medicoId) { Repositorio.obtenerMedico(medicoId) }
     val especialidad = remember(medico) {
         medico?.let { Repositorio.obtenerEspecialidad(it.especialidadId) }
+    }
+
+    // Parte 4: Convierte la fecha ISO (ej. 2026-09-16) a texto en español ("Martes 16 de setiembre 2026")
+    val fechaLegible = remember(fecha) {
+        try {
+            val fechaParsed = LocalDate.parse(fecha)
+            FechaUtils.formatearFechaCompleta(fechaParsed)
+        } catch (e: Exception) {
+            fecha
+        }
     }
 
     Scaffold(
@@ -112,14 +124,14 @@ fun ConfirmarCitaScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Detalles de la reserva
+            // Detalles de la reserva con fecha formateada en español
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
                 colors = CardDefaults.cardColors(containerColor = Blanco)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    ItemDetalleCita(icono = Icons.Default.CalendarToday, titulo = "Fecha", detalle = fecha)
+                    ItemDetalleCita(icono = Icons.Default.CalendarToday, titulo = "Fecha", detalle = fechaLegible)
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = BordeGris)
                     ItemDetalleCita(icono = Icons.Default.Schedule, titulo = "Hora", detalle = "$hora hrs")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = BordeGris)
