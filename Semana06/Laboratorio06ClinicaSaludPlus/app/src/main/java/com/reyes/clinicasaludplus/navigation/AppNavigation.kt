@@ -10,6 +10,9 @@ import com.reyes.clinicasaludplus.ui.screens.auth.SplashScreen
 import com.reyes.clinicasaludplus.ui.screens.home.HomeScreen
 import com.reyes.clinicasaludplus.ui.screens.agendamiento.MedicosScreen
 import com.reyes.clinicasaludplus.ui.screens.agendamiento.EspecialidadesScreen
+import com.reyes.clinicasaludplus.ui.screens.agendamiento.FechaHoraScreen
+import com.reyes.clinicasaludplus.ui.screens.agendamiento.CitaExitosaScreen
+import com.reyes.clinicasaludplus.ui.screens.agendamiento.ConfirmarCitaScreen
 
 @Composable
 fun AppNavigation() {
@@ -75,6 +78,50 @@ fun AppNavigation() {
                     navController.navigate(Rutas.FechaHora.crearRuta(medId))
                 },
                 alVolver = { navController.popBackStack() }
+            )
+        }
+
+        composable(route = Rutas.FechaHora.ruta) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getString("medicoId") ?: ""
+            FechaHoraScreen(
+                medicoId = medicoId,
+                alContinuar = { fecha, hora ->
+                    navController.navigate(Rutas.ConfirmarCita.crearRuta(medicoId, fecha, hora))
+                },
+                alVolver = { navController.popBackStack() }
+            )
+        }
+
+        composable(route = Rutas.ConfirmarCita.ruta) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getString("medicoId") ?: ""
+            val fecha = backStackEntry.arguments?.getString("fecha") ?: ""
+            val hora = backStackEntry.arguments?.getString("hora") ?: ""
+
+            ConfirmarCitaScreen(
+                medicoId = medicoId,
+                fecha = fecha,
+                hora = hora,
+                alConfirmarExitoso = {
+                    navController.navigate(Rutas.CitaExitosa.ruta) {
+                        popUpTo(Rutas.Home.ruta) { inclusive = false }
+                    }
+                },
+                alVolver = { navController.popBackStack() }
+            )
+        }
+
+        composable(Rutas.CitaExitosa.ruta) {
+            CitaExitosaScreen(
+                alIrAInicio = {
+                    navController.navigate(Rutas.Home.ruta) {
+                        popUpTo(Rutas.Home.ruta) { inclusive = true }
+                    }
+                },
+                alIrAMisCitas = {
+                    navController.navigate(Rutas.MisCitas.ruta) {
+                        popUpTo(Rutas.Home.ruta) { inclusive = false }
+                    }
+                }
             )
         }
 
