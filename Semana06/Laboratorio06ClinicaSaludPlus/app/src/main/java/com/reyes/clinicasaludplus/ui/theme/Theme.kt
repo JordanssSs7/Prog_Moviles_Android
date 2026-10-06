@@ -22,7 +22,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun SaludPlusCitasTheme(content: @Composable () -> Unit) {
+fun ClinicaSaludPlusTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = LightColorScheme,
         typography = MaterialTheme.typography,
