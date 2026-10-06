@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.reyes.clinicasaludplus.ui.screens.auth.LoginScreen
 import com.reyes.clinicasaludplus.ui.screens.auth.RegistroScreen
 import com.reyes.clinicasaludplus.ui.screens.auth.SplashScreen
+import com.reyes.clinicasaludplus.ui.screens.home.HomeScreen
 
 @Composable
 fun AppNavigation() {
@@ -45,6 +46,13 @@ fun AppNavigation() {
             )
         }
 
-        // En el siguiente bloque añadiremos el flujo de Home, Agendamiento y Perfil
+        composable(Rutas.Home.ruta) {
+            HomeScreen(
+                alIrAAgendar = { navController.navigate(Rutas.Especialidades.ruta) },
+                alIrAMisCitas = { navController.navigate(Rutas.MisCitas.ruta) },
+                alIrAPerfil = { navController.navigate(Rutas.Perfil.ruta) }
+            )
+        }
+
     }
 }
