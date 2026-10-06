@@ -1,4 +1,4 @@
-package com.clinicasaludplus.data.model
+package com.reyes.clinicasaludplus.data.model
 
 data class Cita(
     val id: String,
