@@ -133,4 +133,8 @@ object Repositorio {
     fun cancelarCita(citaId: String): Boolean {
         return citas.removeIf { it.id == citaId }
     }
+
+    fun estaHorarioOcupado(medicoId: String, fecha: String, hora: String): Boolean {
+        return citas.any { it.medicoId == medicoId && it.fecha == fecha && it.hora == hora && it.estado != "Cancelada" }
+    }
 }
