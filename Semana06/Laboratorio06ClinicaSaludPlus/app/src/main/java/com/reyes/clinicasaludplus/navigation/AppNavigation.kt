@@ -13,6 +13,8 @@ import com.reyes.clinicasaludplus.ui.screens.agendamiento.EspecialidadesScreen
 import com.reyes.clinicasaludplus.ui.screens.agendamiento.FechaHoraScreen
 import com.reyes.clinicasaludplus.ui.screens.agendamiento.CitaExitosaScreen
 import com.reyes.clinicasaludplus.ui.screens.agendamiento.ConfirmarCitaScreen
+import com.reyes.clinicasaludplus.ui.screens.perfil.PerfilScreen
+import com.reyes.clinicasaludplus.ui.screens.citas.MisCitasScreen
 
 @Composable
 fun AppNavigation() {
@@ -122,6 +124,24 @@ fun AppNavigation() {
                         popUpTo(Rutas.Home.ruta) { inclusive = false }
                     }
                 }
+            )
+        }
+
+        composable(Rutas.MisCitas.ruta) {
+            MisCitasScreen(
+                alIrAAgendar = { navController.navigate(Rutas.Especialidades.ruta) },
+                alVolver = { navController.popBackStack() }
+            )
+        }
+
+        composable(Rutas.Perfil.ruta) {
+            PerfilScreen(
+                alCerrarSesion = {
+                    navController.navigate(Rutas.Splash.ruta) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                alVolver = { navController.popBackStack() }
             )
         }
 
