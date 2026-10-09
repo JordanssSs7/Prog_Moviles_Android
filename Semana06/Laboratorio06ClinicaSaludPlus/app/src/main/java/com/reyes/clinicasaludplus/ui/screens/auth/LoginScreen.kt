@@ -1,5 +1,6 @@
 package com.reyes.clinicasaludplus.ui.screens.auth
 
+import com.reyes.clinicasaludplus.ui.theme.Tam
 import android.widget.Toast
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
@@ -38,7 +39,8 @@ import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
 import com.reyes.clinicasaludplus.ui.components.CampoFormulario
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.components.DialogoExito
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.ui.theme.Blanco
 import com.reyes.clinicasaludplus.ui.theme.TextoGris
 import com.reyes.clinicasaludplus.ui.theme.TextoOscuro
@@ -56,6 +58,7 @@ fun LoginScreen(
     var contrasena by rememberSaveable { mutableStateOf("") }
     var intentoEnviar by rememberSaveable { mutableStateOf(false) }
     var errorCredenciales by rememberSaveable { mutableStateOf(false) }
+    var mostrarExito by rememberSaveable { mutableStateOf(false) }
 
     val identificadorLimpio = identificador.trim()
     val errorIdentificador = when {
@@ -98,14 +101,14 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
             Text(
                 text = "Iniciar sesión",
-                fontSize = 24.sp,
+                fontSize = Tam.Titulo,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B)
+                color = Color(0xFF2F4A33)
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "Ingresa para ver y agendar tus citas",
-                fontSize = 14.sp,
+                fontSize = Tam.Pequeno,
                 color = TextoGris
             )
 
@@ -149,8 +152,7 @@ fun LoginScreen(
                     if (errorIdentificador != null || contrasena.isEmpty()) {
                         Toast.makeText(context, "Completa los campos correctamente", Toast.LENGTH_SHORT).show()
                     } else if (Repositorio.iniciarSesion(identificador, contrasena)) {
-                        Toast.makeText(context, "Sesión iniciada con éxito", Toast.LENGTH_SHORT).show()
-                        alIniciarSesionExitoso()
+                        mostrarExito = true
                     } else {
                         errorCredenciales = true
                     }
@@ -162,11 +164,23 @@ fun LoginScreen(
             TextButton(onClick = alIrARegistro) {
                 Text(
                     text = "¿No tienes cuenta? Regístrate aquí",
-                    color = AzulPrimario,
+                    color = VerdePrimario,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 13.sp
+                    fontSize = Tam.Pequeno
                 )
             }
         }
     }
+
+    val primerNombre = Repositorio.usuarioActual?.nombreCompleto?.trim()?.split(" ")?.firstOrNull().orEmpty()
+    DialogoExito(
+        mostrar = mostrarExito,
+        titulo = "Inicio de sesión exitoso",
+        mensaje = if (primerNombre.isNotEmpty()) "¡Hola, $primerNombre! Ya puedes agendar tus citas." else "Ya puedes agendar tus citas.",
+        textoBoton = "Continuar",
+        onCerrar = {
+            mostrarExito = false
+            alIniciarSesionExitoso()
+        }
+    )
 }

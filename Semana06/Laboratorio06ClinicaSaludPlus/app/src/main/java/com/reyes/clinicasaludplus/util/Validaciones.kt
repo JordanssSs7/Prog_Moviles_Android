@@ -1,5 +1,12 @@
 package com.reyes.clinicasaludplus.util
 
+enum class NivelContrasena(val etiqueta: String, val segmentos: Int) {
+    NINGUNO("", 0),
+    DEBIL("Débil", 1),
+    MEDIA("Media", 2),
+    FUERTE("Fuerte", 3)
+}
+
 /** Reglas de validación de formularios. Cada función devuelve el mensaje de error o null si es válido. */
 object Validaciones {
 
@@ -8,7 +15,7 @@ object Validaciones {
     private val regexEspacios = Regex("""\s+""")
 
     const val LARGO_TELEFONO = 9
-    const val MIN_CONTRASENA = 6
+    const val MIN_CONTRASENA = 8
     const val MAX_CONTRASENA = 30
     const val MAX_NOMBRE = 50
 
@@ -54,6 +61,24 @@ object Validaciones {
         contrasena.length < MIN_CONTRASENA -> "Mínimo $MIN_CONTRASENA caracteres"
         contrasena.length > MAX_CONTRASENA -> "Máximo $MAX_CONTRASENA caracteres"
         else -> null
+    }
+
+    /** Fortaleza de la contraseña: mide largo y variedad (minúsculas, mayúsculas, números y símbolos). */
+    fun nivelContrasena(contrasena: String): NivelContrasena {
+        if (contrasena.isEmpty()) return NivelContrasena.NINGUNO
+        if (contrasena.length < MIN_CONTRASENA) return NivelContrasena.DEBIL
+        val puntos = listOf(
+            contrasena.any { it.isLowerCase() },
+            contrasena.any { it.isUpperCase() },
+            contrasena.any { it.isDigit() },
+            contrasena.any { !it.isLetterOrDigit() },
+            contrasena.length >= 12
+        ).count { it }
+        return when {
+            puntos <= 2 -> NivelContrasena.DEBIL
+            puntos == 3 -> NivelContrasena.MEDIA
+            else -> NivelContrasena.FUERTE
+        }
     }
 
     fun telefonoValido(t: String) = errorTelefono(t) == null

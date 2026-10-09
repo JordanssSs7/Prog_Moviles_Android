@@ -12,9 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
-    primary = AzulPrimario,
-    secondary = AzulSecundario,
-    background = FondoGris,
+    primary = VerdePrimario,
+    secondary = VerdeSecundario,
+    background = Crema,
     surface = Blanco,
     onPrimary = Blanco,
     onBackground = TextoOscuro,
@@ -25,7 +25,7 @@ private val LightColorScheme = lightColorScheme(
 fun ClinicaSaludPlusTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = LightColorScheme,
-        typography = MaterialTheme.typography,
+        typography = Typography,
         content = content
     )
 }

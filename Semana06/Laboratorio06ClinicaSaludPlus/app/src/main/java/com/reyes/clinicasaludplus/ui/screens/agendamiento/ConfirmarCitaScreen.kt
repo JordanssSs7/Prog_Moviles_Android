@@ -1,5 +1,6 @@
 package com.reyes.clinicasaludplus.ui.screens.agendamiento
 
+import com.reyes.clinicasaludplus.ui.theme.Tam
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
@@ -48,7 +49,7 @@ import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BarraSuperiorConVolver
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
 import com.reyes.clinicasaludplus.ui.components.FotoMedico
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.ui.theme.Blanco
 import com.reyes.clinicasaludplus.ui.theme.BordeSuave
 import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
@@ -70,6 +71,7 @@ fun ConfirmarCitaScreen(
 ) {
     val context = LocalContext.current
     val medico = remember(medicoId) { Repositorio.obtenerMedico(medicoId) }
+    val sede = remember(medico) { medico?.let { Repositorio.obtenerSede(it.sedeId) } }
     val especialidad = remember(medico) {
         medico?.let { Repositorio.obtenerEspecialidad(it.especialidadId) }
     }
@@ -84,11 +86,11 @@ fun ConfirmarCitaScreen(
         FechaUtils.parsearFecha(fecha)?.let { FechaUtils.formatearFechaCompleta(it) } ?: fecha
     }
 
-    // Rango de la consulta (30 min): ej. 09:30 a 10:00
+    // Rango de la consulta: ej. 09:00 a 10:00
     val rangoHorario = remember(hora) {
         try {
             val inicio = LocalTime.parse(hora)
-            "$hora a ${inicio.plusMinutes(30)}"
+            "$hora a ${inicio.plusMinutes(Repositorio.DURACION_CONSULTA_MIN)}"
         } catch (e: Exception) {
             "$hora hrs"
         }
@@ -129,19 +131,24 @@ fun ConfirmarCitaScreen(
                             Text(
                                 text = medico.nombre,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 22.sp,
+                                fontSize = Tam.Barra,
                                 color = NavyTitulo
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = medico.profesion,
-                                fontSize = 18.sp,
+                                fontSize = Tam.Subtitulo,
                                 color = SlateTexto
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "CMP: ${medico.cmp}",
-                                fontSize = 18.sp,
+                                text = "Código: ${medico.codigo}",
+                                fontSize = Tam.Subtitulo,
+                                color = SlateTexto
+                            )
+                            Text(
+                                text = "Tel: ${medico.telefono}",
+                                fontSize = Tam.Subtitulo,
                                 color = SlateTexto
                             )
                         }
@@ -161,7 +168,7 @@ fun ConfirmarCitaScreen(
                     Text(
                         text = errorCita,
                         color = RojoAlerta,
-                        fontSize = 14.sp,
+                        fontSize = Tam.Pequeno,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(14.dp)
                     )
@@ -176,7 +183,11 @@ fun ConfirmarCitaScreen(
             HorizontalDivider(color = BordeSuave)
             FilaDetalleCitaFiel(Icons.Default.LocationOn, "Tipo de atención", "Consulta presencial")
             HorizontalDivider(color = BordeSuave)
-            FilaDetalleCitaFiel(Icons.Default.Place, "Dirección", "Av. Los Olivos 123\nLima")
+            FilaDetalleCitaFiel(
+                Icons.Default.Place,
+                "Sede ${sede?.nombre.orEmpty()}",
+                sede?.direccion ?: "Dirección no disponible"
+            )
 
             Spacer(modifier = Modifier.height(18.dp))
 
@@ -186,20 +197,20 @@ fun ConfirmarCitaScreen(
                     withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = NavyTitulo)) { append("Motivo de consulta ") }
                     withStyle(SpanStyle(color = SlateTexto)) { append("(opcional)") }
                 },
-                fontSize = 17.sp
+                fontSize = Tam.Cuerpo
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = motivoConsulta,
                 onValueChange = { if (it.length <= MAX_MOTIVO) motivoConsulta = it },
-                placeholder = { Text("Consulta de rutina", color = SlateTexto, fontSize = 17.sp) },
+                placeholder = { Text("Consulta de rutina", color = SlateTexto, fontSize = Tam.Cuerpo) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 17.sp, color = Color(0xFF111827)),
+                textStyle = androidx.compose.ui.text.TextStyle(fontSize = Tam.Cuerpo, color = Color(0xFF2F4A33)),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = Blanco,
                     unfocusedContainerColor = Blanco,
-                    focusedBorderColor = AzulPrimario,
+                    focusedBorderColor = VerdePrimario,
                     unfocusedBorderColor = BordeSuave
                 ),
                 minLines = 3,
@@ -252,13 +263,13 @@ fun FilaDetalleCitaFiel(
         Surface(
             modifier = Modifier.size(56.dp),
             shape = RoundedCornerShape(16.dp),
-            color = Color(0xFFEAF2FF)
+            color = Color(0xFFE6E2D6)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = icono,
                     contentDescription = null,
-                    tint = AzulPrimario,
+                    tint = VerdePrimario,
                     modifier = Modifier.size(28.dp)
                 )
             }
@@ -269,13 +280,13 @@ fun FilaDetalleCitaFiel(
         Column {
             Text(
                 text = titulo,
-                fontSize = 16.sp,
+                fontSize = Tam.Cuerpo,
                 color = SlateTexto
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = detalle,
-                fontSize = 18.sp,
+                fontSize = Tam.Subtitulo,
                 fontWeight = FontWeight.Medium,
                 color = NavyTitulo,
                 lineHeight = 24.sp

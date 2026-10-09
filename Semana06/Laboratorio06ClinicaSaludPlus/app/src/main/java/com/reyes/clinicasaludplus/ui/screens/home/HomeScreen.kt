@@ -1,47 +1,33 @@
 package com.reyes.clinicasaludplus.ui.screens.home
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Event
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.NotificationsNone
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,55 +41,72 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.reyes.clinicasaludplus.data.model.Especialidad
+import com.reyes.clinicasaludplus.data.model.Cita
+import com.reyes.clinicasaludplus.data.model.Medico
 import com.reyes.clinicasaludplus.data.repository.Repositorio
+import com.reyes.clinicasaludplus.ui.components.BotonPrimario
+import com.reyes.clinicasaludplus.ui.components.DestinoMenu
 import com.reyes.clinicasaludplus.ui.components.DialogoInformativo
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.components.FotoMedico
+import com.reyes.clinicasaludplus.ui.components.PantallaConMenu
 import com.reyes.clinicasaludplus.ui.theme.Blanco
 import com.reyes.clinicasaludplus.ui.theme.BordeSuave
 import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
 import com.reyes.clinicasaludplus.ui.theme.SlateTexto
+import com.reyes.clinicasaludplus.ui.theme.SuperficieSuave
+import com.reyes.clinicasaludplus.ui.theme.Tam
+import com.reyes.clinicasaludplus.ui.theme.VerdeClaro
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.util.FechaUtils
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
-private val ColorInactivoNav = Color(0xFF6B7A99)
+private val consejos = listOf(
+    "Bebe al menos 8 vasos de agua al día para mantenerte hidratado.",
+    "Dormir de 7 a 8 horas mejora tu defensa contra las enfermedades.",
+    "Caminar 30 minutos al día cuida tu corazón y mejora tu ánimo.",
+    "Lávate las manos con frecuencia: es la forma más simple de prevenir contagios.",
+    "Incluye frutas y verduras en cada comida para fortalecer tu cuerpo.",
+    "Un chequeo médico a tiempo puede evitar problemas mayores. ¡No lo postergues!",
+    "Haz pausas activas si trabajas sentado: estira cuello, espalda y piernas."
+)
 
 @Composable
 fun HomeScreen(
-    alIrAAgendar: () -> Unit,
-    alIrAMisCitas: () -> Unit,
-    alIrAPerfil: () -> Unit
+    alIrAPerfil: () -> Unit,
+    alIrAMedico: (String) -> Unit,
+    alNavegar: (DestinoMenu) -> Unit,
+    alCerrarSesion: () -> Unit
 ) {
     val usuario = Repositorio.usuarioActual
-    val destacadas = remember { Repositorio.especialidadesDestacadas() }
-    var menuAbierto by remember { mutableStateOf(false) }
+    val proxima = proximaCita()
+    val mejoresDoctores = remember { Repositorio.buscarMedicos().take(5) }
     var mostrarNotificaciones by rememberSaveable { mutableStateOf(false) }
     var mostrarResultados by rememberSaveable { mutableStateOf(false) }
 
     val primerNombre = usuario?.nombreCompleto?.trim()?.split(" ")?.firstOrNull().orEmpty()
+    val hoy = LocalDate.now()
 
-    Scaffold(
-        containerColor = Blanco,
-        bottomBar = {
-            Column {
-                HorizontalDivider(color = BordeSuave)
-                NavigationBar(
-                    containerColor = Blanco,
-                    tonalElevation = 0.dp
-                ) {
-                    ItemBarraInferior("Inicio", Icons.Default.Home, Icons.Default.Home, seleccionado = true) { }
-                    ItemBarraInferior("Citas", Icons.Outlined.CalendarMonth, Icons.Default.CalendarMonth, false, alIrAMisCitas)
-                    ItemBarraInferior("Resultados", Icons.Outlined.Description, Icons.Default.Description, false) {
-                        mostrarResultados = true
-                    }
-                    ItemBarraInferior("Perfil", Icons.Outlined.Person, Icons.Default.Person, false, alIrAPerfil)
-                }
+    PantallaConMenu(
+        titulo = "Clínica SaludPlus",
+        seleccionado = null,
+        alNavegar = alNavegar,
+        alIrAInicio = {},
+        alCerrarSesion = alCerrarSesion,
+        acciones = {
+            IconButton(onClick = { mostrarNotificaciones = true }) {
+                Icon(
+                    imageVector = Icons.Outlined.NotificationsNone,
+                    contentDescription = "Notificaciones",
+                    tint = NavyTitulo,
+                    modifier = Modifier.size(28.dp)
+                )
             }
         }
     ) { innerPadding ->
@@ -111,111 +114,48 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            // Fila superior: menú y campana
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box {
-                    IconButton(onClick = { menuAbierto = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "Menú",
-                            tint = NavyTitulo,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                    DropdownMenu(expanded = menuAbierto, onDismissRequest = { menuAbierto = false }) {
-                        DropdownMenuItem(
-                            text = { Text("Agendar cita") },
-                            leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) },
-                            onClick = { menuAbierto = false; alIrAAgendar() }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Mis citas") },
-                            leadingIcon = { Icon(Icons.Default.Event, contentDescription = null) },
-                            onClick = { menuAbierto = false; alIrAMisCitas() }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Mis datos") },
-                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                            onClick = { menuAbierto = false; alIrAPerfil() }
-                        )
-                    }
-                }
-                IconButton(onClick = { mostrarNotificaciones = true }) {
-                    Icon(
-                        imageVector = Icons.Outlined.NotificationsNone,
-                        contentDescription = "Notificaciones",
-                        tint = NavyTitulo,
-                        modifier = Modifier.size(30.dp)
-                    )
-                }
-            }
-
             Text(
                 text = if (primerNombre.isNotEmpty()) "¡Hola, $primerNombre!" else "¡Hola!",
-                fontSize = 32.sp,
+                fontSize = Tam.Titulo,
                 fontWeight = FontWeight.ExtraBold,
                 color = NavyTitulo,
                 modifier = Modifier.padding(horizontal = 4.dp)
             )
-            Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "¿Qué deseas hacer hoy?",
-                fontSize = 18.sp,
+                text = FechaUtils.formatearFechaCompleta(hoy),
+                fontSize = Tam.Cuerpo,
                 color = SlateTexto,
                 modifier = Modifier.padding(horizontal = 4.dp)
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                TarjetaAccionAmplia(
-                    titulo = "Agendar cita",
-                    icono = Icons.Default.CalendarMonth,
-                    colorFondo = Color(0xFFE3F0FF),
-                    colorAcento = Color(0xFF1366F0),
-                    modifier = Modifier.weight(1f),
-                    onClick = alIrAAgendar
-                )
-                TarjetaAccionAmplia(
-                    titulo = "Mis citas",
-                    icono = Icons.Default.Event,
-                    colorFondo = Color(0xFFDDF7E8),
-                    colorAcento = Color(0xFF16A34A),
-                    modifier = Modifier.weight(1f),
-                    onClick = alIrAMisCitas
-                )
+            if (proxima != null) {
+                TarjetaProximaCita(proxima, onVerAgenda = { alNavegar(DestinoMenu.Agenda) })
+            } else {
+                TarjetaSinCitas(onVerSedes = { alNavegar(DestinoMenu.Sede) })
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                TarjetaAccionAmplia(
+                TarjetaAccion(
                     titulo = "Mis datos",
                     icono = Icons.Default.Person,
-                    colorFondo = Color(0xFFEEE6FF),
-                    colorAcento = Color(0xFF8B3DF0),
+                    colorFondo = VerdeClaro,
                     modifier = Modifier.weight(1f),
                     onClick = alIrAPerfil
                 )
-                TarjetaAccionAmplia(
+                TarjetaAccion(
                     titulo = "Resultados",
                     icono = Icons.Default.Description,
-                    colorFondo = Color(0xFFFFEBD6),
-                    colorAcento = Color(0xFFF2830F),
+                    colorFondo = SuperficieSuave,
                     modifier = Modifier.weight(1f),
                     onClick = { mostrarResultados = true }
                 )
@@ -223,43 +163,23 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 2.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Especialidades destacadas",
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = NavyTitulo
-                )
-                Text(
-                    text = "Ver todas",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = AzulPrimario,
-                    modifier = Modifier.clickable { alIrAAgendar() }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Tres tarjetas visibles a todo el ancho; la cuarta se alcanza deslizando
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(destacadas, key = { it.id }) { esp ->
-                    TarjetaEspecialidadDestacada(
-                        especialidad = esp,
-                        modifier = Modifier.fillParentMaxWidth(0.31f),
-                        onClick = alIrAAgendar
-                    )
+            Text(
+                text = "Doctores mejor calificados",
+                fontSize = Tam.Subtitulo,
+                fontWeight = FontWeight.Bold,
+                color = NavyTitulo,
+                modifier = Modifier.padding(horizontal = 2.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(mejoresDoctores, key = { it.id }) { medico ->
+                    TarjetaDoctorDestacado(medico = medico, onClick = { alIrAMedico(medico.id) })
                 }
             }
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            TarjetaConsejo(consejos[hoy.dayOfYear % consejos.size])
 
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -280,58 +200,119 @@ fun HomeScreen(
     )
 }
 
-// Arma el texto de notificaciones a partir de las citas del usuario
+// Primera cita del usuario que todavía no ha pasado
+private fun proximaCita(): Cita? = Repositorio.citasDelUsuario().firstOrNull { cita ->
+    val fecha = FechaUtils.parsearFecha(cita.fecha) ?: return@firstOrNull false
+    val hora = try { LocalTime.parse(cita.hora) } catch (e: Exception) { return@firstOrNull false }
+    !LocalDateTime.of(fecha, hora).isBefore(LocalDateTime.now())
+}
+
+// Arma el texto de notificaciones a partir de la próxima cita
 private fun textoNotificaciones(): String {
-    val proxima = Repositorio.citasDelUsuario().firstOrNull { cita ->
-        val fecha = FechaUtils.parsearFecha(cita.fecha)
-        fecha != null && !fecha.isBefore(LocalDate.now())
-    } ?: return "No tienes notificaciones nuevas."
+    val proxima = proximaCita() ?: return "No tienes notificaciones nuevas."
     val medico = Repositorio.obtenerMedico(proxima.medicoId)?.nombre ?: "tu médico"
     val fecha = FechaUtils.parsearFecha(proxima.fecha)?.let { FechaUtils.formatearFechaCompleta(it) } ?: proxima.fecha
     return "Recordatorio: tienes una cita con $medico el $fecha a las ${proxima.hora}."
 }
 
 @Composable
-private fun RowScope.ItemBarraInferior(
-    etiqueta: String,
-    icono: ImageVector,
-    iconoSeleccionado: ImageVector,
-    seleccionado: Boolean,
-    onClick: () -> Unit
-) {
-    NavigationBarItem(
-        selected = seleccionado,
-        onClick = onClick,
-        icon = {
-            Icon(
-                imageVector = if (seleccionado) iconoSeleccionado else icono,
-                contentDescription = etiqueta,
-                modifier = Modifier.size(28.dp)
+private fun TarjetaProximaCita(cita: Cita, onVerAgenda: () -> Unit) {
+    val medico = remember(cita.medicoId) { Repositorio.obtenerMedico(cita.medicoId) }
+    val especialidad = remember(cita.especialidadId) { Repositorio.obtenerEspecialidad(cita.especialidadId)?.nombre.orEmpty() }
+    val sede = remember(medico) { medico?.let { Repositorio.obtenerSede(it.sedeId)?.nombre }.orEmpty() }
+    val fecha = FechaUtils.parsearFecha(cita.fecha)?.let { FechaUtils.formatearFechaCompleta(it) } ?: cita.fecha
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(22.dp))
+            .clickable { onVerAgenda() },
+        shape = RoundedCornerShape(22.dp),
+        color = VerdePrimario
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Text(
+                text = "TU PRÓXIMA CITA",
+                fontSize = Tam.Pequeno,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 1.5.sp,
+                color = VerdeClaro
             )
-        },
-        label = { Text(etiqueta, fontSize = 13.sp, fontWeight = FontWeight.Medium) },
-        colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = AzulPrimario,
-            selectedTextColor = AzulPrimario,
-            unselectedIconColor = ColorInactivoNav,
-            unselectedTextColor = ColorInactivoNav,
-            indicatorColor = Color.Transparent
-        )
-    )
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                FotoMedico(medico = medico, tamano = 64.dp)
+                Spacer(modifier = Modifier.width(14.dp))
+                Column {
+                    Text(
+                        text = medico?.nombre ?: "Médico",
+                        fontSize = Tam.Subtitulo,
+                        fontWeight = FontWeight.Bold,
+                        color = Blanco
+                    )
+                    Text(text = "$especialidad · Sede $sede", fontSize = Tam.Cuerpo, color = VerdeClaro)
+                }
+            }
+            Spacer(modifier = Modifier.height(14.dp))
+            DatoCita(Icons.Outlined.CalendarMonth, fecha)
+            Spacer(modifier = Modifier.height(4.dp))
+            DatoCita(Icons.Outlined.Schedule, "${cita.hora} hrs")
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Ver mi agenda",
+                fontSize = Tam.Cuerpo,
+                fontWeight = FontWeight.SemiBold,
+                color = Blanco
+            )
+        }
+    }
 }
 
 @Composable
-fun TarjetaAccionAmplia(
+private fun DatoCita(icono: ImageVector, texto: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(imageVector = icono, contentDescription = null, tint = VerdeClaro, modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = texto, fontSize = Tam.Cuerpo, color = Blanco)
+    }
+}
+
+@Composable
+private fun TarjetaSinCitas(onVerSedes: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        color = SuperficieSuave
+    ) {
+        Column(modifier = Modifier.padding(18.dp)) {
+            Text(
+                text = "Aún no tienes citas",
+                fontSize = Tam.Subtitulo,
+                fontWeight = FontWeight.Bold,
+                color = NavyTitulo
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Elige una sede y reserva con el especialista que necesitas.",
+                fontSize = Tam.Cuerpo,
+                color = SlateTexto
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+            BotonPrimario(texto = "Ver sedes", onClick = onVerSedes)
+        }
+    }
+}
+
+@Composable
+private fun TarjetaAccion(
     titulo: String,
     icono: ImageVector,
     colorFondo: Color,
-    colorAcento: Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Surface(
         modifier = modifier
-            .height(132.dp)
+            .height(110.dp)
             .clip(RoundedCornerShape(22.dp))
             .clickable { onClick() },
         shape = RoundedCornerShape(22.dp),
@@ -344,73 +325,96 @@ fun TarjetaAccionAmplia(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = icono,
-                contentDescription = titulo,
-                tint = colorAcento,
-                modifier = Modifier.size(52.dp)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+            Icon(imageVector = icono, contentDescription = titulo, tint = VerdePrimario, modifier = Modifier.size(40.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = titulo,
-                fontSize = 18.sp,
+                fontSize = Tam.Cuerpo,
                 fontWeight = FontWeight.Medium,
-                color = colorAcento,
+                color = VerdePrimario,
                 textAlign = TextAlign.Center
             )
         }
     }
 }
 
-private fun fondoCirculoEspecialidad(id: String): Color = when (id) {
-    "esp1" -> Color(0xFFDFF3FB)
-    "esp2" -> Color(0xFFFFEFDC)
-    "esp3" -> Color(0xFFFDE3EC)
-    "esp4" -> Color(0xFFFDE2E6)
-    else -> Color(0xFFDFF3FB)
-}
-
 @Composable
-fun TarjetaEspecialidadDestacada(
-    especialidad: Especialidad,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
+private fun TarjetaDoctorDestacado(medico: Medico, onClick: () -> Unit) {
+    val sede = remember(medico.sedeId) { Repositorio.obtenerSede(medico.sedeId)?.nombre.orEmpty() }
+
     Surface(
-        modifier = modifier
-            .height(136.dp)
-            .clip(RoundedCornerShape(18.dp))
+        modifier = Modifier
+            .width(170.dp)
+            .clip(RoundedCornerShape(20.dp))
             .clickable { onClick() },
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(20.dp),
         color = Blanco,
-        shadowElevation = 1.dp,
         border = BorderStroke(1.dp, BordeSuave)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.padding(14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = Repositorio.obtenerIconoDrawable(especialidad.id)),
-                contentDescription = especialidad.nombre,
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            FotoMedico(medico = medico, tamano = 76.dp)
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = especialidad.nombre,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
+                text = medico.nombre,
+                fontSize = Tam.Cuerpo,
+                fontWeight = FontWeight.Bold,
                 color = NavyTitulo,
                 textAlign = TextAlign.Center,
-                lineHeight = 18.sp,
-                maxLines = 2
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
+            Text(text = medico.profesion, fontSize = Tam.Pequeno, color = SlateTexto, maxLines = 1)
+            Text(text = "Sede $sede", fontSize = Tam.Pequeno, color = SlateTexto, maxLines = 1)
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    tint = Color(0xFFF59E0B),
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(text = "${medico.calificacion} (${medico.resenas})", fontSize = Tam.Pequeno, color = SlateTexto)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TarjetaConsejo(texto: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        color = SuperficieSuave
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(shape = RoundedCornerShape(16.dp), color = VerdeClaro, modifier = Modifier.size(52.dp)) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        imageVector = Icons.Default.Lightbulb,
+                        contentDescription = null,
+                        tint = VerdePrimario,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(14.dp))
+            Column {
+                Text(
+                    text = "Consejo de salud del día",
+                    fontSize = Tam.Cuerpo,
+                    fontWeight = FontWeight.Bold,
+                    color = NavyTitulo
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(text = texto, fontSize = Tam.Pequeno, color = SlateTexto)
+            }
         }
     }
 }

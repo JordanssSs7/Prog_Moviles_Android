@@ -1,5 +1,6 @@
 package com.reyes.clinicasaludplus.ui.screens.citas
 
+import com.reyes.clinicasaludplus.ui.theme.Tam
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,11 +45,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.data.model.Cita
 import com.reyes.clinicasaludplus.data.repository.Repositorio
-import com.reyes.clinicasaludplus.ui.components.BarraSuperiorConVolver
+import com.reyes.clinicasaludplus.ui.components.DestinoMenu
+import com.reyes.clinicasaludplus.ui.components.PantallaConMenu
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
 import com.reyes.clinicasaludplus.ui.components.DialogoConfirmacion
 import com.reyes.clinicasaludplus.ui.components.FotoMedico
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.ui.theme.Blanco
 import com.reyes.clinicasaludplus.ui.theme.BordeSuave
 import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
@@ -65,25 +68,26 @@ import java.util.Locale
 @Composable
 fun MisCitasScreen(
     alIrAAgendar: () -> Unit,
-    alVolver: () -> Unit
+    alNavegar: (DestinoMenu) -> Unit,
+    alIrAInicio: () -> Unit,
+    alCerrarSesion: () -> Unit
 ) {
     var citas by remember { mutableStateOf(Repositorio.citasDelUsuario()) }
     var citaACancelar by remember { mutableStateOf<Cita?>(null) }
 
-    Scaffold(
-        containerColor = Blanco,
-        topBar = {
-            BarraSuperiorConVolver(
-                titulo = "Mis citas médicas",
-                alVolver = alVolver
-            )
-        },
+    PantallaConMenu(
+        titulo = "Agenda",
+        seleccionado = DestinoMenu.Agenda,
+        alNavegar = alNavegar,
+        alIrAInicio = alIrAInicio,
+        alCerrarSesion = alCerrarSesion,
         bottomBar = {
             if (citas.isNotEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Blanco)
+                        .navigationBarsPadding()
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
                     BotonPrimario(texto = "Agendar nueva cita", onClick = alIrAAgendar)
@@ -105,13 +109,13 @@ fun MisCitasScreen(
                     Surface(
                         modifier = Modifier.size(104.dp),
                         shape = CircleShape,
-                        color = Color(0xFFEAF2FF)
+                        color = Color(0xFFE6E2D6)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
                                 imageVector = Icons.Default.CalendarMonth,
                                 contentDescription = null,
-                                tint = AzulPrimario,
+                                tint = VerdePrimario,
                                 modifier = Modifier.size(52.dp)
                             )
                         }
@@ -119,7 +123,7 @@ fun MisCitasScreen(
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         text = "No tienes citas agendadas",
-                        fontSize = 21.sp,
+                        fontSize = Tam.Barra,
                         fontWeight = FontWeight.Bold,
                         color = NavyTitulo,
                         textAlign = TextAlign.Center
@@ -127,7 +131,7 @@ fun MisCitasScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Agenda una consulta con nuestros especialistas cuando lo necesites.",
-                        fontSize = 16.sp,
+                        fontSize = Tam.Cuerpo,
                         color = SlateTexto,
                         textAlign = TextAlign.Center
                     )
@@ -147,7 +151,7 @@ fun MisCitasScreen(
             ) {
                 Text(
                     text = if (citas.size == 1) "Tienes 1 cita agendada" else "Tienes ${citas.size} citas agendadas",
-                    fontSize = 17.sp,
+                    fontSize = Tam.Cuerpo,
                     color = SlateTexto,
                     modifier = Modifier.padding(start = 4.dp, bottom = 12.dp, top = 2.dp)
                 )
@@ -194,6 +198,7 @@ fun TarjetaItemCita(
 ) {
     val medico = remember(cita.medicoId) { Repositorio.obtenerMedico(cita.medicoId) }
     val especialidad = remember(cita.especialidadId) { Repositorio.obtenerEspecialidad(cita.especialidadId) }
+    val sede = remember(medico) { medico?.let { Repositorio.obtenerSede(it.sedeId) } }
     val pasada = remember(cita.id) { citaYaPaso(cita) }
     val fecha = remember(cita.fecha) { FechaUtils.parsearFecha(cita.fecha) }
 
@@ -203,7 +208,7 @@ fun TarjetaItemCita(
     val diaNumero = fecha?.dayOfMonth?.toString().orEmpty()
     val rangoHora = remember(cita.hora) {
         try {
-            "${cita.hora} a ${LocalTime.parse(cita.hora).plusMinutes(30)} hrs"
+            "${cita.hora} a ${LocalTime.parse(cita.hora).plusMinutes(Repositorio.DURACION_CONSULTA_MIN)} hrs"
         } catch (e: Exception) {
             "${cita.hora} hrs"
         }
@@ -229,13 +234,18 @@ fun TarjetaItemCita(
                     Text(
                         text = medico?.nombre ?: "Médico",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 19.sp,
+                        fontSize = Tam.Subtitulo,
                         color = NavyTitulo
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = especialidad?.nombre ?: "",
-                        fontSize = 15.sp,
+                        fontSize = Tam.Cuerpo,
+                        color = SlateTexto
+                    )
+                    Text(
+                        text = "Sede ${sede?.nombre.orEmpty()}",
+                        fontSize = Tam.Cuerpo,
                         color = SlateTexto
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -243,7 +253,7 @@ fun TarjetaItemCita(
                         Text(
                             text = textoEstado,
                             color = colorEstado,
-                            fontSize = 13.sp,
+                            fontSize = Tam.Pequeno,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
                         )
@@ -266,7 +276,7 @@ fun TarjetaItemCita(
                     Surface(
                         modifier = Modifier.size(60.dp),
                         shape = RoundedCornerShape(16.dp),
-                        color = if (pasada) SlateTexto else AzulPrimario
+                        color = if (pasada) SlateTexto else VerdePrimario
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -274,13 +284,13 @@ fun TarjetaItemCita(
                         ) {
                             Text(
                                 text = mesCorto,
-                                fontSize = 12.sp,
+                                fontSize = Tam.Pequeno,
                                 fontWeight = FontWeight.SemiBold,
                                 color = Blanco.copy(alpha = 0.85f)
                             )
                             Text(
                                 text = diaNumero,
-                                fontSize = 24.sp,
+                                fontSize = Tam.Titulo,
                                 fontWeight = FontWeight.ExtraBold,
                                 color = Blanco
                             )
@@ -290,7 +300,7 @@ fun TarjetaItemCita(
                     Column {
                         Text(
                             text = fechaLegible,
-                            fontSize = 16.sp,
+                            fontSize = Tam.Cuerpo,
                             fontWeight = FontWeight.SemiBold,
                             color = NavyTitulo
                         )
@@ -299,11 +309,11 @@ fun TarjetaItemCita(
                             Icon(
                                 imageVector = Icons.Outlined.Schedule,
                                 contentDescription = null,
-                                tint = AzulPrimario,
+                                tint = VerdePrimario,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(text = rangoHora, fontSize = 15.sp, color = SlateTexto)
+                            Text(text = rangoHora, fontSize = Tam.Cuerpo, color = SlateTexto)
                         }
                         if (cita.motivo.isNotBlank()) {
                             Spacer(modifier = Modifier.height(4.dp))
@@ -311,13 +321,13 @@ fun TarjetaItemCita(
                                 Icon(
                                     imageVector = Icons.Default.EditNote,
                                     contentDescription = null,
-                                    tint = AzulPrimario,
+                                    tint = VerdePrimario,
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = cita.motivo,
-                                    fontSize = 15.sp,
+                                    fontSize = Tam.Cuerpo,
                                     color = SlateTexto,
                                     maxLines = 1
                                 )
@@ -344,7 +354,7 @@ fun TarjetaItemCita(
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Cancelar cita", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Text(text = "Cancelar cita", fontSize = Tam.Cuerpo, fontWeight = FontWeight.Medium)
                 }
             }
         }

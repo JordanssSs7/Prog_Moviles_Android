@@ -1,5 +1,6 @@
 package com.reyes.clinicasaludplus.ui.screens.agendamiento
 
+import com.reyes.clinicasaludplus.ui.theme.Tam
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,10 +36,10 @@ import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
 import com.reyes.clinicasaludplus.ui.components.FotoMedico
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.ui.theme.Blanco
 import com.reyes.clinicasaludplus.ui.theme.BordeGris
-import com.reyes.clinicasaludplus.ui.theme.FondoGris
+import com.reyes.clinicasaludplus.ui.theme.Crema
 import com.reyes.clinicasaludplus.ui.theme.TextoGris
 import com.reyes.clinicasaludplus.ui.theme.TextoOscuro
 import com.reyes.clinicasaludplus.ui.theme.VerdeExito
@@ -59,7 +60,7 @@ fun CitaExitosaScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(FondoGris)
+            .background(Crema)
             .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -81,11 +82,11 @@ fun CitaExitosaScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        Text("¡Cita agendada!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = TextoOscuro)
+        Text("¡Cita agendada!", fontSize = Tam.Titulo, fontWeight = FontWeight.Bold, color = TextoOscuro)
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             "Tu cita médica ha sido confirmada con éxito.",
-            fontSize = 14.sp,
+            fontSize = Tam.Pequeno,
             color = TextoGris,
             textAlign = TextAlign.Center
         )
@@ -108,12 +109,12 @@ fun CitaExitosaScreen(
                             Text(
                                 text = medico?.nombre ?: "Médico",
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
+                                fontSize = Tam.Cuerpo,
                                 color = TextoOscuro
                             )
                             Text(
                                 text = especialidad?.nombre ?: "",
-                                fontSize = 12.sp,
+                                fontSize = Tam.Pequeno,
                                 color = TextoGris
                             )
                         }
@@ -122,6 +123,8 @@ fun CitaExitosaScreen(
                     FilaResumen("Fecha", fechaLegible ?: "")
                     Spacer(modifier = Modifier.height(8.dp))
                     FilaResumen("Hora", "${cita.hora} hrs")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    FilaResumen("Sede", medico?.let { Repositorio.obtenerSede(it.sedeId)?.nombre }.orEmpty())
                     if (cita.motivo.isNotBlank()) {
                         Spacer(modifier = Modifier.height(8.dp))
                         FilaResumen("Motivo", cita.motivo)
@@ -140,7 +143,7 @@ fun CitaExitosaScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         TextButton(onClick = alIrAInicio) {
-            Text("Volver al inicio", color = AzulPrimario, fontWeight = FontWeight.SemiBold)
+            Text("Volver al inicio", color = VerdePrimario, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -148,11 +151,11 @@ fun CitaExitosaScreen(
 @Composable
 private fun FilaResumen(etiqueta: String, valor: String) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(text = etiqueta, fontSize = 12.sp, color = TextoGris)
+        Text(text = etiqueta, fontSize = Tam.Pequeno, color = TextoGris)
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = valor,
-            fontSize = 13.sp,
+            fontSize = Tam.Pequeno,
             fontWeight = FontWeight.SemiBold,
             color = TextoOscuro,
             textAlign = TextAlign.End,

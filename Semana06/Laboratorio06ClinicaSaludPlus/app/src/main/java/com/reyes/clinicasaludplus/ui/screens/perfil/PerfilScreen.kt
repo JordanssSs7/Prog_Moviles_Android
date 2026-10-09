@@ -1,5 +1,6 @@
 package com.reyes.clinicasaludplus.ui.screens.perfil
 
+import com.reyes.clinicasaludplus.ui.theme.Tam
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.ButtonDefaults
@@ -38,6 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -45,9 +49,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.data.repository.Repositorio
+import com.reyes.clinicasaludplus.ui.theme.SuperficieSuave
+import com.reyes.clinicasaludplus.ui.theme.VerdeClaro
+import com.reyes.clinicasaludplus.util.FechaUtils
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 import com.reyes.clinicasaludplus.ui.components.BarraSuperiorConVolver
 import com.reyes.clinicasaludplus.ui.components.DialogoConfirmacion
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.ui.theme.Blanco
 import com.reyes.clinicasaludplus.ui.theme.BordeSuave
 import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
@@ -61,7 +71,14 @@ fun PerfilScreen(
 ) {
     val usuario = Repositorio.usuarioActual
     var confirmarSalida by rememberSaveable { mutableStateOf(false) }
-    val totalCitas = Repositorio.citasDelUsuario().size
+    val citas = Repositorio.citasDelUsuario()
+    val totalCitas = citas.size
+    val textoProxima = citas.firstNotNullOfOrNull { cita ->
+        FechaUtils.parsearFecha(cita.fecha)?.takeIf { !it.isBefore(LocalDate.now()) }?.let { fecha ->
+            val mes = fecha.month.getDisplayName(TextStyle.SHORT, Locale.forLanguageTag("es-PE")).replace(".", "")
+            "${fecha.dayOfMonth} $mes"
+        }
+    } ?: "Sin citas"
 
     val nombre = usuario?.nombreCompleto ?: "Paciente"
     val iniciales = nombre.trim().split(" ").filter { it.isNotBlank() }
@@ -92,10 +109,14 @@ fun PerfilScreen(
                     .clip(RoundedCornerShape(28.dp))
                     .background(
                         Brush.linearGradient(
-                            listOf(Color(0xFF0B6BFF), Color(0xFF4C9BFF))
+                            listOf(Color(0xFF2F4A33), Color(0xFF6F8A6D))
                         )
                     )
-                    .padding(vertical = 26.dp, horizontal = 16.dp)
+                    .drawBehind {
+                        drawCircle(Blanco.copy(alpha = 0.08f), radius = size.width * 0.35f, center = Offset(size.width * 0.95f, size.height * 0.05f))
+                        drawCircle(Blanco.copy(alpha = 0.06f), radius = size.width * 0.28f, center = Offset(size.width * 0.02f, size.height * 0.98f))
+                    }
+                    .padding(vertical = 28.dp, horizontal = 16.dp)
             ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -105,62 +126,60 @@ fun PerfilScreen(
                         modifier = Modifier.size(92.dp),
                         shape = CircleShape,
                         color = Blanco,
-                        shadowElevation = 4.dp
+                        shadowElevation = 4.dp,
+                        border = BorderStroke(4.dp, Blanco.copy(alpha = 0.35f))
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
                                 text = iniciales,
                                 fontSize = 34.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                color = AzulPrimario
+                                color = VerdePrimario
                             )
                         }
                     }
                     Spacer(modifier = Modifier.height(14.dp))
                     Text(
                         text = nombre,
-                        fontSize = 24.sp,
+                        fontSize = Tam.Titulo,
                         fontWeight = FontWeight.Bold,
                         color = Blanco
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = correo ?: usuario?.telefono ?: "Sesión no iniciada",
-                        fontSize = 15.sp,
+                        fontSize = Tam.Cuerpo,
                         color = Blanco.copy(alpha = 0.85f)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Surface(
-                        shape = RoundedCornerShape(50),
-                        color = Blanco.copy(alpha = 0.18f)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.CalendarMonth,
-                                contentDescription = null,
-                                tint = Blanco,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = if (totalCitas == 1) "1 cita agendada" else "$totalCitas citas agendadas",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Blanco
-                            )
-                        }
-                    }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Resumen de citas
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                TarjetaEstadistica(
+                    icono = Icons.Default.CalendarMonth,
+                    valor = totalCitas.toString(),
+                    etiqueta = if (totalCitas == 1) "Cita agendada" else "Citas agendadas",
+                    modifier = Modifier.weight(1f)
+                )
+                TarjetaEstadistica(
+                    icono = Icons.Default.Event,
+                    valor = textoProxima,
+                    etiqueta = "Próxima cita",
+                    modifier = Modifier.weight(1f)
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = "Información personal",
-                fontSize = 18.sp,
+                fontSize = Tam.Subtitulo,
                 fontWeight = FontWeight.Bold,
                 color = NavyTitulo,
                 modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
@@ -198,16 +217,9 @@ fun PerfilScreen(
             ) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Cerrar sesión", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                Text(text = "Cerrar sesión", fontSize = Tam.Cuerpo, fontWeight = FontWeight.SemiBold)
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Clínica SaludPlus · Versión 1.0",
-                fontSize = 13.sp,
-                color = SlateTexto,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
@@ -240,17 +252,42 @@ fun FilaDatoPerfil(
         Surface(
             modifier = Modifier.size(48.dp),
             shape = RoundedCornerShape(14.dp),
-            color = Color(0xFFEAF2FF)
+            color = Color(0xFFE6E2D6)
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(icono, contentDescription = null, tint = AzulPrimario, modifier = Modifier.size(24.dp))
+                Icon(icono, contentDescription = null, tint = VerdePrimario, modifier = Modifier.size(24.dp))
             }
         }
         Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
-            Text(etiqueta, fontSize = 14.sp, color = SlateTexto)
+            Text(etiqueta, fontSize = Tam.Pequeno, color = SlateTexto)
             Spacer(modifier = Modifier.height(2.dp))
-            Text(valor, fontSize = 17.sp, fontWeight = FontWeight.Medium, color = NavyTitulo)
+            Text(valor, fontSize = Tam.Cuerpo, fontWeight = FontWeight.Medium, color = NavyTitulo)
+        }
+    }
+}
+
+@Composable
+private fun TarjetaEstadistica(
+    icono: ImageVector,
+    valor: String,
+    etiqueta: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        color = SuperficieSuave
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Surface(shape = RoundedCornerShape(12.dp), color = VerdeClaro, modifier = Modifier.size(40.dp)) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(icono, contentDescription = null, tint = VerdePrimario, modifier = Modifier.size(22.dp))
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(valor, fontSize = Tam.Titulo, fontWeight = FontWeight.ExtraBold, color = NavyTitulo)
+            Text(etiqueta, fontSize = Tam.Pequeno, color = SlateTexto)
         }
     }
 }

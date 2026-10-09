@@ -1,5 +1,6 @@
 package com.reyes.clinicasaludplus.ui.screens.agendamiento
 
+import com.reyes.clinicasaludplus.ui.theme.Tam
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +45,7 @@ import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BarraSuperiorConVolver
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
 import com.reyes.clinicasaludplus.ui.components.FotoMedico
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.ui.theme.Blanco
 import com.reyes.clinicasaludplus.ui.theme.BordeSuave
 import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
@@ -52,6 +53,8 @@ import com.reyes.clinicasaludplus.ui.theme.RojoAlerta
 import com.reyes.clinicasaludplus.ui.theme.SlateTexto
 import com.reyes.clinicasaludplus.ui.theme.SuperficieSuave
 import com.reyes.clinicasaludplus.util.FechaUtils
+
+private const val MAX_PAGINAS_DIAS = 7L
 
 @Composable
 fun FechaHoraScreen(
@@ -61,19 +64,23 @@ fun FechaHoraScreen(
 ) {
     val medico = remember(medicoId) { Repositorio.obtenerMedico(medicoId) }
 
-    // Calendario dinámico: 5 días hábiles desde hoy; cada flecha mueve una "semana" (5 días hábiles)
+    val diasAtencion = medico?.diasAtencion.orEmpty()
+
+    // Calendario dinámico: 5 próximos días en que el médico atiende; cada flecha avanza 5 días de atención
     var semanaOffset by rememberSaveable { mutableStateOf(0L) }
-    val diasHabiles = remember(semanaOffset) { FechaUtils.obtenerDiasHabiles(semanaOffset) }
-    var fechaSeleccionada by rememberSaveable { mutableStateOf(FechaUtils.obtenerDiasHabiles(0).first().fecha.toString()) }
+    val dias = remember(medicoId, semanaOffset) { FechaUtils.obtenerDiasAtencion(diasAtencion, semanaOffset) }
+    var fechaSeleccionada by rememberSaveable(medicoId) {
+        mutableStateOf(FechaUtils.obtenerDiasAtencion(diasAtencion, 0).firstOrNull()?.fecha?.toString().orEmpty())
+    }
     var horaSeleccionada by rememberSaveable { mutableStateOf<String?>(null) }
 
-    // Si la fecha guardada ya no pertenece a la semana mostrada (p. ej. al rotar), vuelve al primer día
-    if (diasHabiles.none { it.fecha.toString() == fechaSeleccionada }) {
-        fechaSeleccionada = diasHabiles.first().fecha.toString()
+    // Si la fecha guardada ya no pertenece al grupo mostrado (p. ej. al rotar), vuelve al primer día
+    if (dias.isNotEmpty() && dias.none { it.fecha.toString() == fechaSeleccionada }) {
+        fechaSeleccionada = dias.first().fecha.toString()
     }
 
     // Se recalcula al cambiar de médico o de día; respeta los horarios ya reservados
-    val horariosDisponibles = remember(medicoId, fechaSeleccionada) {
+    val horariosDisponibles = remember(medicoId, fechaSeleccionada, semanaOffset) {
         Repositorio.horariosDisponibles(medicoId, fechaSeleccionada)
     }
     // Si la hora elegida ya no está disponible, se reinicia
@@ -81,8 +88,9 @@ fun FechaHoraScreen(
         horaSeleccionada = null
     }
 
-    val fechaParaMes = FechaUtils.parsearFecha(fechaSeleccionada) ?: diasHabiles.first().fecha
+    val fechaParaMes = FechaUtils.parsearFecha(fechaSeleccionada) ?: dias.firstOrNull()?.fecha
     val puedeRetroceder = semanaOffset > 0
+    val puedeAvanzar = dias.isNotEmpty() && semanaOffset < MAX_PAGINAS_DIAS
 
     Scaffold(
         containerColor = Blanco,
@@ -120,13 +128,24 @@ fun FechaHoraScreen(
                                 Text(
                                     text = medico.nombre,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 22.sp,
+                                    fontSize = Tam.Barra,
                                     color = NavyTitulo
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = medico.profesion,
-                                    fontSize = 18.sp,
+                                    fontSize = Tam.Subtitulo,
+                                    color = SlateTexto
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Sede ${Repositorio.obtenerSede(medico.sedeId)?.nombre.orEmpty()}",
+                                    fontSize = Tam.Cuerpo,
+                                    color = SlateTexto
+                                )
+                                Text(
+                                    text = "Atiende: ${FechaUtils.resumenDias(medico.diasAtencion)}",
+                                    fontSize = Tam.Cuerpo,
                                     color = SlateTexto
                                 )
                             }
@@ -136,7 +155,7 @@ fun FechaHoraScreen(
                     Text(
                         text = "No se encontró al médico seleccionado. Vuelve atrás y elige otro.",
                         color = RojoAlerta,
-                        fontSize = 14.sp,
+                        fontSize = Tam.Pequeno,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -156,7 +175,7 @@ fun FechaHoraScreen(
                         onClick = {
                             if (puedeRetroceder) {
                                 semanaOffset--
-                                fechaSeleccionada = FechaUtils.obtenerDiasHabiles(semanaOffset).first().fecha.toString()
+                                fechaSeleccionada = FechaUtils.obtenerDiasAtencion(diasAtencion, semanaOffset).first().fecha.toString()
                                 horaSeleccionada = null
                             }
                         },
@@ -165,29 +184,32 @@ fun FechaHoraScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                             contentDescription = "Semana anterior",
-                            tint = if (puedeRetroceder) NavyTitulo else Color(0xFFCBD5E1),
+                            tint = if (puedeRetroceder) NavyTitulo else Color(0xFFB8C3B2),
                             modifier = Modifier.size(32.dp)
                         )
                     }
 
                     Text(
-                        text = FechaUtils.obtenerEncabezadoMes(fechaParaMes),
+                        text = fechaParaMes?.let { FechaUtils.obtenerEncabezadoMes(it) }.orEmpty(),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 19.sp,
+                        fontSize = Tam.Subtitulo,
                         color = NavyTitulo
                     )
 
                     IconButton(
                         onClick = {
-                            semanaOffset++
-                            fechaSeleccionada = FechaUtils.obtenerDiasHabiles(semanaOffset).first().fecha.toString()
-                            horaSeleccionada = null
-                        }
+                            if (puedeAvanzar) {
+                                semanaOffset++
+                                fechaSeleccionada = FechaUtils.obtenerDiasAtencion(diasAtencion, semanaOffset).first().fecha.toString()
+                                horaSeleccionada = null
+                            }
+                        },
+                        enabled = puedeAvanzar
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = "Semana siguiente",
-                            tint = NavyTitulo,
+                            tint = if (puedeAvanzar) NavyTitulo else Color(0xFFB8C3B2),
                             modifier = Modifier.size(32.dp)
                         )
                     }
@@ -200,7 +222,7 @@ fun FechaHoraScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    diasHabiles.forEach { dia ->
+                    dias.forEach { dia ->
                         val esSeleccionado = dia.fecha.toString() == fechaSeleccionada
                         Surface(
                             modifier = Modifier
@@ -214,7 +236,7 @@ fun FechaHoraScreen(
                                     }
                                 },
                             shape = RoundedCornerShape(18.dp),
-                            color = if (esSeleccionado) AzulPrimario else SuperficieSuave
+                            color = if (esSeleccionado) VerdePrimario else SuperficieSuave
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -223,15 +245,15 @@ fun FechaHoraScreen(
                             ) {
                                 Text(
                                     text = dia.nombreDia,
-                                    fontSize = 15.sp,
+                                    fontSize = Tam.Cuerpo,
                                     color = if (esSeleccionado) Blanco else SlateTexto
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = dia.numeroDia,
-                                    fontSize = 22.sp,
+                                    fontSize = Tam.Barra,
                                     fontWeight = FontWeight.SemiBold,
-                                    color = if (esSeleccionado) Blanco else Color(0xFF111827)
+                                    color = if (esSeleccionado) Blanco else Color(0xFF2F4A33)
                                 )
                             }
                         }
@@ -249,8 +271,8 @@ fun FechaHoraScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No hay horarios disponibles para este día. Prueba con otro día.",
-                            fontSize = 14.sp,
+                            text = "No quedan horarios disponibles para este día. Prueba con otro día.",
+                            fontSize = Tam.Pequeno,
                             color = SlateTexto,
                             textAlign = TextAlign.Center
                         )
@@ -270,7 +292,7 @@ fun FechaHoraScreen(
                                     .clip(RoundedCornerShape(16.dp))
                                     .clickable { horaSeleccionada = hora },
                                 shape = RoundedCornerShape(16.dp),
-                                color = if (estaSeleccionada) AzulPrimario else SuperficieSuave,
+                                color = if (estaSeleccionada) VerdePrimario else SuperficieSuave,
                                 border = if (!estaSeleccionada) BorderStroke(1.dp, BordeSuave) else null
                             ) {
                                 Box(
@@ -279,9 +301,9 @@ fun FechaHoraScreen(
                                 ) {
                                     Text(
                                         text = hora,
-                                        fontSize = 19.sp,
+                                        fontSize = Tam.Subtitulo,
                                         fontWeight = FontWeight.Medium,
-                                        color = if (estaSeleccionada) Blanco else Color(0xFF111827)
+                                        color = if (estaSeleccionada) Blanco else Color(0xFF2F4A33)
                                     )
                                 }
                             }

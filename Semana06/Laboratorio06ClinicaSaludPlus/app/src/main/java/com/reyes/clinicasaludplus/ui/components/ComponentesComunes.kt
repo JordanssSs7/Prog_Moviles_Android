@@ -56,13 +56,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.data.model.Medico
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.ui.theme.Blanco
 import com.reyes.clinicasaludplus.ui.theme.BordeSuave
 import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
 import com.reyes.clinicasaludplus.ui.theme.RojoAlerta
 import com.reyes.clinicasaludplus.ui.theme.SlateTexto
 import com.reyes.clinicasaludplus.ui.theme.SuperficieSuave
+import com.reyes.clinicasaludplus.ui.theme.Tam
 
 @Composable
 fun BotonPrimario(
@@ -79,13 +80,13 @@ fun BotonPrimario(
             .height(56.dp),
         shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = AzulPrimario,
+            containerColor = VerdePrimario,
             contentColor = Blanco,
-            disabledContainerColor = AzulPrimario.copy(alpha = 0.35f),
+            disabledContainerColor = VerdePrimario.copy(alpha = 0.35f),
             disabledContentColor = Blanco
         )
     ) {
-        Text(text = texto, fontWeight = FontWeight.SemiBold, fontSize = 18.sp)
+        Text(text = texto, fontWeight = FontWeight.SemiBold, fontSize = Tam.Subtitulo)
     }
 }
 
@@ -101,7 +102,7 @@ fun BarraSuperiorConVolver(
         title = {
             Text(
                 text = titulo,
-                fontSize = 20.sp,
+                fontSize = Tam.Barra,
                 fontWeight = FontWeight.Bold,
                 color = NavyTitulo
             )
@@ -132,19 +133,19 @@ fun DialogoConfirmacion(
         AlertDialog(
             onDismissRequest = onDescartar,
             title = {
-                Text(text = titulo, fontWeight = FontWeight.Bold, color = NavyTitulo)
+                Text(text = titulo, fontWeight = FontWeight.Bold, color = NavyTitulo, fontSize = Tam.Barra)
             },
             text = {
-                Text(text = mensaje, color = SlateTexto)
+                Text(text = mensaje, color = SlateTexto, fontSize = Tam.Cuerpo)
             },
             confirmButton = {
                 TextButton(onClick = onConfirmar) {
-                    Text(text = "Confirmar", color = RojoAlerta, fontWeight = FontWeight.Bold)
+                    Text(text = "Confirmar", color = RojoAlerta, fontWeight = FontWeight.Bold, fontSize = Tam.Cuerpo)
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDescartar) {
-                    Text(text = "Cancelar", color = SlateTexto)
+                    Text(text = "Cancelar", color = SlateTexto, fontSize = Tam.Cuerpo)
                 }
             },
             containerColor = Blanco,
@@ -159,16 +160,17 @@ fun DialogoInformativo(
     mostrar: Boolean,
     titulo: String,
     mensaje: String,
-    onCerrar: () -> Unit
+    onCerrar: () -> Unit,
+    textoBoton: String = "Entendido"
 ) {
     if (mostrar) {
         AlertDialog(
             onDismissRequest = onCerrar,
-            title = { Text(text = titulo, fontWeight = FontWeight.Bold, color = NavyTitulo) },
-            text = { Text(text = mensaje, color = SlateTexto) },
+            title = { Text(text = titulo, fontWeight = FontWeight.Bold, color = NavyTitulo, fontSize = Tam.Barra) },
+            text = { Text(text = mensaje, color = SlateTexto, fontSize = Tam.Cuerpo) },
             confirmButton = {
                 TextButton(onClick = onCerrar) {
-                    Text(text = "Entendido", color = AzulPrimario, fontWeight = FontWeight.Bold)
+                    Text(text = textoBoton, color = VerdePrimario, fontWeight = FontWeight.Bold, fontSize = Tam.Cuerpo)
                 }
             },
             containerColor = Blanco,
@@ -194,13 +196,13 @@ fun FotoMedico(medico: Medico?, tamano: Dp = 62.dp) {
             modifier = Modifier
                 .size(tamano)
                 .clip(CircleShape)
-                .background(Color(0xFFE3EEFF)),
+                .background(Color(0xFFE6E2D6)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = null,
-                tint = AzulPrimario,
+                tint = VerdePrimario,
                 modifier = Modifier.size(tamano * 0.58f)
             )
         }
@@ -237,7 +239,7 @@ fun CampoFormulario(
             ) {
                 Text(
                     text = etiqueta,
-                    fontSize = 15.sp,
+                    fontSize = Tam.Cuerpo,
                     color = SlateTexto,
                     modifier = Modifier.padding(start = 28.dp)
                 )
@@ -246,7 +248,7 @@ fun CampoFormulario(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
-                        .background(Color(0xFFF8FAFE), RoundedCornerShape(14.dp))
+                        .background(Color(0xFFFAF8F2), RoundedCornerShape(14.dp))
                         .border(1.dp, colorBorde, RoundedCornerShape(14.dp))
                         .padding(start = 28.dp, end = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -260,13 +262,13 @@ fun CampoFormulario(
                             },
                             singleLine = true,
                             textStyle = androidx.compose.ui.text.TextStyle(
-                                color = Color(0xFF111827),
+                                color = Color(0xFF2F4A33),
                                 fontWeight = FontWeight.Medium,
-                                fontSize = 18.sp
+                                fontSize = Tam.Subtitulo
                             ),
                             visualTransformation = if (esPassword && !visible) PasswordVisualTransformation() else VisualTransformation.None,
                             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-                            cursorBrush = SolidColor(AzulPrimario),
+                            cursorBrush = SolidColor(VerdePrimario),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -275,7 +277,7 @@ fun CampoFormulario(
                             Icon(
                                 imageVector = if (visible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                                 contentDescription = if (visible) "Ocultar contraseña" else "Mostrar contraseña",
-                                tint = Color(0xFF94A3B8),
+                                tint = Color(0xFF6F8A6D),
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -297,7 +299,7 @@ fun CampoFormulario(
                     Icon(
                         imageVector = icono,
                         contentDescription = etiqueta,
-                        tint = if (error != null) RojoAlerta else AzulPrimario,
+                        tint = if (error != null) RojoAlerta else VerdePrimario,
                         modifier = Modifier.size(28.dp)
                     )
                 }
@@ -308,7 +310,7 @@ fun CampoFormulario(
             Text(
                 text = error,
                 color = RojoAlerta,
-                fontSize = 12.sp,
+                fontSize = Tam.Pequeno,
                 modifier = Modifier.padding(start = 76.dp, top = 4.dp)
             )
         }

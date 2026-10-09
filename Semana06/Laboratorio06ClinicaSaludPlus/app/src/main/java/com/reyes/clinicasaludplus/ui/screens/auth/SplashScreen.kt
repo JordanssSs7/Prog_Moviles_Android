@@ -1,5 +1,6 @@
 package com.reyes.clinicasaludplus.ui.screens.auth
 
+import com.reyes.clinicasaludplus.ui.theme.Tam
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -34,11 +35,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.R
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
+import com.reyes.clinicasaludplus.ui.components.LogoSaludPlus
 import com.reyes.clinicasaludplus.ui.theme.SlateTexto
 
-private val FondoSplash = Color(0xFFF2F7FF)
+private val FondoSplash = Color(0xFFFAF8F2)
 
 @Composable
 fun SplashScreen(
@@ -75,7 +77,7 @@ fun SplashScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Tu salud, nuestra prioridad",
-            fontSize = 18.sp,
+            fontSize = Tam.Subtitulo,
             color = SlateTexto
         )
 
@@ -114,9 +116,9 @@ fun SplashScreen(
             ) {
                 Text(
                     text = "Ya tengo una cuenta",
-                    color = AzulPrimario,
+                    color = VerdePrimario,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 17.sp
+                    fontSize = Tam.Cuerpo
                 )
             }
         }
@@ -136,55 +138,12 @@ private fun DrawScope.nube(cx: Float, cy: Float, ancho: Float, color: Color) {
 private fun DrawScope.dibujarNubes() {
     val w = size.width
     val h = size.height
-    val claro = Color(0xFFE2EEFC)
-    val medio = Color(0xFFD3E5FA)
+    val claro = Color(0xFFE6E2D6)
+    val medio = Color(0xFFE6E2D6)
     nube(w * 0.80f, h * 0.20f, w * 0.62f, claro)
     nube(w * 0.18f, h * 0.30f, w * 0.50f, claro)
     nube(w * 0.52f, h * 0.36f, w * 0.80f, medio.copy(alpha = 0.65f))
     nube(w * 0.14f, h * 0.62f, w * 0.44f, medio.copy(alpha = 0.60f))
     nube(w * 0.90f, h * 0.55f, w * 0.46f, medio.copy(alpha = 0.60f))
     nube(w * 0.50f, h * 0.88f, w * 0.95f, claro)
-}
-
-/** Logo: cruz azul con burbuja turquesa y corazón blanco. */
-@Composable
-private fun LogoSaludPlus() {
-    Box(modifier = Modifier.size(width = 128.dp, height = 116.dp)) {
-        // Brazo vertical
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(end = 14.dp)
-                .size(width = 50.dp, height = 116.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Color(0xFF1366F0))
-        )
-        // Brazo horizontal
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .size(width = 112.dp, height = 50.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(Color(0xFF1366F0))
-        )
-        // Burbuja turquesa
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(bottom = 26.dp)
-                .size(width = 62.dp, height = 56.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(Color(0xFF17A2A8))
-        )
-        // Corazón
-        Icon(
-            imageVector = Icons.Default.Favorite,
-            contentDescription = "SaludPlus",
-            tint = Color.White,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(start = 4.dp)
-                .size(40.dp)
-        )
-    }
 }

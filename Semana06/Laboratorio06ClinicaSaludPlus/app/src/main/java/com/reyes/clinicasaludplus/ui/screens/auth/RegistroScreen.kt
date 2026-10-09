@@ -1,5 +1,6 @@
 package com.reyes.clinicasaludplus.ui.screens.auth
 
+import com.reyes.clinicasaludplus.ui.theme.Tam
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -44,7 +45,9 @@ import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
 import com.reyes.clinicasaludplus.ui.components.CampoFormulario
-import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.components.DialogoExito
+import com.reyes.clinicasaludplus.ui.components.IndicadorSeguridad
+import com.reyes.clinicasaludplus.ui.theme.VerdePrimario
 import com.reyes.clinicasaludplus.ui.theme.Blanco
 import com.reyes.clinicasaludplus.ui.theme.BordeSuave
 import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
@@ -63,6 +66,9 @@ fun RegistroScreen(
     var contrasena by rememberSaveable { mutableStateOf("") }
     var intentoEnviar by rememberSaveable { mutableStateOf(false) }
     var mostrarTerminos by rememberSaveable { mutableStateOf(false) }
+    var mostrarExito by rememberSaveable { mutableStateOf(false) }
+    // Una vez registrado no se vuelven a validar los campos: el teléfono ya existe porque acaba de guardarse
+    var registrado by rememberSaveable { mutableStateOf(false) }
 
     // Errores: de formato y de duplicados (solo se muestran después del primer intento)
     val errorNombre = Validaciones.errorNombre(nombre)
@@ -87,14 +93,14 @@ fun RegistroScreen(
 
         Text(
             text = "Crear cuenta",
-            fontSize = 32.sp,
+            fontSize = Tam.Titulo,
             fontWeight = FontWeight.ExtraBold,
             color = NavyTitulo
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Regístrate para agendar tus citas",
-            fontSize = 17.sp,
+            fontSize = Tam.Cuerpo,
             color = SlateTexto
         )
 
@@ -105,7 +111,7 @@ fun RegistroScreen(
             valor = nombre,
             onValueChange = { nombre = it },
             icono = Icons.Default.Person,
-            error = if (intentoEnviar) errorNombre else null,
+            error = if (intentoEnviar && !registrado) errorNombre else null,
             maxLargo = Validaciones.MAX_NOMBRE
         )
 
@@ -116,7 +122,7 @@ fun RegistroScreen(
             valor = telefono,
             onValueChange = { telefono = it },
             icono = Icons.Default.Phone,
-            error = if (intentoEnviar) errorTelefono else null,
+            error = if (intentoEnviar && !registrado) errorTelefono else null,
             keyboardType = KeyboardType.Phone,
             maxLargo = Validaciones.LARGO_TELEFONO,
             soloDigitos = true
@@ -129,7 +135,7 @@ fun RegistroScreen(
             valor = correo,
             onValueChange = { correo = it.replace(" ", "") },
             icono = Icons.Default.Email,
-            error = if (intentoEnviar) errorCorreo else null,
+            error = if (intentoEnviar && !registrado) errorCorreo else null,
             keyboardType = KeyboardType.Email,
             maxLargo = 60
         )
@@ -141,10 +147,15 @@ fun RegistroScreen(
             valor = contrasena,
             onValueChange = { contrasena = it.replace(" ", "") },
             icono = Icons.Default.Lock,
-            error = if (intentoEnviar) errorContrasena else null,
+            error = if (intentoEnviar && !registrado) errorContrasena else null,
             esPassword = true,
             keyboardType = KeyboardType.Password,
             maxLargo = Validaciones.MAX_CONTRASENA
+        )
+
+        IndicadorSeguridad(
+            nivel = Validaciones.nivelContrasena(contrasena),
+            modifier = Modifier.padding(start = 76.dp, top = 6.dp)
         )
 
         Spacer(modifier = Modifier.height(28.dp))
@@ -153,6 +164,7 @@ fun RegistroScreen(
             texto = "Registrarme",
             onClick = {
                 intentoEnviar = true
+                if (registrado) return@BotonPrimario
                 if (hayErrores) {
                     Toast.makeText(context, "Revisa los campos marcados en rojo", Toast.LENGTH_SHORT).show()
                 } else {
@@ -163,8 +175,8 @@ fun RegistroScreen(
                         contrasena = contrasena
                     )
                     if (exito) {
-                        Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
-                        alRegistrarExitoso()
+                        registrado = true
+                        mostrarExito = true
                     } else {
                         Toast.makeText(context, "No se pudo completar el registro", Toast.LENGTH_SHORT).show()
                     }
@@ -176,15 +188,15 @@ fun RegistroScreen(
 
         Text(
             text = "Al registrarte aceptas nuestros",
-            fontSize = 16.sp,
+            fontSize = Tam.Cuerpo,
             color = SlateTexto,
             textAlign = TextAlign.Center
         )
         Text(
             text = "Términos y Condiciones",
-            fontSize = 16.sp,
+            fontSize = Tam.Cuerpo,
             fontWeight = FontWeight.Medium,
-            color = AzulPrimario,
+            color = VerdePrimario,
             modifier = Modifier
                 .clickable { mostrarTerminos = true }
                 .padding(vertical = 2.dp)
@@ -200,13 +212,25 @@ fun RegistroScreen(
         ) {
             Text(
                 text = buildAnnotatedString {
-                    withStyle(SpanStyle(color = Color(0xFF111827))) { append("¿Ya tienes cuenta? ") }
-                    withStyle(SpanStyle(color = AzulPrimario, fontWeight = FontWeight.SemiBold)) { append("Iniciar sesión") }
+                    withStyle(SpanStyle(color = Color(0xFF2F4A33))) { append("¿Ya tienes cuenta? ") }
+                    withStyle(SpanStyle(color = VerdePrimario, fontWeight = FontWeight.SemiBold)) { append("Iniciar sesión") }
                 },
-                fontSize = 17.sp
+                fontSize = Tam.Cuerpo
             )
         }
     }
+
+    val primerNombre = Validaciones.normalizarNombre(nombre).substringBefore(" ")
+    DialogoExito(
+        mostrar = mostrarExito,
+        titulo = "Registro exitoso",
+        mensaje = if (primerNombre.isNotEmpty()) "¡Bienvenido a SaludPlus, $primerNombre! Tu cuenta fue creada. Ahora inicia sesión para continuar." else "Tu cuenta fue creada. Ahora inicia sesión para continuar.",
+        textoBoton = "Iniciar sesión",
+        onCerrar = {
+            mostrarExito = false
+            alRegistrarExitoso()
+        }
+    )
 
     if (mostrarTerminos) {
         AlertDialog(
@@ -219,14 +243,14 @@ fun RegistroScreen(
                             "2. Datos personales: tus datos se usan únicamente para gestionar tus citas y no se comparten con terceros.\n\n" +
                             "3. Citas: debes asistir puntualmente. Puedes cancelar una cita desde \"Mis citas\" para liberar el horario.\n\n" +
                             "4. Responsabilidad: la información ingresada debe ser veraz y estar actualizada.",
-                        fontSize = 14.sp,
+                        fontSize = Tam.Pequeno,
                         color = SlateTexto
                     )
                 }
             },
             confirmButton = {
                 TextButton(onClick = { mostrarTerminos = false }) {
-                    Text("Entendido", color = AzulPrimario, fontWeight = FontWeight.Bold)
+                    Text("Entendido", color = VerdePrimario, fontWeight = FontWeight.Bold)
                 }
             },
             containerColor = Blanco,

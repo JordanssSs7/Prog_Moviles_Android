@@ -3,21 +3,21 @@ package com.reyes.clinicasaludplus.ui.theme
 import androidx.compose.ui.graphics.Color
 
 
-val AzulPrimario = Color(0xFF0B6BFF)
-val AzulSecundario = Color(0xFF3F78E0)
-val AzulClaro = Color(0xFFEBF1FD)
-val Blanco = Color(0xFFFFFFFF)
-val FondoGris = Color(0xFFF8F9FD)
-val TextoOscuro = Color(0xFF1A1D26)
-val TextoGris = Color(0xFF757D8A)
-val BordeGris = Color(0xFFE2E8F0)
-val VerdeExito = Color(0xFF10B981)
+val VerdePrimario = Color(0xFF2F4A33)
+val VerdeSecundario = Color(0xFF6F8A6D)
+val VerdeClaro = Color(0xFFB8C3B2)
+val Blanco = Color(0xFFFAF8F2)
+val Crema = Color(0xFFFAF8F2)
+val TextoOscuro = Color(0xFF2F4A33)
+val TextoGris = Color(0xFF4E654F)
+val BordeGris = Color(0xFFE6E2D6)
+val VerdeExito = Color(0xFF6F8A6D)
 val RojoAlerta = Color(0xFFEF4444)
 
-// Paleta del diseño de referencia
-val NavyTitulo = Color(0xFF10205E)
-val SlateTexto = Color(0xFF5A6A8E)
-val SuperficieSuave = Color(0xFFF3F6FB)
-val BordeSuave = Color(0xFFE3EAF5)
-val VerdeDisponible = Color(0xFF16A34A)
-val VerdeDisponibleFondo = Color(0xFFDDF7E8)
+// Paleta de la app: crema #FAF8F2, beige #E6E2D6, salvia #B8C3B2, verde #6F8A6D, verde oscuro #2F4A33
+val NavyTitulo = Color(0xFF2F4A33)
+val SlateTexto = Color(0xFF4E654F)
+val SuperficieSuave = Color(0xFFE6E2D6)
+val BordeSuave = Color(0xFFB8C3B2)
+val VerdeDisponible = Color(0xFF2F4A33)
+val VerdeDisponibleFondo = Color(0xFFB8C3B2)

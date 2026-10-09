@@ -4,9 +4,11 @@ import com.reyes.clinicasaludplus.R
 import com.reyes.clinicasaludplus.data.model.Cita
 import com.reyes.clinicasaludplus.data.model.Especialidad
 import com.reyes.clinicasaludplus.data.model.Medico
+import com.reyes.clinicasaludplus.data.model.Sede
 import com.reyes.clinicasaludplus.data.model.Usuario
 import com.reyes.clinicasaludplus.util.FechaUtils
 import com.reyes.clinicasaludplus.util.Validaciones
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -20,13 +22,11 @@ object Repositorio {
         private set
 
     // Contadores para generar IDs únicos aunque se cancelen citas
-    private var contadorUsuarios = 1
+    private var contadorUsuarios = 0
     private var contadorCitas = 0
 
     // Colección de usuarios en memoria
-    private val usuarios = mutableListOf(
-        Usuario("u1", "Juan Pérez", "987654321", "juan@correo.com", "123456")
-    )
+    private val usuarios = mutableListOf<Usuario>()
 
     // Colección de especialidades en memoria
     private val especialidades = listOf(
@@ -39,47 +39,59 @@ object Repositorio {
         Especialidad("esp7", "Oftalmología", "Salud visual", "oftalmologia", esDestacada = false)
     )
 
+    // Sedes de la clínica
+    private val sedes = listOf(
+        Sede("s1", "Santa Anita", "Av. Los Eucaliptos 450, Santa Anita", "917100001", "Lunes a viernes, 8:00 a 19:00", R.drawable.sede_santa_anita),
+        Sede("s2", "Ate", "Av. Nicolás Ayllón 2250, Ate", "917100002", "Lunes a viernes, 8:00 a 19:00", R.drawable.sede_ate),
+        Sede("s3", "La Molina", "Av. La Molina 1820, La Molina", "917100003", "Lunes a viernes, 8:00 a 19:00", R.drawable.sede_la_molina),
+        Sede("s4", "San Isidro", "Av. Javier Prado Oeste 1100, San Isidro", "917100004", "Lunes a viernes, 8:00 a 19:00", R.drawable.sede_san_isidro)
+    )
+
+    // Turnos y días de atención de los médicos
+    private val manana = listOf("08:00", "09:00", "10:00", "11:00", "12:00")
+    private val tarde = listOf("15:00", "16:00", "17:00", "18:00")
+    private val lunMieVie = setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+    private val marJue = setOf(DayOfWeek.TUESDAY, DayOfWeek.THURSDAY)
+    private val lunAVie = setOf(
+        DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY
+    )
+    private val lunMarJue = setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY)
+    private val marMieVie = setOf(DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+
     private val medicos = listOf(
-        // Ginecología (esp3)
-        Medico("m1", "Dra. Ana Torres", "esp3", "12345", 4.8, 120.0, R.drawable.doc_ana_torres, "Ginecóloga", 120, "Disponible hoy"),
-        Medico("m2", "Dra. Claudia Rojas", "esp3", "23456", 4.8, 95.0, R.drawable.doc_claudia_rojas, "Ginecóloga", 96, "Disponible mañana"),
-        Medico("m3", "Dr. Luis Ramírez", "esp3", "34567", 4.7, 88.0, R.drawable.doc_luis_ramirez, "Ginecólogo", 88, "Disponible hoy"),
-        Medico("m4", "Dra. Mariana Soto", "esp3", "45678", 4.6, 76.0, R.drawable.doc_mariana_soto, "Ginecóloga", 76, "Disponible esta semana"),
+        // Santa Anita (s1)
+        Medico("m5", "Dr. Carlos Mendoza", "esp1", "56789", "s1", "917200005", 4.8, 80.0, R.drawable.doc_carlos_mendoza, "Médico General", 110, lunAVie, manana + tarde),
+        Medico("m6", "Dra. Elena Ramos", "esp2", "78901", "s1", "917200006", 4.9, 90.0, R.drawable.doc_elena_ramos, "Pediatra", 130, lunMieVie, manana),
+        Medico("m1", "Dra. Ana Torres", "esp3", "12345", "s1", "917200001", 4.8, 120.0, R.drawable.doc_ana_torres, "Ginecóloga", 120, marJue, manana + tarde),
+        Medico("m9", "Dr. Roberto Salas", "esp4", "90123", "s1", "917200009", 4.9, 150.0, R.drawable.doc_roberto_salas, "Cardiólogo", 140, lunMarJue, tarde),
 
-        // Medicina General (esp1)
-        Medico("m5", "Dr. Carlos Mendoza", "esp1", "56789", 4.8, 80.0, R.drawable.doc_carlos_mendoza, "Médico General", 110),
-        Medico("m7", "Dra. Rosa Delgado", "esp1", "67890", 4.5, 80.0, R.drawable.doc_rosa_delgado, "Médica General", 64, "Disponible mañana"),
+        // Ate (s2)
+        Medico("m7", "Dra. Rosa Delgado", "esp1", "67890", "s2", "917200007", 4.5, 80.0, R.drawable.doc_rosa_delgado, "Médica General", 64, marMieVie, manana + tarde),
+        Medico("m8", "Dr. Pablo Rivas", "esp2", "89012", "s2", "917200008", 4.6, 90.0, R.drawable.doc_pablo_rivas, "Pediatra", 72, marJue, tarde),
+        Medico("m2", "Dra. Claudia Rojas", "esp3", "23456", "s2", "917200002", 4.8, 95.0, R.drawable.doc_claudia_rojas, "Ginecóloga", 96, lunAVie, manana),
+        Medico("m11", "Dra. Lucía Fernández", "esp5", "11223", "s2", "917200011", 4.8, 110.0, R.drawable.doc_lucia_fernandez, "Dermatóloga", 102, lunMieVie, tarde),
 
-        // Pediatría (esp2)
-        Medico("m6", "Dra. Elena Ramos", "esp2", "78901", 4.9, 90.0, R.drawable.doc_elena_ramos, "Pediatra", 130),
-        Medico("m8", "Dr. Pablo Rivas", "esp2", "89012", 4.6, 90.0, R.drawable.doc_pablo_rivas, "Pediatra", 72, "Disponible esta semana"),
+        // La Molina (s3)
+        Medico("m10", "Dra. Patricia Vega", "esp4", "01234", "s3", "917200010", 4.7, 140.0, R.drawable.doc_patricia_vega, "Cardióloga", 83, marJue, manana),
+        Medico("m13", "Dr. Miguel Quispe", "esp6", "33445", "s3", "917200013", 4.7, 130.0, R.drawable.doc_miguel_quispe, "Traumatólogo", 91, lunMieVie, manana + tarde),
+        Medico("m3", "Dr. Luis Ramírez", "esp3", "34567", "s3", "917200003", 4.7, 88.0, R.drawable.doc_luis_ramirez, "Ginecólogo", 88, marMieVie, tarde),
+        Medico("m15", "Dra. Sofía Navarro", "esp7", "55667", "s3", "917200015", 4.8, 115.0, R.drawable.doc_sofia_navarro, "Oftalmóloga", 77, lunAVie, manana),
 
-        // Cardiología (esp4)
-        Medico("m9", "Dr. Roberto Salas", "esp4", "90123", 4.9, 150.0, R.drawable.doc_roberto_salas, "Cardiólogo", 140),
-        Medico("m10", "Dra. Patricia Vega", "esp4", "01234", 4.7, 140.0, R.drawable.doc_patricia_vega, "Cardióloga", 83, "Disponible mañana"),
-
-        // Dermatología (esp5)
-        Medico("m11", "Dra. Lucía Fernández", "esp5", "11223", 4.8, 110.0, R.drawable.doc_lucia_fernandez, "Dermatóloga", 102),
-        Medico("m12", "Dr. Jorge Paredes", "esp5", "22334", 4.5, 100.0, R.drawable.doc_jorge_paredes, "Dermatólogo", 57, "Disponible esta semana"),
-
-        // Traumatología (esp6)
-        Medico("m13", "Dr. Miguel Quispe", "esp6", "33445", 4.7, 130.0, R.drawable.doc_miguel_quispe, "Traumatólogo", 91),
-        Medico("m14", "Dr. Andrés Castillo", "esp6", "44556", 4.6, 125.0, R.drawable.doc_andres_castillo, "Traumatólogo", 68, "Disponible mañana"),
-
-        // Oftalmología (esp7)
-        Medico("m15", "Dra. Sofía Navarro", "esp7", "55667", 4.8, 115.0, R.drawable.doc_sofia_navarro, "Oftalmóloga", 77),
-        Medico("m16", "Dr. Hugo Medina", "esp7", "66778", 4.6, 105.0, R.drawable.doc_hugo_medina, "Oftalmólogo", 59, "Disponible esta semana")
+        // San Isidro (s4)
+        Medico("m12", "Dr. Jorge Paredes", "esp5", "22334", "s4", "917200012", 4.5, 100.0, R.drawable.doc_jorge_paredes, "Dermatólogo", 57, lunMarJue, manana + tarde),
+        Medico("m14", "Dr. Andrés Castillo", "esp6", "44556", "s4", "917200014", 4.6, 125.0, R.drawable.doc_andres_castillo, "Traumatólogo", 68, marJue, tarde),
+        Medico("m4", "Dra. Mariana Soto", "esp3", "45678", "s4", "917200004", 4.6, 76.0, R.drawable.doc_mariana_soto, "Ginecóloga", 76, lunMieVie, manana),
+        Medico("m16", "Dr. Hugo Medina", "esp7", "66778", "s4", "917200016", 4.6, 105.0, R.drawable.doc_hugo_medina, "Oftalmólogo", 59, marMieVie, manana + tarde)
     )
 
     // Colección de citas agendadas
     private val citas = mutableListOf<Cita>()
 
-    // Horarios base de atención
-    val horariosBase = listOf(
-        "08:00", "08:30", "09:00",
-        "09:30", "10:00", "10:30",
-        "11:00", "11:30", "12:00"
-    )
+    // Duración de cada consulta en minutos (cada horario de un médico ocupa este tiempo)
+    const val DURACION_CONSULTA_MIN = 60L
+
+    // Máximo de días hacia adelante en que se puede agendar
+    private const val MAX_DIAS_ADELANTE = 120L
 
     private const val ESTADO_CANCELADA = "Cancelada"
 
@@ -106,7 +118,6 @@ object Repositorio {
         contadorUsuarios++
         val nuevo = Usuario("u$contadorUsuarios", nombreFinal, tel, mail, contrasena)
         usuarios.add(nuevo)
-        usuarioActual = nuevo
         return true
     }
 
@@ -139,26 +150,31 @@ object Repositorio {
         }
     }
 
-    fun especialidadesDestacadas(): List<Especialidad> {
-        return especialidades.filter { it.esDestacada }.take(4)
-    }
-
     fun obtenerEspecialidad(id: String): Especialidad? = especialidades.find { it.id == id }
 
+    // --- Sedes ---
+    fun sedes(): List<Sede> = sedes
+
+    fun obtenerSede(id: String): Sede? = sedes.find { it.id == id }
+
     // --- Médicos ---
-    fun medicosPorEspecialidad(especialidadId: String): List<Medico> {
-        return medicos.filter { it.especialidadId == especialidadId }
-            .sortedByDescending { it.calificacion }
-    }
-
-    fun buscarMedicos(especialidadId: String, query: String): List<Medico> {
-        val lista = medicosPorEspecialidad(especialidadId)
-        val q = query.trim()
-        if (q.isEmpty()) return lista
-        return lista.filter { it.nombre.contains(q, ignoreCase = true) }
-    }
-
     fun obtenerMedico(id: String): Medico? = medicos.find { it.id == id }
+
+    /** Médicos filtrados por sede y/o especialidad (cadena vacía = sin filtro), ordenados por calificación. */
+    fun buscarMedicos(sedeId: String = "", especialidadId: String = "", query: String = ""): List<Medico> {
+        val q = query.trim()
+        return medicos
+            .filter { sedeId.isEmpty() || it.sedeId == sedeId }
+            .filter { especialidadId.isEmpty() || it.especialidadId == especialidadId }
+            .filter { q.isEmpty() || it.nombre.contains(q, ignoreCase = true) }
+            .sortedWith(compareByDescending<Medico> { it.calificacion }.thenBy { it.nombre })
+    }
+
+    /** Especialidades que existen en una sede (cadena vacía = todas las que tienen médicos). */
+    fun especialidadesDeSede(sedeId: String = ""): List<Especialidad> {
+        val ids = medicos.filter { sedeId.isEmpty() || it.sedeId == sedeId }.map { it.especialidadId }.toSet()
+        return especialidades.filter { it.id in ids }
+    }
 
     // --- Citas y Horarios ---
     private fun horaYaPaso(fecha: LocalDate, hora: String): Boolean {
@@ -171,26 +187,28 @@ object Repositorio {
         return !h.isAfter(LocalTime.now())
     }
 
+    /** Horas libres del médico ese día: respeta sus días/horas de atención y las citas ya reservadas. */
     fun horariosDisponibles(medicoId: String, fecha: String): List<String> {
-        if (obtenerMedico(medicoId) == null) return emptyList()
+        val medico = obtenerMedico(medicoId) ?: return emptyList()
         val dia = FechaUtils.parsearFecha(fecha) ?: return emptyList()
-        if (dia.isBefore(LocalDate.now()) || !FechaUtils.esDiaHabil(dia)) return emptyList()
+        if (dia.isBefore(LocalDate.now()) || dia.dayOfWeek !in medico.diasAtencion) return emptyList()
 
         val horasOcupadas = citas
             .filter { it.medicoId == medicoId && it.fecha == fecha && it.estado != ESTADO_CANCELADA }
             .map { it.hora }
 
-        return horariosBase.filter { it !in horasOcupadas && !horaYaPaso(dia, it) }
+        return medico.horas.filter { it !in horasOcupadas && !horaYaPaso(dia, it) }
     }
 
     // Devuelve el mensaje de error si la combinación médico/fecha/hora no puede agendarse; null si es válida
     fun validarCita(medicoId: String, fecha: String, hora: String): String? {
         val uid = usuarioActual?.id ?: return "Debes iniciar sesión para agendar una cita"
-        if (obtenerMedico(medicoId) == null) return "No se encontró al médico seleccionado"
+        val medico = obtenerMedico(medicoId) ?: return "No se encontró al médico seleccionado"
         val dia = FechaUtils.parsearFecha(fecha) ?: return "La fecha seleccionada no es válida"
         if (dia.isBefore(LocalDate.now())) return "No puedes agendar en una fecha pasada"
-        if (!FechaUtils.esDiaHabil(dia)) return "Solo se atiende de lunes a viernes"
-        if (hora !in horariosBase) return "El horario seleccionado no es válido"
+        if (dia.isAfter(LocalDate.now().plusDays(MAX_DIAS_ADELANTE))) return "Solo puedes agendar con hasta $MAX_DIAS_ADELANTE días de anticipación"
+        if (dia.dayOfWeek !in medico.diasAtencion) return "El médico no atiende ese día"
+        if (hora !in medico.horas) return "El médico no atiende en ese horario"
         if (horaYaPaso(dia, hora)) return "Ese horario ya pasó, elige otro"
         if (estaHorarioOcupado(medicoId, fecha, hora)) return "El horario seleccionado ya no está disponible"
         if (citas.any { it.usuarioId == uid && it.fecha == fecha && it.hora == hora && it.estado != ESTADO_CANCELADA }) {

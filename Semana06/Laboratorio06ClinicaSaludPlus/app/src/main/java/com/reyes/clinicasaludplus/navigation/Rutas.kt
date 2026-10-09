@@ -6,10 +6,20 @@ sealed class Rutas(val ruta: String) {
     object Login : Rutas("login")
     object Home : Rutas("home")
 
-    // Flujo de agendamiento
-    object Especialidades : Rutas("especialidades")
-    object Medicos : Rutas("medicos/{especialidadId}") {
-        fun crearRuta(especialidadId: String) = "medicos/$especialidadId"
+    // Opciones del menú lateral y flujo de agendamiento
+    object Sedes : Rutas("sedes")
+    object SedeDetalle : Rutas("sede/{sedeId}") {
+        fun crearRuta(sedeId: String) = "sede/$sedeId"
+    }
+    // Directorio de doctores; sedeId y especialidadId son filtros opcionales
+    object Doctores : Rutas("doctores?sedeId={sedeId}&especialidadId={especialidadId}") {
+        fun crearRuta(sedeId: String = "", especialidadId: String = ""): String {
+            val params = listOfNotNull(
+                sedeId.takeIf { it.isNotEmpty() }?.let { "sedeId=$it" },
+                especialidadId.takeIf { it.isNotEmpty() }?.let { "especialidadId=$it" }
+            )
+            return if (params.isEmpty()) "doctores" else "doctores?" + params.joinToString("&")
+        }
     }
     object FechaHora : Rutas("fecha_hora/{medicoId}") {
         fun crearRuta(medicoId: String) = "fecha_hora/$medicoId"
@@ -22,5 +32,4 @@ sealed class Rutas(val ruta: String) {
     // Destinos de la barra inferior y perfil
     object MisCitas : Rutas("mis_citas")
     object Perfil : Rutas("perfil")
-    object Resultados : Rutas("resultados")
 }
