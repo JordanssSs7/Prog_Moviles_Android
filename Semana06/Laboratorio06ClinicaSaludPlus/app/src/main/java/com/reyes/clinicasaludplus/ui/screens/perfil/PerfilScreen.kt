@@ -1,25 +1,58 @@
 package com.reyes.clinicasaludplus.ui.screens.perfil
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BarraSuperiorConVolver
-import com.reyes.clinicasaludplus.ui.theme.*
+import com.reyes.clinicasaludplus.ui.components.DialogoConfirmacion
+import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.Blanco
+import com.reyes.clinicasaludplus.ui.theme.BordeSuave
+import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
+import com.reyes.clinicasaludplus.ui.theme.RojoAlerta
+import com.reyes.clinicasaludplus.ui.theme.SlateTexto
 
 @Composable
 fun PerfilScreen(
@@ -27,11 +60,20 @@ fun PerfilScreen(
     alVolver: () -> Unit
 ) {
     val usuario = Repositorio.usuarioActual
+    var confirmarSalida by rememberSaveable { mutableStateOf(false) }
+    val totalCitas = Repositorio.citasDelUsuario().size
+
+    val nombre = usuario?.nombreCompleto ?: "Paciente"
+    val iniciales = nombre.trim().split(" ").filter { it.isNotBlank() }
+        .take(2).joinToString("") { it.first().uppercase() }
+        .ifEmpty { "P" }
+    val correo = usuario?.correo?.ifBlank { null }
 
     Scaffold(
+        containerColor = Blanco,
         topBar = {
             BarraSuperiorConVolver(
-                titulo = "Mi Perfil",
+                titulo = "Mis datos",
                 alVolver = alVolver
             )
         }
@@ -40,104 +82,175 @@ fun PerfilScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(FondoGris)
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
-
+            // Encabezado con degradado: avatar con iniciales, nombre y contacto
             Box(
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(AzulClaro),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(
+                        Brush.linearGradient(
+                            listOf(Color(0xFF0B6BFF), Color(0xFF4C9BFF))
+                        )
+                    )
+                    .padding(vertical = 26.dp, horizontal = 16.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    tint = AzulPrimario,
-                    modifier = Modifier.size(50.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = usuario?.nombreCompleto ?: "Paciente",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextoOscuro
-            )
-            Text(
-                text = usuario?.correo ?: "",
-                fontSize = 13.sp,
-                color = TextoGris
-            )
-
-            Spacer(modifier = Modifier.height(28.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = Blanco)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    FilaDatoPerfil(
-                        icono = Icons.Default.Person,
-                        etiqueta = "Nombre completo",
-                        valor = usuario?.nombreCompleto ?: "-"
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Surface(
+                        modifier = Modifier.size(92.dp),
+                        shape = CircleShape,
+                        color = Blanco,
+                        shadowElevation = 4.dp
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = iniciales,
+                                fontSize = 34.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = AzulPrimario
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Text(
+                        text = nombre,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Blanco
                     )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = BordeGris)
-                    FilaDatoPerfil(
-                        icono = Icons.Default.Email,
-                        etiqueta = "Correo registrado",
-                        valor = usuario?.correo ?: "-"
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = correo ?: usuario?.telefono ?: "Sesión no iniciada",
+                        fontSize = 15.sp,
+                        color = Blanco.copy(alpha = 0.85f)
                     )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = BordeGris)
-                    FilaDatoPerfil(
-                        icono = Icons.Default.Phone,
-                        etiqueta = "Teléfono de contacto",
-                        valor = usuario?.telefono ?: "-"
-                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = Blanco.copy(alpha = 0.18f)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarMonth,
+                                contentDescription = null,
+                                tint = Blanco,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (totalCitas == 1) "1 cita agendada" else "$totalCitas citas agendadas",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Blanco
+                            )
+                        }
+                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Button(
-                onClick = {
-                    Repositorio.cerrarSesion()
-                    alCerrarSesion()
-                },
+            Text(
+                text = "Información personal",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = NavyTitulo,
+                modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(22.dp),
+                color = Blanco,
+                shadowElevation = 3.dp,
+                border = BorderStroke(1.dp, BordeSuave)
+            ) {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
+                    FilaDatoPerfil(Icons.Default.Person, "Nombre completo", nombre)
+                    HorizontalDivider(color = BordeSuave)
+                    FilaDatoPerfil(Icons.Default.Phone, "Teléfono de contacto", usuario?.telefono ?: "-")
+                    HorizontalDivider(color = BordeSuave)
+                    FilaDatoPerfil(Icons.Default.Email, "Correo registrado", correo ?: "No registrado")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            OutlinedButton(
+                onClick = { confirmarSalida = true },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = RojoAlerta.copy(alpha = 0.1f),
+                    .height(54.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = RojoAlerta.copy(alpha = 0.06f),
                     contentColor = RojoAlerta
-                )
+                ),
+                border = BorderStroke(1.dp, RojoAlerta.copy(alpha = 0.45f))
             ) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Cerrar sesión", fontWeight = FontWeight.SemiBold)
+                Text(text = "Cerrar sesión", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Clínica SaludPlus · Versión 1.0",
+                fontSize = 13.sp,
+                color = SlateTexto,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
+
+    DialogoConfirmacion(
+        mostrar = confirmarSalida,
+        titulo = "¿Cerrar sesión?",
+        mensaje = "Tendrás que iniciar sesión nuevamente para ver y agendar tus citas.",
+        onConfirmar = {
+            confirmarSalida = false
+            Repositorio.cerrarSesion()
+            alCerrarSesion()
+        },
+        onDescartar = { confirmarSalida = false }
+    )
 }
 
 @Composable
 fun FilaDatoPerfil(
-    icono: androidx.compose.ui.graphics.vector.ImageVector,
+    icono: ImageVector,
     etiqueta: String,
     valor: String
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icono, contentDescription = null, tint = AzulPrimario, modifier = Modifier.size(20.dp))
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
-            Text(etiqueta, fontSize = 11.sp, color = TextoGris)
-            Text(valor, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextoOscuro)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            modifier = Modifier.size(48.dp),
+            shape = RoundedCornerShape(14.dp),
+            color = Color(0xFFEAF2FF)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(icono, contentDescription = null, tint = AzulPrimario, modifier = Modifier.size(24.dp))
+            }
+        }
+        Spacer(modifier = Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+            Text(etiqueta, fontSize = 14.sp, color = SlateTexto)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(valor, fontSize = 17.sp, fontWeight = FontWeight.Medium, color = NavyTitulo)
         }
     }
 }

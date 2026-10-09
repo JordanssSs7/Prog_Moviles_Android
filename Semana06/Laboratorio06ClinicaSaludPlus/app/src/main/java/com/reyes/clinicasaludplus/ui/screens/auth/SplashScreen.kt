@@ -2,17 +2,31 @@ package com.reyes.clinicasaludplus.ui.screens.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -20,7 +34,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.R
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
-import com.reyes.clinicasaludplus.ui.theme.*
+import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
+import com.reyes.clinicasaludplus.ui.theme.SlateTexto
+
+private val FondoSplash = Color(0xFFF2F7FF)
 
 @Composable
 fun SplashScreen(
@@ -30,110 +48,143 @@ fun SplashScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Blanco)
-            .statusBarsPadding() // Evita que se solape con la cámara o barra de estado
-            .navigationBarsPadding()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .background(FondoSplash)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(36.dp))
 
-        // --- 1. LOGO DE LA CLÍNICA (Cruz con corazón compuesto) ---
-        Box(
-            modifier = Modifier.size(72.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            // Fondo de la cruz médica (cápsula vertical y horizontal)
-            Box(
-                modifier = Modifier
-                    .size(width = 30.dp, height = 70.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF2563EB))
-            )
-            Box(
-                modifier = Modifier
-                    .size(width = 70.dp, height = 30.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF2563EB))
-            )
-            // Detalle superior derecho en celeste característico
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFF60A5FA).copy(alpha = 0.85f))
-            )
-            // Corazón blanco central
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = "Corazón",
-                tint = Blanco,
-                modifier = Modifier.size(26.dp)
-            )
-        }
+        LogoSaludPlus()
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // --- 2. TEXTOS INSTITUCIONALES ---
         Text(
             text = "Clínica",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF1E3A8A)
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color = NavyTitulo
         )
         Text(
             text = "SaludPlus",
-            fontSize = 32.sp,
+            fontSize = 44.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = Color(0xFF1E40AF)
+            color = NavyTitulo,
+            lineHeight = 46.sp
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Tu salud, nuestra prioridad",
-            fontSize = 14.sp,
-            color = Color(0xFF64748B)
+            fontSize = 18.sp,
+            color = SlateTexto
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // --- 3. ILUSTRACIÓN MÉDICA CENTRADA ---
+        // Ilustración a todo el ancho sobre nubes de fondo
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
-            contentAlignment = Alignment.Center
+                .weight(1f)
+                .drawBehind { dibujarNubes() },
+            contentAlignment = Alignment.BottomCenter
         ) {
             Image(
-                painter = painterResource(id = R.drawable.img_doctor_splash),
+                painter = painterResource(id = R.drawable.img_doctor_splash_t),
                 contentDescription = "Doctor SaludPlus",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.95f),
-                contentScale = ContentScale.Fit
+                    .padding(bottom = 4.dp),
+                contentScale = ContentScale.FillWidth,
+                alignment = Alignment.BottomCenter
             )
         }
 
-        // --- 4. BOTONES INFERIORES ---
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 12.dp),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             BotonPrimario(
                 texto = "Comenzar",
                 onClick = alIrARegistro
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            TextButton(onClick = alIrALogin) {
+            TextButton(
+                onClick = alIrALogin,
+                modifier = Modifier.padding(vertical = 4.dp)
+            ) {
                 Text(
                     text = "Ya tengo una cuenta",
-                    color = Color(0xFF2563EB),
+                    color = AzulPrimario,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp
+                    fontSize = 17.sp
                 )
             }
         }
+    }
+}
+
+// Una nube = varios círculos y óvalos superpuestos
+private fun DrawScope.nube(cx: Float, cy: Float, ancho: Float, color: Color) {
+    val alto = ancho * 0.42f
+    drawOval(color, Offset(cx - ancho / 2, cy - alto / 2 + alto * 0.18f), Size(ancho, alto * 0.82f))
+    drawCircle(color, alto * 0.50f, Offset(cx - ancho * 0.20f, cy))
+    drawCircle(color, alto * 0.64f, Offset(cx + ancho * 0.05f, cy - alto * 0.14f))
+    drawCircle(color, alto * 0.46f, Offset(cx + ancho * 0.28f, cy + alto * 0.02f))
+}
+
+// Nubes suaves de fondo (azul muy claro) detrás del doctor
+private fun DrawScope.dibujarNubes() {
+    val w = size.width
+    val h = size.height
+    val claro = Color(0xFFE2EEFC)
+    val medio = Color(0xFFD3E5FA)
+    nube(w * 0.80f, h * 0.20f, w * 0.62f, claro)
+    nube(w * 0.18f, h * 0.30f, w * 0.50f, claro)
+    nube(w * 0.52f, h * 0.36f, w * 0.80f, medio.copy(alpha = 0.65f))
+    nube(w * 0.14f, h * 0.62f, w * 0.44f, medio.copy(alpha = 0.60f))
+    nube(w * 0.90f, h * 0.55f, w * 0.46f, medio.copy(alpha = 0.60f))
+    nube(w * 0.50f, h * 0.88f, w * 0.95f, claro)
+}
+
+/** Logo: cruz azul con burbuja turquesa y corazón blanco. */
+@Composable
+private fun LogoSaludPlus() {
+    Box(modifier = Modifier.size(width = 128.dp, height = 116.dp)) {
+        // Brazo vertical
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(end = 14.dp)
+                .size(width = 50.dp, height = 116.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color(0xFF1366F0))
+        )
+        // Brazo horizontal
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .size(width = 112.dp, height = 50.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color(0xFF1366F0))
+        )
+        // Burbuja turquesa
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(bottom = 26.dp)
+                .size(width = 62.dp, height = 56.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .background(Color(0xFF17A2A8))
+        )
+        // Corazón
+        Icon(
+            imageVector = Icons.Default.Favorite,
+            contentDescription = "SaludPlus",
+            tint = Color.White,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(start = 4.dp)
+                .size(40.dp)
+        )
     }
 }

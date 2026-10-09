@@ -1,30 +1,66 @@
 package com.reyes.clinicasaludplus.ui.screens.agendamiento
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
-import com.reyes.clinicasaludplus.ui.theme.*
+import com.reyes.clinicasaludplus.ui.components.FotoMedico
+import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.Blanco
+import com.reyes.clinicasaludplus.ui.theme.BordeGris
+import com.reyes.clinicasaludplus.ui.theme.FondoGris
+import com.reyes.clinicasaludplus.ui.theme.TextoGris
+import com.reyes.clinicasaludplus.ui.theme.TextoOscuro
+import com.reyes.clinicasaludplus.ui.theme.VerdeExito
+import com.reyes.clinicasaludplus.util.FechaUtils
 
 @Composable
 fun CitaExitosaScreen(
     alIrAInicio: () -> Unit,
     alIrAMisCitas: () -> Unit
 ) {
+    val cita = remember { Repositorio.ultimaCita }
+    val medico = remember(cita) { cita?.let { Repositorio.obtenerMedico(it.medicoId) } }
+    val especialidad = remember(cita) { cita?.let { Repositorio.obtenerEspecialidad(it.especialidadId) } }
+    val fechaLegible = remember(cita) {
+        cita?.let { FechaUtils.parsearFecha(it.fecha)?.let { f -> FechaUtils.formatearFechaCompleta(f) } ?: it.fecha }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(FondoGris)
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -45,15 +81,56 @@ fun CitaExitosaScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        Text("¡Cita Agendada!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = TextoOscuro)
+        Text("¡Cita agendada!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = TextoOscuro)
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             "Tu cita médica ha sido confirmada con éxito.",
             fontSize = 14.sp,
-            color = TextoGris
+            color = TextoGris,
+            textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(36.dp))
+        // Resumen de la cita recién agendada
+        if (cita != null) {
+            Spacer(modifier = Modifier.height(28.dp))
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                color = Blanco,
+                shadowElevation = 1.dp,
+                border = BorderStroke(1.dp, BordeGris)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        FotoMedico(medico = medico, tamano = 54.dp)
+                        Spacer(modifier = Modifier.width(14.dp))
+                        Column {
+                            Text(
+                                text = medico?.nombre ?: "Médico",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = TextoOscuro
+                            )
+                            Text(
+                                text = especialidad?.nombre ?: "",
+                                fontSize = 12.sp,
+                                color = TextoGris
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(14.dp))
+                    FilaResumen("Fecha", fechaLegible ?: "")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    FilaResumen("Hora", "${cita.hora} hrs")
+                    if (cita.motivo.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        FilaResumen("Motivo", cita.motivo)
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
 
         BotonPrimario(
             texto = "Ver mis citas",
@@ -63,7 +140,23 @@ fun CitaExitosaScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         TextButton(onClick = alIrAInicio) {
-            Text("Volver al Inicio", color = AzulPrimario, fontWeight = FontWeight.SemiBold)
+            Text("Volver al inicio", color = AzulPrimario, fontWeight = FontWeight.SemiBold)
         }
+    }
+}
+
+@Composable
+private fun FilaResumen(etiqueta: String, valor: String) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(text = etiqueta, fontSize = 12.sp, color = TextoGris)
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = valor,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = TextoOscuro,
+            textAlign = TextAlign.End,
+            modifier = Modifier.weight(1f, fill = false)
+        )
     }
 }

@@ -1,34 +1,56 @@
 package com.reyes.clinicasaludplus.ui.screens.agendamiento
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.clinicasaludplus.data.repository.Repositorio
 import com.reyes.clinicasaludplus.ui.components.BarraSuperiorConVolver
 import com.reyes.clinicasaludplus.ui.components.BotonPrimario
-import com.reyes.clinicasaludplus.ui.theme.*
+import com.reyes.clinicasaludplus.ui.components.FotoMedico
+import com.reyes.clinicasaludplus.ui.theme.AzulPrimario
+import com.reyes.clinicasaludplus.ui.theme.Blanco
+import com.reyes.clinicasaludplus.ui.theme.BordeSuave
+import com.reyes.clinicasaludplus.ui.theme.NavyTitulo
+import com.reyes.clinicasaludplus.ui.theme.RojoAlerta
+import com.reyes.clinicasaludplus.ui.theme.SlateTexto
+import com.reyes.clinicasaludplus.ui.theme.SuperficieSuave
 import com.reyes.clinicasaludplus.util.FechaUtils
 
 @Composable
@@ -38,21 +60,32 @@ fun FechaHoraScreen(
     alVolver: () -> Unit
 ) {
     val medico = remember(medicoId) { Repositorio.obtenerMedico(medicoId) }
-    val especialidad = remember(medico) {
-        medico?.let { Repositorio.obtenerEspecialidad(it.especialidadId) }
-    }
 
-    var semanaOffset by remember { mutableStateOf(0L) }
+    // Calendario dinámico: 5 días hábiles desde hoy; cada flecha mueve una "semana" (5 días hábiles)
+    var semanaOffset by rememberSaveable { mutableStateOf(0L) }
     val diasHabiles = remember(semanaOffset) { FechaUtils.obtenerDiasHabiles(semanaOffset) }
-    var fechaSeleccionada by remember(semanaOffset) { mutableStateOf(diasHabiles.first().fecha) }
-    var horaSeleccionada by remember { mutableStateOf<String?>(null) }
+    var fechaSeleccionada by rememberSaveable { mutableStateOf(FechaUtils.obtenerDiasHabiles(0).first().fecha.toString()) }
+    var horaSeleccionada by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val horariosDisponibles = remember(medicoId, fechaSeleccionada) {
-        Repositorio.horariosDisponibles(medicoId, fechaSeleccionada.toString())
+    // Si la fecha guardada ya no pertenece a la semana mostrada (p. ej. al rotar), vuelve al primer día
+    if (diasHabiles.none { it.fecha.toString() == fechaSeleccionada }) {
+        fechaSeleccionada = diasHabiles.first().fecha.toString()
     }
+
+    // Se recalcula al cambiar de médico o de día; respeta los horarios ya reservados
+    val horariosDisponibles = remember(medicoId, fechaSeleccionada) {
+        Repositorio.horariosDisponibles(medicoId, fechaSeleccionada)
+    }
+    // Si la hora elegida ya no está disponible, se reinicia
+    if (horaSeleccionada != null && horaSeleccionada !in horariosDisponibles) {
+        horaSeleccionada = null
+    }
+
+    val fechaParaMes = FechaUtils.parsearFecha(fechaSeleccionada) ?: diasHabiles.first().fecha
+    val puedeRetroceder = semanaOffset > 0
 
     Scaffold(
-        containerColor = Color(0xFFFBFBFD),
+        containerColor = Blanco,
         topBar = {
             BarraSuperiorConVolver(
                 titulo = "Seleccionar fecha y hora",
@@ -64,117 +97,103 @@ fun FechaHoraScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Column {
-                // --- 1. TARJETA DEL MÉDICO CON FOTO CIRCULAR ---
-                medico?.let {
+                // --- 1. TARJETA DEL MÉDICO ---
+                if (medico != null) {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(18.dp),
-                        color = Blanco,
-                        shadowElevation = 1.dp,
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9))
+                        shape = RoundedCornerShape(20.dp),
+                        color = SuperficieSuave
                     ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (it.fotoRes != 0) {
-                                Image(
-                                    painter = painterResource(id = it.fotoRes),
-                                    contentDescription = it.nombre,
-                                    modifier = Modifier
-                                        .size(62.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .size(62.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFFEFF6FF)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
-                                        contentDescription = null,
-                                        tint = AzulPrimario,
-                                        modifier = Modifier.size(36.dp)
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
+                            FotoMedico(medico = medico, tamano = 92.dp)
+                            Spacer(modifier = Modifier.width(18.dp))
                             Column {
                                 Text(
-                                    text = it.nombre,
+                                    text = medico.nombre,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                    color = Color(0xFF1E293B)
+                                    fontSize = 22.sp,
+                                    color = NavyTitulo
                                 )
-                                Spacer(modifier = Modifier.height(2.dp))
+                                Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = especialidad?.nombre ?: it.cmp,
-                                    fontSize = 13.sp,
-                                    color = Color(0xFF64748B)
+                                    text = medico.profesion,
+                                    fontSize = 18.sp,
+                                    color = SlateTexto
                                 )
                             }
                         }
                     }
+                } else {
+                    Text(
+                        text = "No se encontró al médico seleccionado. Vuelve atrás y elige otro.",
+                        color = RojoAlerta,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                HorizontalDivider(color = BordeSuave)
 
-                // --- 2. SELECTOR DE MES CON FLECHAS ---
+                // --- 2. SELECTOR DE MES CON FLECHAS (UNA SEMANA POR PASO) ---
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
                         onClick = {
-                            if (semanaOffset > 0) {
+                            if (puedeRetroceder) {
                                 semanaOffset--
+                                fechaSeleccionada = FechaUtils.obtenerDiasHabiles(semanaOffset).first().fecha.toString()
                                 horaSeleccionada = null
                             }
                         },
-                        enabled = semanaOffset > 0
+                        enabled = puedeRetroceder
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                             contentDescription = "Semana anterior",
-                            tint = if (semanaOffset > 0) Color(0xFF1E293B) else Color(0xFFCBD5E1)
+                            tint = if (puedeRetroceder) NavyTitulo else Color(0xFFCBD5E1),
+                            modifier = Modifier.size(32.dp)
                         )
                     }
 
                     Text(
-                        text = FechaUtils.obtenerEncabezadoMes(fechaSeleccionada),
+                        text = FechaUtils.obtenerEncabezadoMes(fechaParaMes),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color(0xFF1E293B)
+                        fontSize = 19.sp,
+                        color = NavyTitulo
                     )
 
                     IconButton(
                         onClick = {
                             semanaOffset++
+                            fechaSeleccionada = FechaUtils.obtenerDiasHabiles(semanaOffset).first().fecha.toString()
                             horaSeleccionada = null
                         }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                             contentDescription = "Semana siguiente",
-                            tint = Color(0xFF1E293B)
+                            tint = NavyTitulo,
+                            modifier = Modifier.size(32.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // --- 3. CÁPSULAS DE DÍAS HÁBILES ---
                 Row(
@@ -182,19 +201,20 @@ fun FechaHoraScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     diasHabiles.forEach { dia ->
-                        val esSeleccionado = dia.fecha == fechaSeleccionada
+                        val esSeleccionado = dia.fecha.toString() == fechaSeleccionada
                         Surface(
                             modifier = Modifier
                                 .weight(1f)
-                                .height(78.dp)
+                                .height(88.dp)
+                                .clip(RoundedCornerShape(18.dp))
                                 .clickable {
-                                    fechaSeleccionada = dia.fecha
-                                    horaSeleccionada = null
+                                    if (!esSeleccionado) {
+                                        fechaSeleccionada = dia.fecha.toString()
+                                        horaSeleccionada = null
+                                    }
                                 },
-                            shape = RoundedCornerShape(16.dp),
-                            color = if (esSeleccionado) AzulPrimario else Blanco,
-                            shadowElevation = if (esSeleccionado) 3.dp else 1.dp,
-                            border = if (!esSeleccionado) androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF1F5F9)) else null
+                            shape = RoundedCornerShape(18.dp),
+                            color = if (esSeleccionado) AzulPrimario else SuperficieSuave
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -203,70 +223,86 @@ fun FechaHoraScreen(
                             ) {
                                 Text(
                                     text = dia.nombreDia,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = if (esSeleccionado) Blanco else Color(0xFF64748B)
+                                    fontSize = 15.sp,
+                                    color = if (esSeleccionado) Blanco else SlateTexto
                                 )
-                                Spacer(modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = dia.numeroDia,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (esSeleccionado) Blanco else Color(0xFF1E293B)
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = if (esSeleccionado) Blanco else Color(0xFF111827)
                                 )
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // --- 4. GRILLA DE HORARIOS AMPLIOS (3x3) ---
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(horariosDisponibles) { hora ->
-                        val estaSeleccionada = horaSeleccionada == hora
-                        Surface(
-                            modifier = Modifier
-                                .height(52.dp)
-                                .clickable { horaSeleccionada = hora },
-                            shape = RoundedCornerShape(14.dp),
-                            color = if (estaSeleccionada) AzulPrimario else Blanco,
-                            shadowElevation = if (estaSeleccionada) 2.dp else 1.dp,
-                            border = if (!estaSeleccionada) androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0)) else null
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxSize()
+                // --- 4. GRILLA DE HORARIOS DISPONIBLES ---
+                if (horariosDisponibles.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No hay horarios disponibles para este día. Prueba con otro día.",
+                            fontSize = 14.sp,
+                            color = SlateTexto,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(horariosDisponibles, key = { it }) { hora ->
+                            val estaSeleccionada = horaSeleccionada == hora
+                            Surface(
+                                modifier = Modifier
+                                    .height(58.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .clickable { horaSeleccionada = hora },
+                                shape = RoundedCornerShape(16.dp),
+                                color = if (estaSeleccionada) AzulPrimario else SuperficieSuave,
+                                border = if (!estaSeleccionada) BorderStroke(1.dp, BordeSuave) else null
                             ) {
-                                Text(
-                                    text = hora,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = if (estaSeleccionada) Blanco else Color(0xFF1E293B)
-                                )
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Text(
+                                        text = hora,
+                                        fontSize = 19.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = if (estaSeleccionada) Blanco else Color(0xFF111827)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // --- 5. BOTÓN CONTINUAR INFERIOR ---
+            // --- 5. BOTÓN CONTINUAR: solo con médico, día y hora elegidos ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp)
+                    .padding(top = 12.dp, bottom = 8.dp)
             ) {
                 BotonPrimario(
                     texto = "Continuar",
-                    habilitado = horaSeleccionada != null,
+                    habilitado = medico != null && horaSeleccionada != null,
                     onClick = {
-                        horaSeleccionada?.let { hora ->
-                            alContinuar(fechaSeleccionada.toString(), hora)
+                        val hora = horaSeleccionada
+                        if (medico != null && hora != null) {
+                            alContinuar(fechaSeleccionada, hora)
                         }
                     }
                 )
