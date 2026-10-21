@@ -37,7 +37,7 @@ interface LavaRepository {
     suspend fun marcarPagado(id: Int, pagado: Boolean)
     fun observarCasillerosOcupados(): Flow<List<String>>
 
-    // Panel
+    // Panell
     fun observarPedidosDeFecha(fecha: String): Flow<Int>
     fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int>
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
