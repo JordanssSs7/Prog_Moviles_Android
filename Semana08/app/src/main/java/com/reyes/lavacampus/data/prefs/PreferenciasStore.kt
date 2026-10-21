@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 // Declarada una sola vez, a nivel de archivo
 val Context.dataStore by preferencesDataStore("ajustes")
 
-/** Preferencias pequenas (clave-valor). Los pedidos, servicios y usuarios van en Room. */
+/** Preferencias pequenas (clave-valor). Los pedidos, servicios y usuarios van en Roomm. */
 class PreferenciasStore(private val context: Context) {
 
     private object Claves {
