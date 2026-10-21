@@ -17,10 +17,14 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.reyes.lavacampus.model.Rol
 import com.reyes.lavacampus.ui.administrador.ServiciosScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.reyes.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.reyes.lavacampus.ui.estudiante.InicioScreen
 import com.reyes.lavacampus.ui.estudiante.LoginScreen
 import com.reyes.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.reyes.lavacampus.ui.estudiante.SplashScreen
+import com.reyes.lavacampus.viewmodel.DetallePedidoViewModel
 import com.reyes.lavacampus.viewmodel.InicioViewModel
 import com.reyes.lavacampus.viewmodel.LavaViewModelFactory
 import com.reyes.lavacampus.viewmodel.NuevoPedidoViewModel
@@ -71,6 +75,17 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                 )
             }
         }
+        composable(
+            route = Rutas.DETALLE_PEDIDO,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entrada ->
+            val id = entrada.arguments?.getInt("id") ?: return@composable
+            val vm: DetallePedidoViewModel = viewModel(
+                key = "detalle-$id",
+                factory = viewModelFactory { initializer { DetallePedidoViewModel(factory.repo, id) } }
+            )
+            DetallePedidoScreen(vm = vm, onVolver = { navController.popBackStack() })
+        }
         // Destinos temporales: se reemplazan en el Paso 7 (Inicio) y el Paso 11 (Panel)
         composable(Rutas.INICIO) {
             val usuario by sesion.usuarioActual.collectAsState()
@@ -83,7 +98,7 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                 InicioScreen(
                     vm = vm,
                     onNuevoPedido = { navController.navigate(Rutas.NUEVO_PEDIDO) },
-                    onVerPedido = { /* TODO (Paso 9) */ },
+                    onVerPedido = { id -> navController.navigate(Rutas.detalle(id)) },
                     onMisPedidos = { /* TODO (Paso 10) */ },
                     onTarifas = { /* TODO (Paso 10) */ }
                 )

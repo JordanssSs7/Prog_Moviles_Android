@@ -6,6 +6,8 @@ object Rutas {
     const val INICIO = "inicio" // estudiante (Paso 7)
     const val PANEL = "panel" // administrador (Paso 11)
     const val NUEVO_PEDIDO = "nuevo_pedido"
+    const val DETALLE_PEDIDO = "detalle/{id}"
+    fun detalle(id: Int) = "detalle/$id"
     const val SERVICIOS = "servicios"
     // TODO: las demas rutas se agregan en los pasos siguientes
 }
