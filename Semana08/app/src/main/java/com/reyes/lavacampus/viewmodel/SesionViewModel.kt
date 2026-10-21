@@ -32,6 +32,12 @@ class SesionViewModel(
     val modoOscuro: StateFlow<Boolean> = prefs.modoOscuro
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    val notificaciones: StateFlow<Boolean> = prefs.notificaciones
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val recibirPedidos: StateFlow<Boolean> = prefs.recibirPedidos
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
     init {
         // Si ya hay un perfil guardado, se recupera el usuario y se salta el login
         viewModelScope.launch {
@@ -67,5 +73,38 @@ class SesionViewModel(
 
     fun limpiarError() {
         _error.value = null
+    }
+
+    fun cambiarModoOscuro(activo: Boolean) {
+        viewModelScope.launch { prefs.guardarModoOscuro(activo) }
+    }
+
+    fun cambiarNotificaciones(activo: Boolean) {
+        viewModelScope.launch { prefs.guardarNotificaciones(activo) }
+    }
+
+    fun cambiarRecibirPedidos(activo: Boolean) {
+        viewModelScope.launch { prefs.guardarRecibirPedidos(activo) }
+    }
+
+    /** Guarda el otro perfil y avisa para navegar a su grafo (modo practica: ambos conviven). */
+    fun cambiarPerfil(alTerminar: (Rol) -> Unit) {
+        val actual = _usuarioActual.value ?: return
+        val otroRol = if (actual.rol == Rol.ADMIN.name) Rol.CLIENTE else Rol.ADMIN
+        viewModelScope.launch {
+            val otro = repo.obtenerUsuarioPorRol(otroRol.name) ?: return@launch
+            prefs.guardarSesion(otro.rol, otro.id)
+            _usuarioActual.value = otro
+            alTerminar(otroRol)
+        }
+    }
+
+    fun cerrarSesion(alTerminar: () -> Unit) {
+        viewModelScope.launch {
+            prefs.cerrarSesion()
+            _error.value = null
+            _usuarioActual.value = null
+            alTerminar()
+        }
     }
 }

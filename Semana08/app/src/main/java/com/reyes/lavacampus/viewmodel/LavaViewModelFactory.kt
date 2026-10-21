@@ -7,7 +7,7 @@ import com.reyes.lavacampus.data.repository.LavaRepository
 
 class LavaViewModelFactory(
     val repo: LavaRepository,
-    private val prefs: PreferenciasStore
+    val prefs: PreferenciasStore
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -16,7 +16,7 @@ class LavaViewModelFactory(
         modelClass.isAssignableFrom(SesionViewModel::class.java) -> SesionViewModel(repo, prefs)
         modelClass.isAssignableFrom(TarifasViewModel::class.java) -> TarifasViewModel(repo)
         modelClass.isAssignableFrom(PanelViewModel::class.java) -> PanelViewModel(repo)
-        // TODO: se agregan los demas ViewModels en los pasos siguientes
+        modelClass.isAssignableFrom(ClientesViewModel::class.java) -> ClientesViewModel(repo)
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     } as T
 }

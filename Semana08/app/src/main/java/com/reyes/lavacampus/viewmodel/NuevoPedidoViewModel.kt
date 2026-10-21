@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reyes.lavacampus.data.local.entity.Servicio
 import com.reyes.lavacampus.data.local.entity.Usuario
+import com.reyes.lavacampus.data.prefs.PreferenciasStore
 import com.reyes.lavacampus.data.repository.LavaRepository
 import com.reyes.lavacampus.model.LineaPedido
 import com.reyes.lavacampus.model.Unidad
@@ -34,8 +35,13 @@ fun calcularFechaEntrega(hoy: LocalDate, dias: Int): LocalDate {
 
 class NuevoPedidoViewModel(
     private val repo: LavaRepository,
+    prefs: PreferenciasStore,
     private val usuario: Usuario
 ) : ViewModel() {
+
+    /** Si el administrador apaga "Recibir pedidos", el estudiante no puede crear uno. */
+    val recibiendoPedidos: StateFlow<Boolean> = prefs.recibirPedidos
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     val servicios: StateFlow<List<Servicio>> = repo.observarServiciosActivos()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -95,6 +101,10 @@ class NuevoPedidoViewModel(
             .map { LineaPedido(it.key, it.value) }
         val entrega = fechaEntrega.value
         if (lineas.isEmpty() || entrega == null) return
+        if (!recibiendoPedidos.value) {
+            _mensaje.value = "La lavandería no está recibiendo pedidos"
+            return
+        }
         viewModelScope.launch {
             if (repo.contarActivos(usuario.id) >= MAX_PEDIDOS_ACTIVOS) {
                 _mensaje.value = "Ya tienes $MAX_PEDIDOS_ACTIVOS pedidos activos"

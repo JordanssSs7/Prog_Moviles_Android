@@ -15,7 +15,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +34,7 @@ import com.reyes.lavacampus.ui.components.graficos.GraficoDona
 import com.reyes.lavacampus.viewmodel.PanelViewModel
 
 @Composable
-fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerPedidos: () -> Unit) {
+fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit) {
     val pedidosHoy by vm.pedidosHoy.collectAsState()
     val enProceso by vm.enProceso.collectAsState()
     val porRecoger by vm.porRecoger.collectAsState()
@@ -98,10 +97,6 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerPedidos: () ->
                         Button(onClick = onVerListos) { Text("Ver") }
                     }
                 }
-            }
-
-            OutlinedButton(onClick = onVerPedidos, modifier = Modifier.fillMaxWidth()) {
-                Text("Ver todos los pedidos")
             }
 
             // Dona: pedidos por estado
