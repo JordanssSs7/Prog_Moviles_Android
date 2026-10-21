@@ -10,6 +10,10 @@ object Rutas {
     const val TARIFAS = "tarifas"
     const val DETALLE_PEDIDO = "detalle/{id}"
     fun detalle(id: Int) = "detalle/$id"
+    const val BANDEJA = "bandeja?estado={estado}"
+    fun bandeja(estado: String = "") = "bandeja?estado=$estado"
+    const val GESTION = "gestion/{id}"
+    fun gestion(id: Int) = "gestion/$id"
     const val SERVICIOS = "servicios"
     // TODO: las demas rutas se agregan en los pasos siguientes
 }

@@ -16,6 +16,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.reyes.lavacampus.model.Rol
+import com.reyes.lavacampus.model.EstadoPedido
+import com.reyes.lavacampus.ui.administrador.BandejaScreen
+import com.reyes.lavacampus.ui.administrador.GestionPedidoScreen
 import com.reyes.lavacampus.ui.administrador.PanelScreen
 import com.reyes.lavacampus.ui.administrador.ServiciosScreen
 import androidx.navigation.NavType
@@ -27,7 +30,9 @@ import com.reyes.lavacampus.ui.estudiante.MisPedidosScreen
 import com.reyes.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.reyes.lavacampus.ui.estudiante.TarifasScreen
 import com.reyes.lavacampus.ui.estudiante.SplashScreen
+import com.reyes.lavacampus.viewmodel.BandejaViewModel
 import com.reyes.lavacampus.viewmodel.DetallePedidoViewModel
+import com.reyes.lavacampus.viewmodel.GestionPedidoViewModel
 import com.reyes.lavacampus.viewmodel.InicioViewModel
 import com.reyes.lavacampus.viewmodel.LavaViewModelFactory
 import com.reyes.lavacampus.viewmodel.MisPedidosViewModel
@@ -133,8 +138,39 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
         }
         composable(Rutas.PANEL) {
             val vm: PanelViewModel = viewModel(factory = factory)
-            // TODO (Paso 12): "Ver" abrira la bandeja filtrada por pedidos LISTO
-            PanelScreen(vm = vm, onVerListos = { })
+            PanelScreen(
+                vm = vm,
+                onVerListos = { navController.navigate(Rutas.bandeja(EstadoPedido.LISTO.name)) },
+                onVerPedidos = { navController.navigate(Rutas.bandeja()) }
+            )
+        }
+        composable(
+            route = Rutas.BANDEJA,
+            arguments = listOf(navArgument("estado") { type = NavType.StringType; defaultValue = "" })
+        ) { entrada ->
+            // Filtro inicial opcional (el boton "Ver" del panel abre la bandeja en LISTO)
+            val filtro = entrada.arguments?.getString("estado").orEmpty()
+                .takeIf { it.isNotEmpty() }?.let { EstadoPedido.valueOf(it) }
+            val vm: BandejaViewModel = viewModel(
+                key = "bandeja-$filtro",
+                factory = viewModelFactory { initializer { BandejaViewModel(factory.repo, filtro) } }
+            )
+            BandejaScreen(
+                vm = vm,
+                onAbrirGestion = { id -> navController.navigate(Rutas.gestion(id)) },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Rutas.GESTION,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entrada ->
+            val id = entrada.arguments?.getInt("id") ?: return@composable
+            val vm: GestionPedidoViewModel = viewModel(
+                key = "gestion-$id",
+                factory = viewModelFactory { initializer { GestionPedidoViewModel(factory.repo, id) } }
+            )
+            GestionPedidoScreen(vm = vm, onVolver = { navController.popBackStack() })
         }
         composable(Rutas.SERVICIOS) {
             val vm: ServiciosViewModel = viewModel(factory = factory)
