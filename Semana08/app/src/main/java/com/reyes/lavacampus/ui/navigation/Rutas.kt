@@ -2,6 +2,9 @@ package com.reyes.lavacampus.ui.navigation
 
 object Rutas {
     const val SPLASH = "splash"
+    const val LOGIN = "login"
+    const val INICIO = "inicio" // estudiante (Paso 7)
+    const val PANEL = "panel" // administrador (Paso 11)
     const val SERVICIOS = "servicios"
     // TODO: las demas rutas se agregan en los pasos siguientes
 }

@@ -17,11 +17,14 @@ import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.ui.components.IconoServicio
 import kotlinx.coroutines.delay
 
+/** [sesionLista]: el Splash espera a saber si hay un perfil guardado antes de continuar. */
 @Composable
-fun SplashScreen(onTerminar: () -> Unit) {
-    LaunchedEffect(Unit) {
-        delay(1500)
-        onTerminar()
+fun SplashScreen(sesionLista: Boolean = true, onTerminar: () -> Unit) {
+    LaunchedEffect(sesionLista) {
+        if (sesionLista) {
+            delay(1500)
+            onTerminar()
+        }
     }
     Column(
         modifier = Modifier
