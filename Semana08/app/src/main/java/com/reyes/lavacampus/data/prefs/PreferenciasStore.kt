@@ -23,7 +23,7 @@ class PreferenciasStore(private val context: Context) {
         val RECIBIR_PEDIDOS = booleanPreferencesKey("recibirPedidos")
     }
 
-    // Lectura: un Flow por cada preferencia
+    // Lectura: un Flow por cada preferenciaa
     val perfilActivo: Flow<String> = context.dataStore.data.map { it[Claves.PERFIL_ACTIVO] ?: "" }
     val usuarioId: Flow<Int> = context.dataStore.data.map { it[Claves.USUARIO_ID] ?: 0 }
     val modoOscuro: Flow<Boolean> = context.dataStore.data.map { it[Claves.MODO_OSCURO] ?: false }
