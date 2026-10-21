@@ -16,18 +16,24 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.reyes.lavacampus.model.Rol
+import com.reyes.lavacampus.ui.administrador.PanelScreen
 import com.reyes.lavacampus.ui.administrador.ServiciosScreen
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.reyes.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.reyes.lavacampus.ui.estudiante.InicioScreen
 import com.reyes.lavacampus.ui.estudiante.LoginScreen
+import com.reyes.lavacampus.ui.estudiante.MisPedidosScreen
 import com.reyes.lavacampus.ui.estudiante.NuevoPedidoScreen
+import com.reyes.lavacampus.ui.estudiante.TarifasScreen
 import com.reyes.lavacampus.ui.estudiante.SplashScreen
 import com.reyes.lavacampus.viewmodel.DetallePedidoViewModel
 import com.reyes.lavacampus.viewmodel.InicioViewModel
 import com.reyes.lavacampus.viewmodel.LavaViewModelFactory
+import com.reyes.lavacampus.viewmodel.MisPedidosViewModel
 import com.reyes.lavacampus.viewmodel.NuevoPedidoViewModel
+import com.reyes.lavacampus.viewmodel.PanelViewModel
+import com.reyes.lavacampus.viewmodel.TarifasViewModel
 import com.reyes.lavacampus.viewmodel.ServiciosViewModel
 import com.reyes.lavacampus.viewmodel.SesionViewModel
 
@@ -70,10 +76,31 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                 NuevoPedidoScreen(
                     vm = vm,
                     onVolver = { navController.popBackStack() },
-                    // TODO (Paso 10): al confirmar debe volver a Mis pedidos
-                    onPedidoCreado = { navController.popBackStack() }
+                    // Al confirmar se vuelve a Mis pedidos (Inicio queda debajo en la pila)
+                    onPedidoCreado = {
+                        navController.navigate(Rutas.MIS_PEDIDOS) { popUpTo(Rutas.INICIO) }
+                    }
                 )
             }
+        }
+        composable(Rutas.MIS_PEDIDOS) {
+            val usuario by sesion.usuarioActual.collectAsState()
+            usuario?.let { u ->
+                val vm: MisPedidosViewModel = viewModel(
+                    key = "mis-pedidos-${u.id}",
+                    factory = viewModelFactory { initializer { MisPedidosViewModel(factory.repo, u) } }
+                )
+                MisPedidosScreen(
+                    vm = vm,
+                    onVerPedido = { id -> navController.navigate(Rutas.detalle(id)) },
+                    onNuevoPedido = { navController.navigate(Rutas.NUEVO_PEDIDO) },
+                    onVolver = { navController.popBackStack() }
+                )
+            }
+        }
+        composable(Rutas.TARIFAS) {
+            val vm: TarifasViewModel = viewModel(factory = factory)
+            TarifasScreen(vm = vm, onVolver = { navController.popBackStack() })
         }
         composable(
             route = Rutas.DETALLE_PEDIDO,
@@ -99,12 +126,16 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                     vm = vm,
                     onNuevoPedido = { navController.navigate(Rutas.NUEVO_PEDIDO) },
                     onVerPedido = { id -> navController.navigate(Rutas.detalle(id)) },
-                    onMisPedidos = { /* TODO (Paso 10) */ },
-                    onTarifas = { /* TODO (Paso 10) */ }
+                    onMisPedidos = { navController.navigate(Rutas.MIS_PEDIDOS) },
+                    onTarifas = { navController.navigate(Rutas.TARIFAS) }
                 )
             }
         }
-        composable(Rutas.PANEL) { Marcador("Panel del administrador (Paso 11)") }
+        composable(Rutas.PANEL) {
+            val vm: PanelViewModel = viewModel(factory = factory)
+            // TODO (Paso 12): "Ver" abrira la bandeja filtrada por pedidos LISTO
+            PanelScreen(vm = vm, onVerListos = { })
+        }
         composable(Rutas.SERVICIOS) {
             val vm: ServiciosViewModel = viewModel(factory = factory)
             ServiciosScreen(vm = vm, onEditar = { /* TODO (Paso 13) */ })

@@ -38,7 +38,11 @@ fun PedidoCard(
     val estado = EstadoPedido.valueOf(p.pedido.estado)
     Card(
         modifier = modifier.fillMaxWidth().clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(
+            // Los pedidos LISTO se destacan en verde
+            containerColor = if (estado == EstadoPedido.LISTO) Color(0xFFDCFCE7)
+            else MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(

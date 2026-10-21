@@ -14,6 +14,8 @@ class LavaViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
         modelClass.isAssignableFrom(ServiciosViewModel::class.java) -> ServiciosViewModel(repo)
         modelClass.isAssignableFrom(SesionViewModel::class.java) -> SesionViewModel(repo, prefs)
+        modelClass.isAssignableFrom(TarifasViewModel::class.java) -> TarifasViewModel(repo)
+        modelClass.isAssignableFrom(PanelViewModel::class.java) -> PanelViewModel(repo)
         // TODO: se agregan los demas ViewModels en los pasos siguientes
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     } as T

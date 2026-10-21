@@ -1,0 +1,59 @@
+package com.reyes.lavacampus.viewmodel
+
+import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.reyes.lavacampus.data.repository.LavaRepository
+import com.reyes.lavacampus.model.EstadoPedido
+import com.reyes.lavacampus.ui.components.graficos.DatoGrafico
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
+
+class PanelViewModel(repo: LavaRepository) : ViewModel() {
+
+    private val hoy = LocalDate.now().toString()
+
+    // Lunes de esta semana (si hoy es domingo, retrocede al lunes anterior)
+    private val inicioSemana = LocalDate.now()
+        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toString()
+
+    private val colores = listOf(
+        Color(0xFF6D28D9), Color(0xFF0891B2), Color(0xFFD97706), Color(0xFF16A34A), Color(0xFFDC2626)
+    )
+
+    val pedidosHoy: StateFlow<Int> = repo.observarPedidosDeFecha(hoy)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val enProceso: StateFlow<Int> = repo.observarCantidadPorEstado(EstadoPedido.EN_PROCESO)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val porRecoger: StateFlow<Int> = repo.observarCantidadPorEstado(EstadoPedido.LISTO)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    /** Suma del total de los pedidos pagados desde el lunes. */
+    val ingresosSemana: StateFlow<Double> = repo.observarIngresosDesde(inicioSemana)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    /** Pedidos por estado (activos o entregados) en formato de grafico. */
+    val porEstado: StateFlow<List<DatoGrafico>> = combine(
+        listOf(
+            EstadoPedido.RECIBIDO, EstadoPedido.EN_PROCESO, EstadoPedido.LISTO, EstadoPedido.ENTREGADO
+        ).map { estado ->
+            repo.observarCantidadPorEstado(estado).map { DatoGrafico(estado.etiqueta, it.toDouble(), estado.color) }
+        }
+    ) { it.toList() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    /** Ingresos por servicio (solo pedidos pagados de la semana). */
+    val porServicio: StateFlow<List<DatoGrafico>> = repo.observarIngresosPorServicio(inicioSemana)
+        .map { lista ->
+            lista.mapIndexed { i, ing -> DatoGrafico(ing.nombre, ing.total, colores[i % colores.size]) }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+}
