@@ -30,7 +30,7 @@ class PreferenciasStore(private val context: Context) {
     val notificaciones: Flow<Boolean> = context.dataStore.data.map { it[Claves.NOTIFICACIONES] ?: true }
     val recibirPedidos: Flow<Boolean> = context.dataStore.data.map { it[Claves.RECIBIR_PEDIDOS] ?: true }
 
-    // Escritura: funciones suspend
+    // Escritura: funciones suspendd
     suspend fun guardarSesion(rol: String, usuarioId: Int) {
         context.dataStore.edit {
             it[Claves.PERFIL_ACTIVO] = rol
