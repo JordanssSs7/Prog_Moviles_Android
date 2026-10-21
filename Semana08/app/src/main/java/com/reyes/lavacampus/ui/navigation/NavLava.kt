@@ -19,9 +19,11 @@ import com.reyes.lavacampus.model.Rol
 import com.reyes.lavacampus.ui.administrador.ServiciosScreen
 import com.reyes.lavacampus.ui.estudiante.InicioScreen
 import com.reyes.lavacampus.ui.estudiante.LoginScreen
+import com.reyes.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.reyes.lavacampus.ui.estudiante.SplashScreen
 import com.reyes.lavacampus.viewmodel.InicioViewModel
 import com.reyes.lavacampus.viewmodel.LavaViewModelFactory
+import com.reyes.lavacampus.viewmodel.NuevoPedidoViewModel
 import com.reyes.lavacampus.viewmodel.ServiciosViewModel
 import com.reyes.lavacampus.viewmodel.SesionViewModel
 
@@ -54,6 +56,21 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
         composable(Rutas.LOGIN) {
             LoginScreen(vm = sesion, onLoginExitoso = { rol -> navController.irAPrincipal(rol) })
         }
+        composable(Rutas.NUEVO_PEDIDO) {
+            val usuario by sesion.usuarioActual.collectAsState()
+            usuario?.let { u ->
+                val vm: NuevoPedidoViewModel = viewModel(
+                    key = "nuevo-pedido-${u.id}",
+                    factory = viewModelFactory { initializer { NuevoPedidoViewModel(factory.repo, u) } }
+                )
+                NuevoPedidoScreen(
+                    vm = vm,
+                    onVolver = { navController.popBackStack() },
+                    // TODO (Paso 10): al confirmar debe volver a Mis pedidos
+                    onPedidoCreado = { navController.popBackStack() }
+                )
+            }
+        }
         // Destinos temporales: se reemplazan en el Paso 7 (Inicio) y el Paso 11 (Panel)
         composable(Rutas.INICIO) {
             val usuario by sesion.usuarioActual.collectAsState()
@@ -65,7 +82,7 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                 )
                 InicioScreen(
                     vm = vm,
-                    onNuevoPedido = { /* TODO (Paso 8) */ },
+                    onNuevoPedido = { navController.navigate(Rutas.NUEVO_PEDIDO) },
                     onVerPedido = { /* TODO (Paso 9) */ },
                     onMisPedidos = { /* TODO (Paso 10) */ },
                     onTarifas = { /* TODO (Paso 10) */ }
