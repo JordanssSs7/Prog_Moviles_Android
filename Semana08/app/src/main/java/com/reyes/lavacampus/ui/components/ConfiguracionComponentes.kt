@@ -33,14 +33,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.lavacampus.R
 import com.reyes.lavacampus.model.Rol
+import com.reyes.lavacampus.ui.theme.TurquesaMarca
 
-/** Verde plano de la pantalla de configuracion de la referencia. */
-val VerdeConfig = Color(0xFF319E74)
+/** Color plano de la pantalla de configuracion de la referencia. */
+val TurquesaConfig = TurquesaMarca
 
-/** Verde plano de la referencia; en modo oscuro, el mismo fondo oscuro del perfil. */
+/** Color plano de la referencia; en modo oscuro, el mismo fondo oscuro del perfil. */
 @Composable
 fun fondoConfig(): Brush =
-    if (esOscuro()) fondoPerfil(Rol.CLIENTE) else Brush.verticalGradient(listOf(VerdeConfig, VerdeConfig))
+    if (esOscuro()) fondoPerfil(Rol.CLIENTE) else Brush.verticalGradient(listOf(TurquesaConfig, TurquesaConfig))
 
 /**
  * Tipografia de la pantalla de configuracion: Poppins (geometrica y redondeada, como la referencia).

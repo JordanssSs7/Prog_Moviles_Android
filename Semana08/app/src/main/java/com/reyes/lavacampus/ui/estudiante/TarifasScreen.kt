@@ -43,8 +43,8 @@ import com.reyes.lavacampus.ui.components.EstadoVacio
 import com.reyes.lavacampus.ui.components.IconoServicio
 import com.reyes.lavacampus.ui.components.IlustracionLavadora
 import com.reyes.lavacampus.ui.components.LavaCard
-import com.reyes.lavacampus.ui.theme.VerdeIntermedio
-import com.reyes.lavacampus.ui.theme.VerdeProfundo
+import com.reyes.lavacampus.ui.theme.TurquesaIntermedio
+import com.reyes.lavacampus.ui.theme.TurquesaProfundo
 import com.reyes.lavacampus.viewmodel.TarifasViewModel
 
 @Composable
@@ -98,7 +98,7 @@ private fun TarjetaTarifa(s: Servicio) {
                 modifier = Modifier
                     .size(88.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(Brush.linearGradient(listOf(VerdeProfundo, VerdeIntermedio))),
+                    .background(Brush.linearGradient(listOf(TurquesaProfundo, TurquesaIntermedio))),
                 contentAlignment = Alignment.Center
             ) {
                 Box(Modifier.size(66.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.16f)))

@@ -418,6 +418,30 @@ activos), y toda la pantalla se desplaza si no cabe.
 
 ---
 
+## Prompt 20 — Seguimiento del pedido como la referencia y colores turquesa en toda la app
+
+**Texto enviado a la IA:**
+(Con la captura "Track Order" de una app de lavandería y mi detalle de pedido.) Hazlo como la primera imagen, la parte del detalle de pedido, y
+adapta los colores también a toda la aplicación.
+
+**Qué generó la IA:**
+- Se tomó el color de la referencia con un muestreo de píxeles (`#46B0C0`) y se definió una paleta turquesa (`Color.kt` y `Theme.kt`, con su versión
+  oscura). Los colores se renombraron de `Verde*` a `Turquesa*` y se actualizaron las ilustraciones, los gráficos del panel y la configuración.
+- `DetallePedidoScreen` se rehízo: encabezado de color con los cuatro pasos en fila (recibido, en proceso, listo y entregado) unidos por una línea,
+  un círculo grande con la ilustración del estado, el título y el mensaje, la lista "Detalles del pedido" (servicios, descuento, total, fechas,
+  casillero y pago) y el botón de cancelar abajo.
+- Segunda pasada: el usuario pidió usar la misma imagen y ocupar el mismo ancho y alto. Se dibujó con Canvas (`IlustracionLavadoraLinea`) una lavadora
+  de trazo fino con burbujas como la de la referencia, el círculo se agrandó a unos 204 dp y la hoja blanca ocupa todo el alto de la pantalla.
+
+**Qué tuve que corregir yo:**
+- El círculo grande salía recortado porque la hoja blanca (`Surface`) recorta a sus hijos; se cambió por un contenedor con fondo para que sobresalga.
+- Los estados "Listo" y los montos de descuento siguen en verde a propósito: el verde indica algo bueno y no se mezcla con el turquesa de la marca.
+- El compilador de Kotlin falló una vez por un permiso del sistema y se resolvió compilando en el mismo proceso.
+
+**¿Respeta MVVM?:** Sí. Solo cambió la presentación; `DetallePedidoViewModel` y la regla de cancelar no se tocaron.
+
+---
+
 ## Reflexión
 
 - **¿Qué mejoró la IA y qué no?** Aceleró mucho el trabajo repetitivo (consultas, ViewModels, pantallas) y propuso una estructura limpia; lo que no resolvió sola fue decidir las reglas de negocio ambiguas (por ejemplo, dónde guardar el descuento para que los ingresos cuadren).

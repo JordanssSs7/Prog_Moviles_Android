@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.reyes.lavacampus.ui.theme.VerdeMarca
+import com.reyes.lavacampus.ui.theme.TurquesaMarca
 
 /** Logo: circulo blanco con la lavadora en azul y el nombre al lado. */
 @Composable
@@ -38,7 +38,7 @@ fun LogoLava(modifier: Modifier = Modifier, tamano: Dp = 48.dp, colorTexto: Colo
         Box(
             modifier = Modifier.size(tamano).clip(CircleShape).background(Color.White),
             contentAlignment = Alignment.Center
-        ) { IconoServicio("wash", VerdeMarca, tamano * 0.62f) }
+        ) { IconoServicio("wash", TurquesaMarca, tamano * 0.62f) }
         Text(
             text = "LavaCampus",
             color = colorTexto,
@@ -92,9 +92,9 @@ fun IlustracionCesto(modifier: Modifier = Modifier) {
         }
 
         // Prendas dobladas dentro del cesto (de atras hacia adelante)
-        caja(0.25f, 0.31f, 0.50f, 0.25f, 0.08f, brocha(0.25f, 0.31f, 0.75f, 0.56f, Color(0xFFB4E3CD), Color(0xFF3FA880)))
-        caja(0.29f, 0.22f, 0.42f, 0.17f, 0.075f, brocha(0.29f, 0.22f, 0.71f, 0.39f, Color(0xFF8FD3B4), Color(0xFF2F9C72)))
-        caja(0.35f, 0.145f, 0.30f, 0.12f, 0.06f, brocha(0.35f, 0.145f, 0.65f, 0.265f, Color(0xFFCDEBDB), Color(0xFF5DBB93)))
+        caja(0.25f, 0.31f, 0.50f, 0.25f, 0.08f, brocha(0.25f, 0.31f, 0.75f, 0.56f, Color(0xFFB6E3EB), Color(0xFF3AA5BA)))
+        caja(0.29f, 0.22f, 0.42f, 0.17f, 0.075f, brocha(0.29f, 0.22f, 0.71f, 0.39f, Color(0xFF8DD1DE), Color(0xFF2A97AC)))
+        caja(0.35f, 0.145f, 0.30f, 0.12f, 0.06f, brocha(0.35f, 0.145f, 0.65f, 0.265f, Color(0xFFCCEBF1), Color(0xFF58B6C8)))
         // Pliegues claros
         caja(0.31f, 0.41f, 0.38f, 0.011f, 0.0055f, blanco, 0.35f)
         caja(0.36f, 0.27f, 0.28f, 0.010f, 0.005f, blanco, 0.40f)
@@ -104,7 +104,7 @@ fun IlustracionCesto(modifier: Modifier = Modifier) {
 
         // Toalla que cuelga por fuera del borde derecho
         rotate(degrees = 4f, pivot = p(0.84f, 0.55f)) {
-            caja(0.765f, 0.40f, 0.155f, 0.42f, 0.04f, brocha(0.765f, 0.40f, 0.92f, 0.82f, Color(0xFF7CCBA5), Color(0xFF28926A)))
+            caja(0.765f, 0.40f, 0.155f, 0.42f, 0.04f, brocha(0.765f, 0.40f, 0.92f, 0.82f, Color(0xFF7AC6D4), Color(0xFF2590A4)))
             caja(0.765f, 0.71f, 0.155f, 0.014f, 0.007f, blanco, 0.45f)
             caja(0.765f, 0.75f, 0.155f, 0.014f, 0.007f, blanco, 0.30f)
         }
@@ -154,16 +154,16 @@ fun IlustracionLavadora(modifier: Modifier = Modifier) {
         caja(0.06f, 0.02f, 0.88f, 0.20f, 0.12f, Brush.verticalGradient(listOf(Color(0xFFF4F7FC), Color(0xFFE3EAF6))))
         drawCircle(Color(0xFF9DB4D8), radius = 0.045f * w, center = Offset(0.22f * w, 0.12f * h))
         drawCircle(Color(0xFFC3D1EA), radius = 0.028f * w, center = Offset(0.35f * w, 0.12f * h))
-        caja(0.52f, 0.085f, 0.32f, 0.07f, 0.04f, Brush.linearGradient(listOf(Color(0xFF319E74), Color(0xFF72C7A4))))
+        caja(0.52f, 0.085f, 0.32f, 0.07f, 0.04f, Brush.linearGradient(listOf(Color(0xFF35A3B7), Color(0xFF7CCAD7))))
         // Puerta: aro, vidrio azul y brillos
         val c = Offset(0.5f * w, 0.60f * h)
         drawCircle(Brush.linearGradient(listOf(Color(0xFFF1F5FB), Color(0xFFB8C7E2)), Offset(0f, 0f), Offset(w, h)), radius = 0.36f * w, center = c)
-        drawCircle(Brush.radialGradient(listOf(Color(0xFF6FCFA8), Color(0xFF1E8460)), center = c, radius = 0.30f * w), radius = 0.30f * w, center = c)
+        drawCircle(Brush.radialGradient(listOf(Color(0xFF73CBDA), Color(0xFF1B7E91)), center = c, radius = 0.30f * w), radius = 0.30f * w, center = c)
         drawCircle(Color.White, radius = 0.05f * w, center = Offset(0.40f * w, 0.50f * h), alpha = 0.35f)
         drawCircle(Color.White, radius = 0.028f * w, center = Offset(0.58f * w, 0.70f * h), alpha = 0.30f)
         drawCircle(Color.White, radius = 0.02f * w, center = Offset(0.52f * w, 0.78f * h), alpha = 0.25f)
         // Ropa dentro del tambor
-        drawCircle(Color(0xFF9BDDBF), radius = 0.17f * w, center = Offset(0.5f * w, 0.64f * h), alpha = 0.55f)
+        drawCircle(Color(0xFF9EDCE8), radius = 0.17f * w, center = Offset(0.5f * w, 0.64f * h), alpha = 0.55f)
         // Brillo del vidrio
         drawArc(Color.White, startAngle = 200f, sweepAngle = 55f, useCenter = false,
             topLeft = Offset(0.24f * w, 0.34f * h), size = Size(0.52f * w, 0.52f * w),

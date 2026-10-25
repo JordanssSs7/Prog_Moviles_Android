@@ -26,8 +26,8 @@ import com.reyes.lavacampus.ui.components.EstiloBoton
 import com.reyes.lavacampus.ui.components.IlustracionCesto
 import com.reyes.lavacampus.ui.components.LavaButton
 import com.reyes.lavacampus.ui.components.LogoLava
-import com.reyes.lavacampus.ui.theme.VerdeIntermedio
-import com.reyes.lavacampus.ui.theme.VerdeProfundo
+import com.reyes.lavacampus.ui.theme.TurquesaIntermedio
+import com.reyes.lavacampus.ui.theme.TurquesaProfundo
 import com.reyes.lavacampus.ui.theme.Tinta
 
 /** Primera pantalla: degradado azul con la ilustracion y los accesos Iniciar sesion y Crear cuenta. */
@@ -41,9 +41,9 @@ fun BienvenidaScreen(onIniciarSesion: () -> Unit, onCrearCuenta: () -> Unit) {
                 .fillMaxHeight(0.64f)
                 .background(
                     Brush.verticalGradient(
-                        0.0f to VerdeProfundo,
-                        0.45f to VerdeIntermedio,
-                        0.85f to Color(0xFFD3EEE2),
+                        0.0f to TurquesaProfundo,
+                        0.45f to TurquesaIntermedio,
+                        0.85f to Color(0xFFD3EDF2),
                         1.0f to Color.White
                     )
                 )

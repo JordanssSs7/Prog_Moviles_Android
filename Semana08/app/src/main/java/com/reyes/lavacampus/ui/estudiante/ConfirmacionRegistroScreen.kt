@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.lavacampus.model.Rol
 import com.reyes.lavacampus.ui.components.LogoLava
-import com.reyes.lavacampus.ui.theme.VerdeMarca
+import com.reyes.lavacampus.ui.theme.TurquesaMarca
 import com.reyes.lavacampus.ui.theme.degradadoMarca
 
 /**
@@ -68,7 +68,7 @@ fun ConfirmacionRegistroScreen(nombre: String, onIrALogin: () -> Unit) {
                 shadowElevation = 12.dp
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Filled.Check, contentDescription = null, tint = VerdeMarca, modifier = Modifier.size(76.dp))
+                    Icon(Icons.Filled.Check, contentDescription = null, tint = TurquesaMarca, modifier = Modifier.size(76.dp))
                 }
             }
             Spacer(Modifier.height(32.dp))
@@ -86,7 +86,7 @@ fun ConfirmacionRegistroScreen(nombre: String, onIrALogin: () -> Unit) {
                 onClick = onIrALogin,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = VerdeMarca)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = TurquesaMarca)
             ) { Text("Ir a iniciar sesión", style = MaterialTheme.typography.titleSmall) }
             Spacer(Modifier.height(28.dp))
         }

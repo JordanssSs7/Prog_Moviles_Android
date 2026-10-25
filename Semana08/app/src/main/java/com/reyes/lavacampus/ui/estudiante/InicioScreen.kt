@@ -51,8 +51,8 @@ import com.reyes.lavacampus.ui.components.LavaCard
 import com.reyes.lavacampus.ui.components.PedidoCard
 import com.reyes.lavacampus.ui.components.StepperEstado
 import com.reyes.lavacampus.ui.components.fechaCorta
-import com.reyes.lavacampus.ui.theme.VerdeIntermedio
-import com.reyes.lavacampus.ui.theme.VerdeProfundo
+import com.reyes.lavacampus.ui.theme.TurquesaIntermedio
+import com.reyes.lavacampus.ui.theme.TurquesaProfundo
 import com.reyes.lavacampus.ui.theme.Negro
 import com.reyes.lavacampus.viewmodel.InicioViewModel
 
@@ -221,7 +221,7 @@ private fun BannerOferta(onPedir: () -> Unit, modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .height(186.dp)
             .clip(RoundedCornerShape(28.dp))
-            .background(Brush.linearGradient(listOf(VerdeProfundo, VerdeIntermedio)))
+            .background(Brush.linearGradient(listOf(TurquesaProfundo, TurquesaIntermedio)))
     ) {
         // Circulos decorativos
         Box(Modifier.size(150.dp).align(Alignment.TopEnd).padding(end = 0.dp).background(Color.White.copy(alpha = 0.07f), CircleShape))

@@ -29,8 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.reyes.lavacampus.ui.theme.VerdeMarca
-import com.reyes.lavacampus.ui.theme.VerdeProfundo
+import com.reyes.lavacampus.ui.theme.TurquesaMarca
+import com.reyes.lavacampus.ui.theme.TurquesaProfundo
 
 /** [ruta] es el patron del destino (para saber cual esta activa); [destino] es a donde se navega. */
 data class Pestana(val titulo: String, val icono: ImageVector, val ruta: String, val destino: String)
@@ -79,7 +79,7 @@ fun BarraInferior(pestanas: List<Pestana>, rutaActual: String?, onSeleccionar: (
                 .height(AltoBarra)
                 .align(Alignment.BottomCenter),
             shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-            color = VerdeMarca,
+            color = TurquesaMarca,
             shadowElevation = 12.dp
         ) {}
         Row(
@@ -97,14 +97,14 @@ fun BarraInferior(pestanas: List<Pestana>, rutaActual: String?, onSeleccionar: (
                 ) {
                     if (activa) {
                         // Bulto curvo: un circulo del color de la barra que sobresale por arriba
-                        Box(Modifier.offset(y = 0.dp).size(Bulto).clip(CircleShape).background(VerdeMarca))
+                        Box(Modifier.offset(y = 0.dp).size(Bulto).clip(CircleShape).background(TurquesaMarca))
                         Box(
                             modifier = Modifier
                                 .offset(y = 9.dp)
                                 .size(50.dp)
                                 .border(BorderStroke(3.dp, Color.White), CircleShape)
                                 .clip(CircleShape)
-                                .background(VerdeProfundo),
+                                .background(TurquesaProfundo),
                             contentAlignment = Alignment.Center
                         ) { Icon(p.icono, contentDescription = p.titulo, tint = Color.White) }
                     } else {
@@ -115,7 +115,7 @@ fun BarraInferior(pestanas: List<Pestana>, rutaActual: String?, onSeleccionar: (
                                 .clip(CircleShape)
                                 .background(Color.White),
                             contentAlignment = Alignment.Center
-                        ) { Icon(p.icono, contentDescription = p.titulo, tint = VerdeMarca) }
+                        ) { Icon(p.icono, contentDescription = p.titulo, tint = TurquesaMarca) }
                     }
                 }
             }

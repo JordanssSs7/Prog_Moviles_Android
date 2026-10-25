@@ -54,8 +54,8 @@ import androidx.compose.ui.unit.sp
 import com.reyes.lavacampus.model.Rol
 import com.reyes.lavacampus.ui.theme.FondoOscuro
 import com.reyes.lavacampus.ui.theme.SuperficieOscuraAlta
-import com.reyes.lavacampus.ui.theme.VerdeClaro
-import com.reyes.lavacampus.ui.theme.VerdeMarca
+import com.reyes.lavacampus.ui.theme.TurquesaClaro
+import com.reyes.lavacampus.ui.theme.TurquesaMarca
 import com.reyes.lavacampus.ui.theme.Tinta
 import com.reyes.lavacampus.ui.theme.TintaSuave
 
@@ -63,9 +63,9 @@ import com.reyes.lavacampus.ui.theme.TintaSuave
 @Composable
 fun esOscuro(): Boolean = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
-/** Verde de la marca; en modo oscuro se aclara para que se lea sobre fondos oscuros. */
+/** Color de la marca; en modo oscuro se aclara para que se lea sobre fondos oscuros. */
 @Composable
-fun colorMarca(@Suppress("UNUSED_PARAMETER") rol: Rol): Color = if (esOscuro()) VerdeClaro else VerdeMarca
+fun colorMarca(@Suppress("UNUSED_PARAMETER") rol: Rol): Color = if (esOscuro()) TurquesaClaro else TurquesaMarca
 
 /** Color de las tarjetas que van sobre el fondo del perfil: blancas de dia y superficie oscura de noche. */
 @Composable
@@ -74,8 +74,8 @@ fun colorTarjetaPerfil(): Color = if (esOscuro()) SuperficieOscuraAlta else Colo
 /** Fondo de las pantallas a color completo: verde de dia y verde casi negro en modo oscuro. */
 @Composable
 fun fondoPerfil(@Suppress("UNUSED_PARAMETER") rol: Rol): Brush =
-    if (esOscuro()) Brush.verticalGradient(listOf(FondoOscuro, Color(0xFF16302A)))
-    else Brush.verticalGradient(listOf(Color(0xFF1B7556), VerdeMarca))
+    if (esOscuro()) Brush.verticalGradient(listOf(FondoOscuro, Color(0xFF16313A)))
+    else Brush.verticalGradient(listOf(Color(0xFF1F8294), TurquesaMarca))
 
 /**
  * Pantalla de color completo, como la referencia: arriba una flecha para volver (opcional), el titulo

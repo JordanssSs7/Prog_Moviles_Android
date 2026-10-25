@@ -11,9 +11,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.ui.components.LogoLava
-import com.reyes.lavacampus.ui.theme.VerdeHielo
-import com.reyes.lavacampus.ui.theme.VerdeIntermedio
-import com.reyes.lavacampus.ui.theme.VerdeProfundo
+import com.reyes.lavacampus.ui.theme.TurquesaHielo
+import com.reyes.lavacampus.ui.theme.TurquesaIntermedio
+import com.reyes.lavacampus.ui.theme.TurquesaProfundo
 import kotlinx.coroutines.delay
 
 /** [sesionLista]: el Splash espera a saber si hay un perfil guardado antes de continuar. */
@@ -25,15 +25,15 @@ fun SplashScreen(sesionLista: Boolean = true, onTerminar: () -> Unit) {
             onTerminar()
         }
     }
-    // Verde profundo arriba que se aclara hacia abajo, con el logo al centro
+    // Turquesa profundo arriba que se aclara hacia abajo, con el logo al centro
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    0.0f to VerdeProfundo,
-                    0.55f to VerdeIntermedio,
-                    0.88f to VerdeHielo,
+                    0.0f to TurquesaProfundo,
+                    0.55f to TurquesaIntermedio,
+                    0.88f to TurquesaHielo,
                     1.0f to Color.White
                 )
             ),

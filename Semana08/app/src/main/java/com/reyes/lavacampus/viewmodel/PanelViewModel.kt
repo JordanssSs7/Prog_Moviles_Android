@@ -36,17 +36,17 @@ class PanelViewModel(
     private val inicioSemana = LocalDate.now()
         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toString()
 
-    // Escala de verdes de los graficos (de la paleta elegida): de oscuro a claro para los servicios
+    // Escala de turquesas de los graficos (de la paleta elegida): de oscuro a claro para los servicios
     private val colores = listOf(
-        Color(0xFF435B45), Color(0xFF637757), Color(0xFFA7B08E), Color(0xFFCBCBB3), Color(0xFF3A5044)
+        Color(0xFF1D6676), Color(0xFF2E8FA3), Color(0xFF5BB5C6), Color(0xFF9FD3DD), Color(0xFF174F5C)
     )
 
-    // Un verde por estado, del mas claro (recien recibido) al mas oscuro (entregado)
+    // Un turquesa por estado, del mas claro (recien recibido) al mas oscuro (entregado)
     private val coloresEstado = mapOf(
-        EstadoPedido.RECIBIDO to Color(0xFFA7B08E),
-        EstadoPedido.EN_PROCESO to Color(0xFF637757),
-        EstadoPedido.LISTO to Color(0xFF435B45),
-        EstadoPedido.ENTREGADO to Color(0xFF2E4237)
+        EstadoPedido.RECIBIDO to Color(0xFF9FD3DD),
+        EstadoPedido.EN_PROCESO to Color(0xFF5BB5C6),
+        EstadoPedido.LISTO to Color(0xFF2E8FA3),
+        EstadoPedido.ENTREGADO to Color(0xFF1D6676)
     )
 
     val pedidosHoy: StateFlow<Int> = repo.observarPedidosDeFecha(hoy)

@@ -2,16 +2,16 @@ package com.reyes.lavacampus.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Marca: verde de la referencia (#319E74), el mismo para estudiante y administrador
-val VerdeMarca = Color(0xFF319E74)
-val VerdeContenedor = Color(0xFFDCF2E8)
-val VerdeFondo = Color(0xFFF2F8F5)
+// Marca: turquesa de la referencia de seguimiento, el mismo para estudiante y administrador
+val TurquesaMarca = Color(0xFF35A3B7)
+val TurquesaContenedor = Color(0xFFD9F0F4)
+val TurquesaFondo = Color(0xFFF1F8F9)
 
-// Degradado de splash y bienvenida: verde profundo arriba, casi blanco abajo
-val VerdeProfundo = Color(0xFF1B7556)
-val VerdeIntermedio = Color(0xFF319E74)
-val VerdeSuave = Color(0xFF72C7A4)
-val VerdeHielo = Color(0xFFE6F5EE)
+// Degradado de splash y bienvenida: turquesa profundo arriba, casi blanco abajo
+val TurquesaProfundo = Color(0xFF1F8294)
+val TurquesaIntermedio = Color(0xFF35A3B7)
+val TurquesaSuave = Color(0xFF7CCAD7)
+val TurquesaHielo = Color(0xFFE3F4F7)
 
 // Textos y lineas
 val Tinta = Color(0xFF0F172A)
@@ -21,7 +21,7 @@ val Negro = Color(0xFF0B0B12)
 val GrisBoton = Color(0xFFE8ECF3)
 
 // Modo oscuro
-val VerdeClaro = Color(0xFF6FD1A6)
-val FondoOscuro = Color(0xFF0B1512)
-val SuperficieOscura = Color(0xFF141F1B)
-val SuperficieOscuraAlta = Color(0xFF1C2B26)
+val TurquesaClaro = Color(0xFF74D0E0)
+val FondoOscuro = Color(0xFF0B1517)
+val SuperficieOscura = Color(0xFF131F22)
+val SuperficieOscuraAlta = Color(0xFF1B2B2F)

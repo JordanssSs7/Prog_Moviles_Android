@@ -129,8 +129,8 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
                 // 3 contadores
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                     Contador("Hoy", pedidosHoy, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
-                    Contador("En proceso", enProceso, Color(0xFF637757), Modifier.weight(1f))
-                    Contador("Por recoger", porRecoger, Color(0xFF435B45), Modifier.weight(1f))
+                    Contador("En proceso", enProceso, Color(0xFF2E8FA3), Modifier.weight(1f))
+                    Contador("Por recoger", porRecoger, Color(0xFF1D6676), Modifier.weight(1f))
                 }
 
                 // Alerta de pedidos LISTO esperando recojo
