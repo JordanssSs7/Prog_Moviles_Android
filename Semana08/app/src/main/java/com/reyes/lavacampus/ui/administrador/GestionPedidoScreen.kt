@@ -118,10 +118,16 @@ fun GestionPedidoScreen(vm: GestionPedidoViewModel, onVolver: () -> Unit) {
                     p.detalles.forEach {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(it.servicio.nombre)
-                            Text("S/ %.2f".format(it.detalle.subtotal))
+                            Text("S/ %.2f".format(it.detalle.cantidad * it.detalle.precioUnitario))
                         }
                     }
                     HorizontalDivider()
+                    if (p.pedido.descuento > 0.0) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Descuento por volumen", color = EstadoPedido.LISTO.color)
+                            Text("- S/ %.2f".format(p.pedido.descuento), color = EstadoPedido.LISTO.color)
+                        }
+                    }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Total", fontWeight = FontWeight.Bold)
                         Text("S/ %.2f".format(p.pedido.total), fontWeight = FontWeight.Bold)

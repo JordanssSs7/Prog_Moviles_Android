@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.data.local.relation.DetalleConServicio
 import com.reyes.lavacampus.model.EstadoPedido
+import com.reyes.lavacampus.model.PORCENTAJE_DESCUENTO
 import com.reyes.lavacampus.ui.components.AppTopBar
 import com.reyes.lavacampus.ui.components.EstadoPedidoChip
 import com.reyes.lavacampus.ui.components.StepperEstado
@@ -101,6 +102,20 @@ fun DetallePedidoScreen(vm: DetallePedidoViewModel, onVolver: () -> Unit) {
                     Text("Servicios", fontWeight = FontWeight.Bold)
                     p.detalles.forEach { LineaDetalle(it) }
                     HorizontalDivider()
+                    if (p.pedido.descuento > 0.0) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(
+                                "Descuento por volumen ($PORCENTAJE_DESCUENTO %)",
+                                color = EstadoPedido.LISTO.color,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                "- S/ %.2f".format(p.pedido.descuento),
+                                color = EstadoPedido.LISTO.color,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Total", fontWeight = FontWeight.Bold)
                         Text("S/ %.2f".format(p.pedido.total), fontWeight = FontWeight.Bold)
@@ -164,6 +179,7 @@ private fun LineaDetalle(d: DetalleConServicio) {
                 style = MaterialTheme.typography.bodySmall
             )
         }
-        Text("S/ %.2f".format(d.detalle.subtotal))
+        // El subtotal guardado ya lleva el descuento; aqui se muestra el importe bruto de la linea
+        Text("S/ %.2f".format(d.detalle.cantidad * d.detalle.precioUnitario))
     }
 }

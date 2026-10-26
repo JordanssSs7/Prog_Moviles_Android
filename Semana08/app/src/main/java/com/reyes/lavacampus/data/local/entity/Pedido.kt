@@ -23,7 +23,8 @@ data class Pedido(
     val fechaRegistro: String, // aaaa-MM-dd
     val fechaEntrega: String, // aaaa-MM-dd
     val estado: String, // EstadoPedido.name
-    val total: Double,
+    val total: Double, // ya con el descuento aplicado
+    val descuento: Double = 0.0, // monto descontado por volumen (0.0 si no aplico)
     val casillero: String? = null, // nulo hasta estar LISTO
     val pagado: Boolean = false,
     val nota: String = "",

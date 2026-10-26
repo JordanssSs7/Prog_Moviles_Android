@@ -8,6 +8,7 @@ import com.reyes.lavacampus.data.prefs.PreferenciasStore
 import com.reyes.lavacampus.data.repository.LavaRepository
 import com.reyes.lavacampus.model.LineaPedido
 import com.reyes.lavacampus.model.Unidad
+import com.reyes.lavacampus.model.descuentoDeLinea
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -64,9 +65,19 @@ class NuevoPedidoViewModel(
         lista.mapNotNull { s -> mapa[s.id]?.let { s to it } }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    /** Se recalcula en cada cambio: suma de cantidad x precio. */
-    val total: StateFlow<Double> = elegidos
+    /** Suma de cantidad x precio, antes del descuento. */
+    val subtotal: StateFlow<Double> = elegidos
         .map { lista -> lista.sumOf { (s, c) -> c * s.precio } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    /** Descuento por volumen: 10 % en los servicios por kilo con mas de 5 kg. */
+    val descuento: StateFlow<Double> = elegidos
+        .map { lista -> lista.sumOf { (s, c) -> descuentoDeLinea(s.unidad, c, s.precio) } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    /** Se recalcula en cada cambio: subtotal menos descuento. */
+    val total: StateFlow<Double> = elegidos
+        .map { lista -> lista.sumOf { (s, c) -> c * s.precio - descuentoDeLinea(s.unidad, c, s.precio) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     /** Hoy + el mayor horasEntrega de los servicios elegidos; null si no hay ninguno. */
@@ -97,8 +108,10 @@ class NuevoPedidoViewModel(
     }
 
     fun confirmar() {
-        val lineas = _cantidades.value.filter { it.value > 0.0 }
-            .map { LineaPedido(it.key, it.value) }
+        // Solo servicios elegidos que siguen activos; cada linea lleva su descuento ya calculado
+        val lineas = elegidos.value.map { (s, c) ->
+            LineaPedido(s.id, c, descuentoDeLinea(s.unidad, c, s.precio))
+        }
         val entrega = fechaEntrega.value
         if (lineas.isEmpty() || entrega == null) return
         if (!recibiendoPedidos.value) {

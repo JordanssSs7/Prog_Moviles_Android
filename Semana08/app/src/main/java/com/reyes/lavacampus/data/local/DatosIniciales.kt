@@ -6,6 +6,7 @@ import com.reyes.lavacampus.data.local.entity.Servicio
 import com.reyes.lavacampus.data.local.entity.Usuario
 import com.reyes.lavacampus.model.EstadoPedido
 import com.reyes.lavacampus.model.Rol
+import com.reyes.lavacampus.model.descuentoDeLinea
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -78,10 +79,12 @@ object DatosIniciales {
         pagado: Boolean,
         lineas: List<Pair<Int, Double>> // servicioId a cantidad
     ) {
+        // Triple(servicio, cantidad, descuento por volumen de la linea)
         val items = lineas.map { (servicioId, cantidad) ->
             val s = servicios.first { it.id == servicioId }
-            Triple(s, cantidad, cantidad * s.precio)
+            Triple(s, cantidad, descuentoDeLinea(s.unidad, cantidad, s.precio))
         }
+        val descuento = items.sumOf { it.third }
         var entrega = registro.plusDays((items.maxOf { it.first.horasEntrega } / 24).toLong())
         if (entrega.dayOfWeek == DayOfWeek.SUNDAY) entrega = entrega.plusDays(1)
 
@@ -91,20 +94,21 @@ object DatosIniciales {
                 fechaRegistro = registro.toString(),
                 fechaEntrega = entrega.toString(),
                 estado = estado.name,
-                total = items.sumOf { it.third },
+                total = items.sumOf { (s, cantidad, desc) -> cantidad * s.precio - desc },
+                descuento = descuento,
                 casillero = casillero,
                 pagado = pagado
             )
         ).toInt()
 
         db.detalleDao().insertarTodos(
-            items.map { (s, cantidad, subtotal) ->
+            items.map { (s, cantidad, desc) ->
                 DetallePedido(
                     pedidoId = pedidoId,
                     servicioId = s.id,
                     cantidad = cantidad,
                     precioUnitario = s.precio,
-                    subtotal = subtotal
+                    subtotal = cantidad * s.precio - desc // el subtotal ya lleva el descuento
                 )
             }
         )

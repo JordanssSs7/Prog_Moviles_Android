@@ -23,6 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.data.local.entity.Servicio
+import com.reyes.lavacampus.model.EstadoPedido
+import com.reyes.lavacampus.model.PORCENTAJE_DESCUENTO
+import com.reyes.lavacampus.model.UMBRAL_DESCUENTO_KG
 import com.reyes.lavacampus.model.Unidad
 import com.reyes.lavacampus.ui.components.AppTopBar
 import com.reyes.lavacampus.ui.components.IconoServicio
@@ -52,6 +55,8 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onVolver: () -> Unit, onPedidoCr
     val cantidades by vm.cantidades.collectAsState()
     val elegidos by vm.elegidos.collectAsState()
     val total by vm.total.collectAsState()
+    val subtotal by vm.subtotal.collectAsState()
+    val descuento by vm.descuento.collectAsState()
     val fechaEntrega by vm.fechaEntrega.collectAsState()
     val nota by vm.nota.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
@@ -112,6 +117,21 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onVolver: () -> Unit, onPedidoCr
                             }
                         }
                         HorizontalDivider()
+                        // Descuento por volumen visible en el resumen
+                        if (descuento > 0.0) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("Subtotal")
+                                Text("S/ %.2f".format(subtotal))
+                            }
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text(
+                                    "Descuento por volumen ($PORCENTAJE_DESCUENTO %)",
+                                    color = EstadoPedido.LISTO.color,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text("- S/ %.2f".format(descuento), color = EstadoPedido.LISTO.color, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Total", fontWeight = FontWeight.Bold)
                             Text("S/ %.2f".format(total), fontWeight = FontWeight.Bold)
@@ -154,6 +174,13 @@ private fun FilaServicio(s: Servicio, cantidad: Double, onCambio: (Double) -> Un
                     "S/ %.2f por %s · %d h".format(s.precio, textoUnidad(s.unidad), s.horasEntrega),
                     style = MaterialTheme.typography.bodySmall
                 )
+                if (s.unidad == Unidad.KG.name) {
+                    Text(
+                        "Más de ${UMBRAL_DESCUENTO_KG.toInt()} kg: $PORCENTAJE_DESCUENTO % de descuento",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = EstadoPedido.LISTO.color
+                    )
+                }
             }
             SelectorCantidad(
                 valor = cantidad,

@@ -15,7 +15,7 @@ import com.reyes.lavacampus.data.local.entity.Usuario
 
 @Database(
     entities = [Servicio::class, Usuario::class, Pedido::class, DetallePedido::class],
-    version = 1,
+    version = 2, // v2: Pedido.descuento
     exportSchema = false
 )
 abstract class LavaDatabase : RoomDatabase() {
@@ -33,7 +33,10 @@ abstract class LavaDatabase : RoomDatabase() {
                 context.applicationContext,
                 LavaDatabase::class.java,
                 "lavacampus.db"
-            ).build().also { INSTANCE = it }
+            )
+                // Modo practica: al subir de version se recrea la base y se vuelven a sembrar los datos
+                .fallbackToDestructiveMigration(dropAllTables = true)
+                .build().also { INSTANCE = it }
         }
     }
 }

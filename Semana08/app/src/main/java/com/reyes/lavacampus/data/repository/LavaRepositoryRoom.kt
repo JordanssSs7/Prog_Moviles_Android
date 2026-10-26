@@ -53,6 +53,7 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
     /**
      * Guarda el pedido y todas sus lineas en UNA transaccion: si falla una linea,
      * tampoco queda el pedido. Congela el precio de cada servicio en el detalle.
+     * El descuento de cada linea ya viene calculado por el ViewModel; aqui solo se valida y se resta.
      */
     override suspend fun crearPedido(
         usuarioId: Int,
@@ -63,12 +64,16 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
         val detalles = lineas.map { linea ->
             val servicio = servicioDao.obtener(linea.servicioId)
                 ?: throw IllegalArgumentException("Servicio ${linea.servicioId} no existe")
+            val bruto = linea.cantidad * servicio.precio
+            require(linea.descuento >= 0.0 && linea.descuento <= bruto) {
+                "Descuento invalido para el servicio ${servicio.nombre}"
+            }
             DetallePedido(
                 pedidoId = 0, // se completa con el id del pedido
                 servicioId = servicio.id,
                 cantidad = linea.cantidad,
                 precioUnitario = servicio.precio,
-                subtotal = linea.cantidad * servicio.precio
+                subtotal = bruto - linea.descuento // subtotal ya con descuento
             )
         }
         val pedidoId = pedidoDao.insertar(
@@ -78,6 +83,7 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
                 fechaEntrega = fechaEntrega,
                 estado = EstadoPedido.RECIBIDO.name,
                 total = detalles.sumOf { it.subtotal },
+                descuento = lineas.sumOf { it.descuento },
                 pagado = false,
                 nota = nota
             )
