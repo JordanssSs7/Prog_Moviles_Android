@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,22 +20,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.model.DIGITOS_CODIGO
-import com.reyes.lavacampus.model.Rol
 import com.reyes.lavacampus.ui.components.IndicadorClave
 import com.reyes.lavacampus.ui.components.LavaButton
 import com.reyes.lavacampus.ui.components.LavaTextField
 import com.reyes.lavacampus.ui.components.PlantillaAcceso
 import com.reyes.lavacampus.viewmodel.SesionViewModel
 
-/** Crear una cuenta de estudiante. Al terminar entra directamente a la app. */
+/** Crear una cuenta de estudiante. Al terminar muestra la confirmacion y lleva al inicio de sesion. */
 @Composable
 fun RegistroScreen(
     vm: SesionViewModel,
-    onRegistroExitoso: (Rol) -> Unit,
+    onCuentaCreada: () -> Unit,
     onIniciarSesion: () -> Unit,
     onVolver: () -> Unit
 ) {
-    val usuario by vm.usuarioActual.collectAsState()
+    val cuentaCreada by vm.cuentaCreada.collectAsState()
     val error by vm.error.collectAsState()
 
     var nombre by rememberSaveable { mutableStateOf("") }
@@ -45,8 +43,12 @@ fun RegistroScreen(
     var clave by rememberSaveable { mutableStateOf("") }
     var confirmacion by rememberSaveable { mutableStateOf("") }
 
-    LaunchedEffect(usuario) {
-        usuario?.let { onRegistroExitoso(Rol.valueOf(it.rol)) }
+    cuentaCreada?.let { nombreCreado ->
+        ConfirmacionRegistroScreen(nombreCreado, onIrALogin = {
+            vm.confirmarCuentaCreada()
+            onCuentaCreada()
+        })
+        return
     }
     DisposableEffect(Unit) {
         vm.limpiarError()

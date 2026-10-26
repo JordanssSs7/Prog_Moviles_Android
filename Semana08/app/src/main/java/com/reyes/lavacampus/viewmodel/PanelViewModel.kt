@@ -38,7 +38,7 @@ class PanelViewModel(
 
     // Paleta de los graficos de barras: azules y acentos de la marca
     private val colores = listOf(
-        Color(0xFF1F5BFF), Color(0xFF22B8F0), Color(0xFF4F46E5), Color(0xFFF59E0B), Color(0xFF16A34A)
+        Color(0xFF319E74), Color(0xFF22B8F0), Color(0xFF6366F1), Color(0xFFF59E0B), Color(0xFF16A34A)
     )
 
     val pedidosHoy: StateFlow<Int> = repo.observarPedidosDeFecha(hoy)

@@ -30,6 +30,10 @@ class SesionViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    /** Nombre de la cuenta recien creada: mientras no sea null se muestra el mensaje de confirmacion. */
+    private val _cuentaCreada = MutableStateFlow<String?>(null)
+    val cuentaCreada: StateFlow<String?> = _cuentaCreada.asStateFlow()
+
     /** true cuando ya se intento recuperar el perfil guardado (el Splash espera esto). */
     private val _sesionLista = MutableStateFlow(false)
     val sesionLista: StateFlow<Boolean> = _sesionLista.asStateFlow()
@@ -71,7 +75,7 @@ class SesionViewModel(
         }
     }
 
-    /** Crea una cuenta de estudiante y entra directamente. Las cuentas de administrador no se crean aqui. */
+    /** Crea una cuenta de estudiante; no inicia sesion, el estudiante entra despues desde el login. Las de administrador no se crean aqui. */
     fun registrar(nombre: String, codigo: String, correo: String, clave: String, confirmacion: String) {
         validarRegistro(nombre, codigo, correo, clave, confirmacion)?.let {
             _error.value = it
@@ -84,7 +88,7 @@ class SesionViewModel(
                 repo.existeCorreo(correoNormal) -> _error.value = "Ya existe una cuenta con ese correo"
                 repo.existeCodigo(codigoNormal) -> _error.value = "Ya existe una cuenta con ese código"
                 else -> {
-                    val nueva = repo.crearUsuario(
+                    repo.crearUsuario(
                         Usuario(
                             nombre = nombre.trim(),
                             codigo = codigoNormal,
@@ -93,10 +97,15 @@ class SesionViewModel(
                             rol = Rol.CLIENTE.name
                         )
                     )
-                    iniciarSesion(nueva)
+                    _cuentaCreada.value = nombre.trim()
                 }
             }
         }
+    }
+
+    /** Se llama al salir del mensaje de confirmacion. */
+    fun confirmarCuentaCreada() {
+        _cuentaCreada.value = null
     }
 
     /**

@@ -14,11 +14,13 @@ object Rutas {
     const val MIS_PEDIDOS = "mis_pedidos"
     const val TARIFAS = "tarifas"
     const val PERFIL = "perfil"
+    const val CONFIGURACION = "configuracion"
     const val DETALLE_PEDIDO = "detalle/{id}"
     fun detalle(id: Int) = "detalle/$id"
 
     // Administrador
     const val PANEL = "panel"
+    const val PERFIL_ADMIN = "perfil_admin"
     const val BANDEJA = "bandeja?estado={estado}"
     fun bandeja(estado: String = "") = "bandeja?estado=$estado"
     const val GESTION = "gestion/{id}"

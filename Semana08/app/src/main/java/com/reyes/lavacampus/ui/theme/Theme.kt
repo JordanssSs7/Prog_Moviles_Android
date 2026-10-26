@@ -11,94 +11,49 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.model.Rol
 
-private val EstudianteClaro = lightColorScheme(
-    primary = AzulMarca,
+private val EsquemaClaro = lightColorScheme(
+    primary = VerdeMarca,
     onPrimary = Color.White,
-    primaryContainer = AzulContenedor,
-    onPrimaryContainer = Color(0xFF0B2A8A),
+    primaryContainer = VerdeContenedor,
+    onPrimaryContainer = Color(0xFF0E4A35),
     secondary = Negro,
     onSecondary = Color.White,
-    background = AzulFondo,
+    background = VerdeFondo,
     onBackground = Tinta,
     surface = Color.White,
     onSurface = Tinta,
-    surfaceVariant = Color(0xFFEEF2F8),
+    surfaceVariant = Color(0xFFEBF3EF),
     onSurfaceVariant = TintaSuave,
-    outline = Color(0xFFCBD5E1),
+    outline = Color(0xFFC5D3CC),
     outlineVariant = LineaSuave,
     surfaceContainerLowest = Color.White,
-    surfaceContainerLow = Color(0xFFF8FAFD),
-    surfaceContainer = Color(0xFFF1F4FA),
-    surfaceContainerHigh = Color(0xFFEBEFF7),
-    surfaceContainerHighest = Color(0xFFE5EAF4),
+    surfaceContainerLow = Color(0xFFF8FBF9),
+    surfaceContainer = Color(0xFFF0F6F3),
+    surfaceContainerHigh = Color(0xFFE9F1ED),
+    surfaceContainerHighest = Color(0xFFE2ECE7),
     error = Color(0xFFDC2626)
 )
 
-private val AdminClaro = lightColorScheme(
-    primary = IndigoMarca,
-    onPrimary = Color.White,
-    primaryContainer = IndigoContenedor,
-    onPrimaryContainer = Color(0xFF1E1B6E),
-    secondary = Negro,
-    onSecondary = Color.White,
-    background = IndigoFondo,
-    onBackground = Tinta,
-    surface = Color.White,
-    onSurface = Tinta,
-    surfaceVariant = Color(0xFFEEEEF8),
-    onSurfaceVariant = TintaSuave,
-    outline = Color(0xFFCBD5E1),
-    outlineVariant = LineaSuave,
-    surfaceContainerLowest = Color.White,
-    surfaceContainerLow = Color(0xFFFAF9FE),
-    surfaceContainer = Color(0xFFF2F1FA),
-    surfaceContainerHigh = Color(0xFFECEBF6),
-    surfaceContainerHighest = Color(0xFFE6E5F3),
-    error = Color(0xFFDC2626)
-)
-
-private val EstudianteOscuro = darkColorScheme(
-    primary = AzulClaro,
-    onPrimary = Color(0xFF0A1B52),
-    primaryContainer = Color(0xFF1B2E66),
-    onPrimaryContainer = AzulContenedor,
-    secondary = Color(0xFFE8ECF8),
-    onSecondary = Color(0xFF0B1020),
+private val EsquemaOscuro = darkColorScheme(
+    primary = VerdeClaro,
+    onPrimary = Color(0xFF06291D),
+    primaryContainer = Color(0xFF1B5A43),
+    onPrimaryContainer = VerdeContenedor,
+    secondary = Color(0xFFE6F0EB),
+    onSecondary = Color(0xFF0B1512),
     background = FondoOscuro,
-    onBackground = Color(0xFFE8ECF8),
+    onBackground = Color(0xFFE6F0EB),
     surface = SuperficieOscura,
-    onSurface = Color(0xFFE8ECF8),
+    onSurface = Color(0xFFE6F0EB),
     surfaceVariant = SuperficieOscuraAlta,
-    onSurfaceVariant = Color(0xFF9AA6C4),
-    outline = Color(0xFF3A4566),
-    outlineVariant = Color(0xFF2A3452),
-    surfaceContainerLowest = Color(0xFF0E1428),
+    onSurfaceVariant = Color(0xFF9DB5AA),
+    outline = Color(0xFF3B5249),
+    outlineVariant = Color(0xFF2A3D35),
+    surfaceContainerLowest = Color(0xFF0E1814),
     surfaceContainerLow = SuperficieOscura,
     surfaceContainer = SuperficieOscuraAlta,
-    surfaceContainerHigh = Color(0xFF232E4C),
-    surfaceContainerHighest = Color(0xFF2A3558)
-)
-
-private val AdminOscuro = darkColorScheme(
-    primary = IndigoClaro,
-    onPrimary = Color(0xFF1E1B6E),
-    primaryContainer = Color(0xFF2E2A8F),
-    onPrimaryContainer = IndigoContenedor,
-    secondary = Color(0xFFE8ECF8),
-    onSecondary = Color(0xFF0B1020),
-    background = FondoOscuro,
-    onBackground = Color(0xFFE8ECF8),
-    surface = SuperficieOscura,
-    onSurface = Color(0xFFE8ECF8),
-    surfaceVariant = SuperficieOscuraAlta,
-    onSurfaceVariant = Color(0xFF9AA6C4),
-    outline = Color(0xFF3A4566),
-    outlineVariant = Color(0xFF2A3452),
-    surfaceContainerLowest = Color(0xFF0E1428),
-    surfaceContainerLow = SuperficieOscura,
-    surfaceContainer = SuperficieOscuraAlta,
-    surfaceContainerHigh = Color(0xFF232E4C),
-    surfaceContainerHighest = Color(0xFF2A3558)
+    surfaceContainerHigh = Color(0xFF23352F),
+    surfaceContainerHighest = Color(0xFF2A4038)
 )
 
 /** Esquinas muy redondeadas, como en el diseno de referencia. */
@@ -110,29 +65,19 @@ private val FormasLava = Shapes(
     extraLarge = RoundedCornerShape(32.dp)
 )
 
-/** Degradado de marca (azul profundo arriba) para encabezados, splash y bienvenida. */
-fun degradadoMarca(rol: Rol = Rol.CLIENTE): Brush =
-    if (rol == Rol.ADMIN) {
-        Brush.verticalGradient(listOf(Color(0xFF312E81), IndigoMarca, Color(0xFF7C75F5)))
-    } else {
-        Brush.verticalGradient(listOf(AzulProfundo, AzulIntermedio, Color(0xFF5B94FF)))
-    }
+/** Degradado de marca (verde profundo arriba) para encabezados, splash y bienvenida. */
+fun degradadoMarca(@Suppress("UNUSED_PARAMETER") rol: Rol = Rol.CLIENTE): Brush =
+    Brush.verticalGradient(listOf(VerdeProfundo, VerdeIntermedio, VerdeSuave))
 
-/** El esquema de color depende del perfil activo (rol) y del modo oscuro. */
+/** Toda la app usa el mismo verde; el rol se conserva por si un perfil necesita distinguirse. */
 @Composable
 fun LavaTheme(
     rol: Rol = Rol.CLIENTE,
     oscuro: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colores = when {
-        rol == Rol.ADMIN && oscuro -> AdminOscuro
-        rol == Rol.ADMIN -> AdminClaro
-        oscuro -> EstudianteOscuro
-        else -> EstudianteClaro
-    }
     MaterialTheme(
-        colorScheme = colores,
+        colorScheme = if (oscuro) EsquemaOscuro else EsquemaClaro,
         typography = Typography,
         shapes = FormasLava,
         content = content

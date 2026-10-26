@@ -15,7 +15,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.model.EstadoPedido
 import com.reyes.lavacampus.model.Rol
+import com.reyes.lavacampus.ui.components.BotonCircular
 import com.reyes.lavacampus.ui.components.LavaCard
 import com.reyes.lavacampus.ui.components.graficos.DatoGrafico
 import com.reyes.lavacampus.ui.components.graficos.GraficoBarras
@@ -41,7 +45,7 @@ import com.reyes.lavacampus.ui.theme.degradadoMarca
 import com.reyes.lavacampus.viewmodel.PanelViewModel
 
 @Composable
-fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () -> Unit) {
+fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () -> Unit, onMenu: () -> Unit) {
     val pedidosHoy by vm.pedidosHoy.collectAsState()
     val enProceso by vm.enProceso.collectAsState()
     val porRecoger by vm.porRecoger.collectAsState()
@@ -95,6 +99,12 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
                 )
             }
         }
+
+        // Abre el menu lateral
+        BotonCircular(
+            onClick = onMenu,
+            modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(top = 14.dp, end = 20.dp)
+        ) { Icon(Icons.Filled.Menu, contentDescription = "Menú") }
 
         // Hoja que sube sobre el encabezado
         Surface(

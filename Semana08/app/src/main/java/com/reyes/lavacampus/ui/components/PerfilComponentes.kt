@@ -1,193 +1,301 @@
 package com.reyes.lavacampus.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.reyes.lavacampus.model.Rol
-import com.reyes.lavacampus.ui.theme.degradadoMarca
+import com.reyes.lavacampus.ui.theme.VerdeMarca
+import com.reyes.lavacampus.ui.theme.Tinta
+import com.reyes.lavacampus.ui.theme.TintaSuave
+
+// El perfil usa siempre un fondo de color intenso (tambien en modo oscuro) para que el texto blanco se lea bien
+fun colorMarca(@Suppress("UNUSED_PARAMETER") rol: Rol) = VerdeMarca
+
+fun fondoPerfil(rol: Rol): Brush =
+    Brush.verticalGradient(listOf(Color(0xFF1B7556), VerdeMarca))
 
 /**
- * Encabezado de Perfil y Ajustes: degradado con burbujas decorativas, avatar con aro blanco,
- * nombre, datos y una etiqueta en forma de pastilla.
+ * Pantalla de color completo, como la referencia: arriba una flecha para volver (opcional), el titulo
+ * centrado y un icono de accion (opcional, por ejemplo el engranaje o la luna).
  */
 @Composable
-fun EncabezadoPerfil(
-    nombre: String,
-    detalles: List<String>,
-    etiqueta: String,
+fun PerfilColor(
     rol: Rol,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(290.dp)
-            .background(degradadoMarca(rol))
-            .drawBehind {
-                // Burbujas suaves de fondo
-                drawCircle(Color.White, radius = size.width * 0.42f, center = Offset(size.width * 0.95f, size.height * 0.05f), alpha = 0.07f)
-                drawCircle(Color.White, radius = size.width * 0.30f, center = Offset(size.width * 0.02f, size.height * 0.75f), alpha = 0.06f)
-                drawCircle(Color.White, radius = size.width * 0.10f, center = Offset(size.width * 0.80f, size.height * 0.70f), alpha = 0.08f)
-            }
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(top = 22.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(3.dp)
-        ) {
-            // Aro blanco con sombra alrededor del avatar
-            Surface(shape = CircleShape, color = Color.White, shadowElevation = 10.dp) {
-                Box(modifier = Modifier.padding(5.dp)) { Avatar(nombre, tamano = 84.dp) }
-            }
-            Text(
-                nombre,
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 10.dp)
-            )
-            detalles.forEach {
-                Text(it, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.85f))
-            }
-            Row(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.2f))
-                    .padding(horizontal = 14.dp, vertical = 5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Box(Modifier.size(7.dp).background(Color(0xFF86EFAC), CircleShape))
-                Text(etiqueta, style = MaterialTheme.typography.labelLarge, color = Color.White)
-            }
-        }
-    }
-}
-
-/** Tarjeta con degradado para cambiar de perfil (modo practica). */
-@Composable
-fun TarjetaCambiarPerfil(subtitulo: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val primario = MaterialTheme.colorScheme.primary
-    val forma = MaterialTheme.shapes.medium
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(6.dp, forma)
-            .clip(forma)
-            .clickable(onClick = onClick)
-            .background(Brush.horizontalGradient(listOf(primario, lerp(primario, Color.White, 0.22f))))
-            .padding(horizontal = 18.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        Box(
-            modifier = Modifier.size(46.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.2f)),
-            contentAlignment = Alignment.Center
-        ) { Icon(Icons.Filled.SwapHoriz, contentDescription = null, tint = Color.White) }
-        Column(modifier = Modifier.weight(1f)) {
-            Text("Cambiar de perfil", style = MaterialTheme.typography.titleSmall, color = Color.White)
-            Text(subtitulo, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.85f))
-        }
-        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Color.White)
-    }
-}
-
-/** Fila de preferencia con icono en un cuadro de color, descripcion corta y un interruptor. */
-@Composable
-fun FilaPreferencia(
-    icono: ImageVector,
     titulo: String,
-    descripcion: String,
-    activo: Boolean,
-    onCambio: (Boolean) -> Unit
+    modifier: Modifier = Modifier,
+    onAtras: (() -> Unit)? = null,
+    iconoAccion: ImageVector? = null,
+    descripcionAccion: String = "",
+    onAccion: (() -> Unit)? = null,
+    fondo: Brush = fondoPerfil(rol),
+    estiloTitulo: TextStyle = MaterialTheme.typography.titleLarge,
+    contenido: @Composable ColumnScope.() -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        Box(
+    Box(modifier = modifier.fillMaxSize().background(fondo)) {
+        Column(
             modifier = Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(14.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
-        ) { Icon(icono, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(titulo, style = MaterialTheme.typography.titleSmall)
-            Text(descripcion, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                .fillMaxSize()
+                .statusBarsPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                    if (onAtras != null) {
+                        IconButton(onClick = onAtras) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                        }
+                    }
+                }
+                Text(
+                    titulo,
+                    style = estiloTitulo,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f)
+                )
+                Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                    if (iconoAccion != null && onAccion != null) {
+                        IconButton(onClick = onAccion) {
+                            Icon(iconoAccion, contentDescription = descripcionAccion, tint = Color.White)
+                        }
+                    }
+                }
+            }
+            contenido()
         }
-        Switch(checked = activo, onCheckedChange = onCambio)
     }
 }
 
+/**
+ * Circulo blanco con un icono de persona y aros decorativos alrededor. Si hay [onEditar] aparece el
+ * boton del lapiz sobre el borde, como en la referencia.
+ */
 @Composable
-fun TituloSeccion(texto: String, modifier: Modifier = Modifier) {
-    Text(
-        texto,
-        style = MaterialTheme.typography.titleMedium,
-        modifier = modifier.padding(start = 4.dp)
-    )
+fun AvatarGrande(rol: Rol, modifier: Modifier = Modifier, onEditar: (() -> Unit)? = null) {
+    Box(modifier = modifier.size(220.dp), contentAlignment = Alignment.Center) {
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val w = size.width
+            val h = size.height
+            val trazo = Stroke(width = 2.dp.toPx())
+            drawCircle(Color.White.copy(alpha = 0.85f), radius = 17.dp.toPx(), center = Offset(w * 0.22f, h * 0.15f), style = trazo)
+            drawCircle(Color.White.copy(alpha = 0.55f), radius = 25.dp.toPx(), center = Offset(w * 0.07f, h * 0.50f), style = trazo)
+            drawCircle(Color.White.copy(alpha = 0.9f), radius = 9.dp.toPx(), center = Offset(w * 0.30f, h * 0.88f), style = trazo)
+            drawCircle(Color.White.copy(alpha = 0.5f), radius = 23.dp.toPx(), center = Offset(w * 0.93f, h * 0.84f), style = trazo)
+            drawCircle(Color.White.copy(alpha = 0.7f), radius = 6.dp.toPx(), center = Offset(w * 0.90f, h * 0.20f))
+        }
+        Surface(
+            modifier = Modifier.size(140.dp),
+            shape = CircleShape,
+            color = Color.White,
+            shadowElevation = 10.dp
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    Icons.Filled.Person,
+                    contentDescription = null,
+                    tint = colorMarca(rol),
+                    modifier = Modifier.size(96.dp)
+                )
+            }
+        }
+        if (onEditar != null) {
+            Surface(
+                onClick = onEditar,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(end = 34.dp, bottom = 40.dp).size(46.dp),
+                shape = CircleShape,
+                color = Color.White,
+                shadowElevation = 8.dp
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Filled.Edit, contentDescription = "Editar perfil", tint = colorMarca(rol), modifier = Modifier.size(22.dp))
+                }
+            }
+        }
+    }
 }
 
-/** Nota discreta para decir que las preferencias se guardan en el dispositivo. */
+/** Dato resaltado: tarjeta translucida con un icono, la etiqueta en mayusculas y el valor grande en blanco. */
 @Composable
-fun NotaDispositivo(modifier: Modifier = Modifier) {
+fun DatoPerfil(etiqueta: String, valor: String, modifier: Modifier = Modifier, icono: ImageVector? = null) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f))
-            .padding(14.dp),
+            .clip(RoundedCornerShape(18.dp))
+            .background(Color.White.copy(alpha = 0.16f))
+            .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        Icon(Icons.Filled.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
-        Text(
-            "Tus preferencias se guardan en este dispositivo.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (icono != null) {
+            Box(
+                modifier = Modifier.size(44.dp).clip(CircleShape).background(Color.White),
+                contentAlignment = Alignment.Center
+            ) { Icon(icono, contentDescription = null, tint = VerdeMarca, modifier = Modifier.size(24.dp)) }
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                etiqueta.uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White.copy(alpha = 0.78f),
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.2.sp
+            )
+            Text(valor, fontSize = 19.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        }
     }
 }
 
-/** Boton de contorno con icono, para "Cerrar sesion" y "Cancelar". */
+@Composable
+fun SeccionClara(titulo: String, modifier: Modifier = Modifier) {
+    Text(titulo, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White, modifier = modifier)
+}
+
+/** Nombre del nivel segun las estrellas ganadas. */
+fun nombreNivel(estrellas: Int): String = when {
+    estrellas <= 1 -> "Nuevo"
+    estrellas <= 3 -> "Frecuente"
+    estrellas == 4 -> "Plata"
+    else -> "Oro"
+}
+
+/**
+ * Tarjeta del nivel del cliente: el nombre del nivel y los pedidos hechos, cinco estrellas grandes y una
+ * barra con lo que falta para la siguiente estrella (una por cada 2 pedidos, maximo 5).
+ */
+@Composable
+fun BarraNivel(rol: Rol, pedidos: Int, modifier: Modifier = Modifier) {
+    val marca = colorMarca(rol)
+    val estrellas = estrellasPorPedidos(pedidos)
+    val faltan = if (estrellas >= 5) 0 else 2 * estrellas + 1 - pedidos
+    val avance = if (estrellas >= 5) 1f else if (estrellas == 0) 0f else (pedidos - (2 * estrellas - 1)) / 2f
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color.White)
+            .padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Column(
+                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(18.dp)).background(marca),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text("$pedidos", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("pedidos", fontSize = 11.sp, color = Color.White)
+            }
+            Column {
+                Text(nombreNivel(estrellas), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Tinta)
+                Text(
+                    if (faltan == 0) "¡Nivel máximo alcanzado!"
+                    else "Te ${if (faltan == 1) "falta 1 pedido" else "faltan $faltan pedidos"} para la siguiente estrella",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TintaSuave
+                )
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            repeat(5) { i ->
+                Icon(
+                    imageVector = if (i < estrellas) Icons.Filled.Star else Icons.Filled.StarBorder,
+                    contentDescription = null,
+                    tint = marca,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+        }
+        Box(
+            modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(marca.copy(alpha = 0.15f))
+        ) {
+            Box(Modifier.fillMaxWidth(avance.coerceIn(0f, 1f)).height(8.dp).clip(CircleShape).background(marca))
+        }
+    }
+}
+
+/** Una estrella por cada 2 pedidos (1 pedido ya da una), hasta 5. */
+fun estrellasPorPedidos(pedidos: Int): Int = ((pedidos + 1) / 2).coerceIn(0, 5)
+
+/** Fila de tarjetas blancas, una por dato: icono grande arriba, el valor en grande y la leyenda. */
+@Composable
+fun BarraActividad(rol: Rol, datos: List<Triple<ImageVector, String, String>>, modifier: Modifier = Modifier) {
+    val marca = colorMarca(rol)
+    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        datos.forEach { (icono, valor, leyenda) ->
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(Color.White)
+                    .padding(vertical = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Box(
+                    modifier = Modifier.size(46.dp).clip(CircleShape).background(marca),
+                    contentAlignment = Alignment.Center
+                ) { Icon(icono, contentDescription = null, tint = Color.White, modifier = Modifier.size(25.dp)) }
+                Text(valor, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Tinta)
+                Text(leyenda, style = MaterialTheme.typography.labelMedium, color = TintaSuave)
+            }
+        }
+    }
+}
+
+/** Boton de contorno con icono sobre fondo claro (por ejemplo "Cancelar" en un formulario). */
 @Composable
 fun BotonContorno(
     texto: String,
@@ -210,5 +318,5 @@ fun BotonContorno(
     }
 }
 
-/** Icono de cerrar sesion, para usar con [BotonContorno]. */
+/** Icono de cerrar sesion. */
 val IconoCerrarSesion: ImageVector get() = Icons.AutoMirrored.Filled.Logout

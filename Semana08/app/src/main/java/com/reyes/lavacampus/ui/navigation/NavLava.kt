@@ -4,11 +4,30 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.LocalLaundryService
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Sell
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -27,9 +46,11 @@ import com.reyes.lavacampus.ui.administrador.ClientesScreen
 import com.reyes.lavacampus.ui.administrador.FormularioServicioScreen
 import com.reyes.lavacampus.ui.administrador.GestionPedidoScreen
 import com.reyes.lavacampus.ui.administrador.PanelScreen
+import com.reyes.lavacampus.ui.administrador.PerfilAdminScreen
 import com.reyes.lavacampus.ui.administrador.ServiciosScreen
 import com.reyes.lavacampus.ui.components.IconosBarraEstado
 import com.reyes.lavacampus.ui.estudiante.BienvenidaScreen
+import com.reyes.lavacampus.ui.estudiante.ConfiguracionScreen
 import com.reyes.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.reyes.lavacampus.ui.estudiante.InicioScreen
 import com.reyes.lavacampus.ui.estudiante.LoginScreen
@@ -77,18 +98,84 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
     val entrada by navController.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
     val oscuro by sesion.modoOscuro.collectAsState()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val alcance = rememberCoroutineScope()
 
-    // Iconos claros de la barra de estado sobre los fondos azules (splash, bienvenida, login) y en modo oscuro
+    // Iconos claros de la barra de estado sobre los fondos de color (splash, bienvenida, acceso, perfil y menu) y en modo oscuro
     IconosBarraEstado(
-        claros = oscuro || rutaActual in setOf(Rutas.SPLASH, Rutas.BIENVENIDA, Rutas.LOGIN, Rutas.REGISTRO)
+        claros = oscuro || drawerState.currentValue == DrawerValue.Open || rutaActual in setOf(
+            Rutas.SPLASH, Rutas.BIENVENIDA, Rutas.LOGIN, Rutas.REGISTRO,
+            Rutas.PERFIL, Rutas.PERFIL_ADMIN, Rutas.CONFIGURACION, Rutas.AJUSTES
+        )
     )
 
-    // Barra inferior: 4 items para el estudiante y 5 para el administrador
+    // Barra inferior: estrella, casita y persona; el resto de opciones esta en el menu lateral
     val esAdmin = usuario?.rol == Rol.ADMIN.name
     val pestanas = if (esAdmin) PestanasAdmin else PestanasEstudiante
     val raiz = if (esAdmin) Rutas.PANEL else Rutas.INICIO
-    val mostrarBarra = usuario != null && pestanas.any { it.ruta == rutaActual }
+    val mostrarBarra = usuario != null &&
+        rutaActual in (if (esAdmin) RutasConBarraAdmin else RutasConBarraEstudiante)
 
+    // El menu lateral arranca siempre cerrado y se cierra al llegar a pantallas sin barra (splash, acceso...)
+    LaunchedEffect(mostrarBarra) { if (!mostrarBarra) drawerState.snapTo(DrawerValue.Closed) }
+
+    val abrirMenu: () -> Unit = { alcance.launch { drawerState.open() } }
+    val cambiarPerfil: () -> Unit = { sesion.cambiarPerfil { rol -> navController.irAPrincipal(rol) } }
+    val cerrarSesion: () -> Unit = {
+        sesion.cerrarSesion { navController.navigate(Rutas.BIENVENIDA) { popUpTo(0) { inclusive = true } } }
+    }
+
+    // Opciones del menu lateral segun el perfil
+    val itemsMenu = if (esAdmin) listOf(
+        ItemMenu("Panel", Icons.Filled.Dashboard, Rutas.PANEL, Rutas.PANEL, true),
+        ItemMenu("Pedidos", Icons.Filled.Inbox, Rutas.BANDEJA, Rutas.bandeja(), true),
+        ItemMenu("Servicios", Icons.Filled.LocalLaundryService, Rutas.SERVICIOS, Rutas.SERVICIOS, true),
+        ItemMenu("Clientes", Icons.Filled.People, Rutas.CLIENTES, Rutas.CLIENTES, true),
+        ItemMenu("Ver perfil", Icons.Filled.Person, Rutas.PERFIL_ADMIN, Rutas.PERFIL_ADMIN, true),
+        ItemMenu("Ajustes", Icons.Filled.Settings, Rutas.AJUSTES, Rutas.AJUSTES, true)
+    ) else listOf(
+        ItemMenu("Inicio", Icons.Filled.Home, Rutas.INICIO, Rutas.INICIO, true),
+        ItemMenu("Ver perfil", Icons.Filled.Person, Rutas.PERFIL, Rutas.PERFIL, true),
+        ItemMenu("Mis pedidos", Icons.Filled.Receipt, Rutas.MIS_PEDIDOS, Rutas.MIS_PEDIDOS, true),
+        ItemMenu("Configuración", Icons.Filled.Settings, Rutas.CONFIGURACION, Rutas.CONFIGURACION, false)
+    )
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = mostrarBarra || drawerState.isOpen,
+        drawerContent = {
+            val u = usuario
+            if (u == null) {
+                // Sin sesion el panel va vacio pero con su ancho, para que el cajon arranque cerrado
+                ModalDrawerSheet(modifier = Modifier.width(310.dp)) {}
+            } else {
+                MenuLateral(
+                    nombre = u.nombre,
+                    subtitulo = if (esAdmin) "Administrador" else "Estudiante · ${u.codigo}",
+                    rol = if (esAdmin) Rol.ADMIN else Rol.CLIENTE,
+                    items = itemsMenu,
+                    rutaActual = rutaActual,
+                    onIr = { item ->
+                        alcance.launch { drawerState.close() }
+                        if (item.esPestana) {
+                            navController.irAPestana(Pestana(item.titulo, item.icono, item.ruta, item.destino), raiz)
+                        } else {
+                            navController.navigate(item.destino) { launchSingleTop = true }
+                        }
+                    },
+                    onCerrarSesion = {
+                        alcance.launch { drawerState.close() }
+                        cerrarSesion()
+                    },
+                    onInicio = {
+                        alcance.launch { drawerState.close() }
+                        navController.irAPestana(pestanas[1], raiz)
+                    },
+                    onCerrar = { alcance.launch { drawerState.close() } }
+                )
+            }
+        }
+    ) {
     Scaffold(
         bottomBar = {
             if (mostrarBarra) {
@@ -134,7 +221,10 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
             composable(Rutas.REGISTRO) {
                 RegistroScreen(
                     vm = sesion,
-                    onRegistroExitoso = { rol -> navController.irAPrincipal(rol) },
+                    // Tras crear la cuenta se muestra la confirmacion y se pasa al login (sin sesion iniciada)
+                    onCuentaCreada = {
+                        navController.navigate(Rutas.LOGIN) { popUpTo(Rutas.BIENVENIDA) }
+                    },
                     onIniciarSesion = {
                         navController.navigate(Rutas.LOGIN) { popUpTo(Rutas.BIENVENIDA) }
                     },
@@ -154,7 +244,8 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                         onNuevoPedido = { navController.navigate(Rutas.nuevoPedido()) },
                         onVerPedido = { id -> navController.navigate(Rutas.detalle(id)) },
                         onMisPedidos = { navController.navigate(Rutas.MIS_PEDIDOS) },
-                        onTarifas = { navController.navigate(Rutas.TARIFAS) }
+                        onTarifas = { navController.navigate(Rutas.TARIFAS) },
+                        onMenu = abrirMenu
                     )
                 }
             }
@@ -218,14 +309,19 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                     PerfilScreen(
                         perfil = perfil,
                         sesion = sesion,
-                        onCambiarPerfil = { sesion.cambiarPerfil { rol -> navController.irAPrincipal(rol) } },
-                        onCerrarSesion = {
-                            sesion.cerrarSesion {
-                                navController.navigate(Rutas.BIENVENIDA) { popUpTo(0) { inclusive = true } }
-                            }
-                        }
+                        onAtras = { navController.irAPestana(PestanasEstudiante[1], Rutas.INICIO) },
+                        onConfiguracion = { navController.navigate(Rutas.CONFIGURACION) }
                     )
                 }
+            }
+            composable(Rutas.CONFIGURACION) {
+                ConfiguracionScreen(
+                    rol = Rol.CLIENTE,
+                    sesion = sesion,
+                    onAtras = { navController.popBackStack() },
+                    onCambiarPerfil = cambiarPerfil,
+                    onCerrarSesion = cerrarSesion
+                )
             }
 
             // ---------- Administrador ----------
@@ -234,7 +330,8 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                 PanelScreen(
                     vm = vm,
                     onVerListos = { navController.navigate(Rutas.bandeja(EstadoPedido.LISTO.name)) },
-                    onVerAtrasados = { navController.navigate(Rutas.bandeja()) }
+                    onVerAtrasados = { navController.navigate(Rutas.bandeja()) },
+                    onMenu = abrirMenu
                 )
             }
             composable(
@@ -284,17 +381,21 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                 val vm: ClientesViewModel = viewModel(factory = factory)
                 ClientesScreen(vm = vm)
             }
+            composable(Rutas.PERFIL_ADMIN) {
+                PerfilAdminScreen(
+                    sesion = sesion,
+                    onAtras = { navController.popBackStack() },
+                    onConfiguracion = { navController.irAPestana(PestanaAjustes, Rutas.PANEL) }
+                )
+            }
             composable(Rutas.AJUSTES) {
                 AjustesScreen(
                     sesion = sesion,
-                    onCambiarPerfil = { sesion.cambiarPerfil { rol -> navController.irAPrincipal(rol) } },
-                    onCerrarSesion = {
-                        sesion.cerrarSesion {
-                            navController.navigate(Rutas.BIENVENIDA) { popUpTo(0) { inclusive = true } }
-                        }
-                    }
+                    onCambiarPerfil = cambiarPerfil,
+                    onCerrarSesion = cerrarSesion
                 )
             }
         }
+    }
     }
 }

@@ -21,6 +21,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,6 +43,7 @@ import com.reyes.lavacampus.model.EstadoPedido
 import com.reyes.lavacampus.model.PORCENTAJE_DESCUENTO
 import com.reyes.lavacampus.model.UMBRAL_DESCUENTO_KG
 import com.reyes.lavacampus.ui.components.Avatar
+import com.reyes.lavacampus.ui.components.BotonCircular
 import com.reyes.lavacampus.ui.components.EstadoPedidoChip
 import com.reyes.lavacampus.ui.components.IconoServicio
 import com.reyes.lavacampus.ui.components.IlustracionLavadora
@@ -47,8 +51,8 @@ import com.reyes.lavacampus.ui.components.LavaCard
 import com.reyes.lavacampus.ui.components.PedidoCard
 import com.reyes.lavacampus.ui.components.StepperEstado
 import com.reyes.lavacampus.ui.components.fechaCorta
-import com.reyes.lavacampus.ui.theme.AzulIntermedio
-import com.reyes.lavacampus.ui.theme.AzulProfundo
+import com.reyes.lavacampus.ui.theme.VerdeIntermedio
+import com.reyes.lavacampus.ui.theme.VerdeProfundo
 import com.reyes.lavacampus.ui.theme.Negro
 import com.reyes.lavacampus.viewmodel.InicioViewModel
 
@@ -58,7 +62,8 @@ fun InicioScreen(
     onNuevoPedido: () -> Unit,
     onVerPedido: (Int) -> Unit,
     onMisPedidos: () -> Unit,
-    onTarifas: () -> Unit
+    onTarifas: () -> Unit,
+    onMenu: () -> Unit
 ) {
     val activo by vm.pedidoActivo.collectAsState()
     val recientes by vm.recientes.collectAsState()
@@ -89,6 +94,9 @@ fun InicioScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            Spacer(Modifier.weight(1f))
+            // Abre el menu lateral
+            BotonCircular(onClick = onMenu) { Icon(Icons.Filled.Menu, contentDescription = "Menú") }
         }
 
         // Aviso claro cuando el administrador cerro la recepcion de pedidos
@@ -221,7 +229,7 @@ private fun BannerOferta(onPedir: () -> Unit, modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .height(186.dp)
             .clip(RoundedCornerShape(28.dp))
-            .background(Brush.linearGradient(listOf(AzulProfundo, AzulIntermedio)))
+            .background(Brush.linearGradient(listOf(VerdeProfundo, VerdeIntermedio)))
     ) {
         // Circulos decorativos
         Box(Modifier.size(150.dp).align(Alignment.TopEnd).padding(end = 0.dp).background(Color.White.copy(alpha = 0.07f), CircleShape))

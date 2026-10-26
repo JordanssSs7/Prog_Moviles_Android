@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 enum class EstadoPedido(val etiqueta: String, val color: Color) {
     RECIBIDO("Recibido", Color(0xFFD97706)),
-    EN_PROCESO("En proceso", Color(0xFF2563EB)),
+    EN_PROCESO("En proceso", Color(0xFF0891B2)),
     LISTO("Listo", Color(0xFF16A34A)),
     ENTREGADO("Entregado", Color(0xFF475569)),
     CANCELADO("Cancelado", Color(0xFFDC2626));
