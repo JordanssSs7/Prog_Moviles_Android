@@ -34,10 +34,11 @@ import com.reyes.lavacampus.ui.components.graficos.GraficoDona
 import com.reyes.lavacampus.viewmodel.PanelViewModel
 
 @Composable
-fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit) {
+fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () -> Unit) {
     val pedidosHoy by vm.pedidosHoy.collectAsState()
     val enProceso by vm.enProceso.collectAsState()
     val porRecoger by vm.porRecoger.collectAsState()
+    val atrasados by vm.atrasados.collectAsState()
     val ingresos by vm.ingresosSemana.collectAsState()
     val porEstado by vm.porEstado.collectAsState()
     val porServicio by vm.porServicio.collectAsState()
@@ -95,6 +96,27 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit) {
                             fontWeight = FontWeight.SemiBold
                         )
                         Button(onClick = onVerListos) { Text("Ver") }
+                    }
+                }
+            }
+
+            // Alerta de pedidos atrasados (entrega vencida y sin cerrar)
+            if (atrasados > 0) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFEE2E2))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "$atrasados pedido(s) atrasado(s)",
+                            modifier = Modifier.weight(1f),
+                            color = Color(0xFF991B1B),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Button(onClick = onVerAtrasados) { Text("Ver") }
                     }
                 }
             }

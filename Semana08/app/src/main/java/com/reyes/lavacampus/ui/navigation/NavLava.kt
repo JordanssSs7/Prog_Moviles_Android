@@ -196,7 +196,8 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                 val vm: PanelViewModel = viewModel(factory = factory)
                 PanelScreen(
                     vm = vm,
-                    onVerListos = { navController.navigate(Rutas.bandeja(EstadoPedido.LISTO.name)) }
+                    onVerListos = { navController.navigate(Rutas.bandeja(EstadoPedido.LISTO.name)) },
+                    onVerAtrasados = { navController.navigate(Rutas.bandeja()) }
                 )
             }
             composable(

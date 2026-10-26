@@ -64,6 +64,8 @@ object DatosIniciales {
         // Marta (id 3)
         sembrarPedido(db, 3, enSemana(2), EstadoPedido.ENTREGADO, null, true, listOf(1 to 6.0, 3 to 1.0))
         sembrarPedido(db, 3, hoy, EstadoPedido.EN_PROCESO, null, false, listOf(1 to 3.0))
+        // Pedido atrasado: se registro hace 5 dias y su entrega ya vencio (sin cerrar)
+        sembrarPedido(db, 3, hoy.minusDays(5), EstadoPedido.RECIBIDO, null, false, listOf(2 to 8.0))
     }
 
     /** Inserta un pedido y sus lineas; el total es la suma de los subtotales. */

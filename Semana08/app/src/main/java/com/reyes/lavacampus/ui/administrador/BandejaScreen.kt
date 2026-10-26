@@ -1,5 +1,6 @@
 package com.reyes.lavacampus.ui.administrador
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import com.reyes.lavacampus.model.EstadoPedido
 import com.reyes.lavacampus.ui.components.AppTopBar
 import com.reyes.lavacampus.ui.components.EstadoPedidoChip
 import com.reyes.lavacampus.ui.components.LavaTextField
+import com.reyes.lavacampus.ui.components.fechaCorta
 import com.reyes.lavacampus.viewmodel.BandejaViewModel
 
 @Composable
@@ -36,6 +38,7 @@ fun BandejaScreen(vm: BandejaViewModel, onAbrirGestion: (Int) -> Unit, onVolver:
     val pedidos by vm.pedidos.collectAsState()
     val filtro by vm.filtro.collectAsState()
     val busqueda by vm.busqueda.collectAsState()
+    val atrasados by vm.atrasados.collectAsState()
 
     // Chips de filtro: Todos (null), Recibido, En proceso, Listo
     val chips: List<Pair<String, EstadoPedido?>> = listOf(
@@ -69,7 +72,12 @@ fun BandejaScreen(vm: BandejaViewModel, onAbrirGestion: (Int) -> Unit, onVolver:
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(pedidos, key = { it.pedido.id }) { p ->
-                    TarjetaBandeja(p, onAbrir = { onAbrirGestion(p.pedido.id) }, onIniciar = { vm.iniciar(p) })
+                    TarjetaBandeja(
+                        p = p,
+                        atrasado = p.pedido.id in atrasados,
+                        onAbrir = { onAbrirGestion(p.pedido.id) },
+                        onIniciar = { vm.iniciar(p) }
+                    )
                 }
             }
         }
@@ -77,11 +85,14 @@ fun BandejaScreen(vm: BandejaViewModel, onAbrirGestion: (Int) -> Unit, onVolver:
 }
 
 @Composable
-private fun TarjetaBandeja(p: PedidoConDetalle, onAbrir: () -> Unit, onIniciar: () -> Unit) {
+private fun TarjetaBandeja(p: PedidoConDetalle, atrasado: Boolean, onAbrir: () -> Unit, onIniciar: () -> Unit) {
     val estado = EstadoPedido.valueOf(p.pedido.estado)
+    val rojo = EstadoPedido.CANCELADO.color
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onAbrir() },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        // Un pedido atrasado se marca en rojo
+        border = if (atrasado) BorderStroke(2.dp, rojo) else null
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(
@@ -93,6 +104,14 @@ private fun TarjetaBandeja(p: PedidoConDetalle, onAbrir: () -> Unit, onIniciar: 
                 EstadoPedidoChip(estado)
             }
             Text(p.detalles.joinToString(", ") { it.servicio.nombre }, style = MaterialTheme.typography.bodyMedium)
+            if (atrasado) {
+                Text(
+                    "Atrasado: debía entregarse el ${p.pedido.fechaEntrega.fechaCorta()}",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = rojo
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

@@ -44,4 +44,7 @@ interface LavaRepository {
     fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int>
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
     fun observarIngresosPorServicio(fechaInicio: String): Flow<List<IngresoServicio>>
+
+    /** Ids de los pedidos cuya fecha de entrega ya paso y no estan ENTREGADO ni CANCELADO. */
+    fun observarPedidosAtrasados(hoy: String): Flow<List<Int>>
 }

@@ -36,6 +36,11 @@ class PanelViewModel(repo: LavaRepository) : ViewModel() {
     val porRecoger: StateFlow<Int> = repo.observarCantidadPorEstado(EstadoPedido.LISTO)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
+    /** Cantidad de pedidos atrasados (entrega vencida y sin cerrar). */
+    val atrasados: StateFlow<Int> = repo.observarPedidosAtrasados(hoy)
+        .map { it.size }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     /** Suma del total de los pedidos pagados desde el lunes. */
     val ingresosSemana: StateFlow<Double> = repo.observarIngresosDesde(inicioSemana)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
