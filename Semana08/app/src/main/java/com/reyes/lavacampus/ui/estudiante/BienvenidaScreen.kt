@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.reyes.lavacampus.model.Rol
 import com.reyes.lavacampus.ui.components.EstiloBoton
 import com.reyes.lavacampus.ui.components.IlustracionCesto
 import com.reyes.lavacampus.ui.components.LavaButton
@@ -30,11 +29,10 @@ import com.reyes.lavacampus.ui.components.LogoLava
 import com.reyes.lavacampus.ui.theme.AzulIntermedio
 import com.reyes.lavacampus.ui.theme.AzulProfundo
 import com.reyes.lavacampus.ui.theme.Tinta
-import com.reyes.lavacampus.ui.theme.TintaSuave
 
-/** Primera pantalla: degradado azul con la ilustracion y dos botones para elegir el perfil. */
+/** Primera pantalla: degradado azul con la ilustracion y los accesos Iniciar sesion y Crear cuenta. */
 @Composable
-fun BienvenidaScreen(onElegirPerfil: (Rol) -> Unit) {
+fun BienvenidaScreen(onIniciarSesion: () -> Unit, onCrearCuenta: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         // Parte alta con degradado que se funde con el blanco
         Box(
@@ -76,16 +74,9 @@ fun BienvenidaScreen(onElegirPerfil: (Rol) -> Unit) {
                 textAlign = TextAlign.Center
             )
             Spacer(Modifier.height(28.dp))
-            LavaButton(texto = "Soy estudiante", estilo = EstiloBoton.Oscuro, onClick = { onElegirPerfil(Rol.CLIENTE) })
+            LavaButton(texto = "Iniciar sesión", estilo = EstiloBoton.Oscuro, onClick = onIniciarSesion)
             Spacer(Modifier.height(12.dp))
-            LavaButton(texto = "Soy administrador", estilo = EstiloBoton.Suave, onClick = { onElegirPerfil(Rol.ADMIN) })
-            Spacer(Modifier.height(16.dp))
-            Text(
-                text = "Modo práctica: todos los datos son ficticios (Ley 29733).",
-                style = MaterialTheme.typography.labelSmall,
-                color = TintaSuave,
-                textAlign = TextAlign.Center
-            )
+            LavaButton(texto = "Crear cuenta", estilo = EstiloBoton.Suave, onClick = onCrearCuenta)
             Spacer(Modifier.height(12.dp))
         }
     }

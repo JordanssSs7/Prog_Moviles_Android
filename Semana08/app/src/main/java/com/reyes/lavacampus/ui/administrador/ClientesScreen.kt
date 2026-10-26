@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -63,14 +66,17 @@ private fun TarjetaCliente(c: ClienteResumen) {
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Avatar(c.nombre, tamano = 48.dp)
-            Column(modifier = Modifier.weight(1f)) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text(c.nombre, style = MaterialTheme.typography.titleSmall)
                 Text(c.codigo, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("${c.pedidos} pedidos", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
             }
-            Column(horizontalAlignment = Alignment.End) {
-                Text("S/ %.2f".format(c.gastado), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-                Text("${c.pedidos} pedidos", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+            Text("S/ %.2f".format(c.gastado), style = MaterialTheme.typography.titleSmall)
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

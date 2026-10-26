@@ -3,6 +3,7 @@ package com.reyes.lavacampus.viewmodel
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.reyes.lavacampus.data.prefs.PreferenciasStore
 import com.reyes.lavacampus.data.repository.LavaRepository
 import com.reyes.lavacampus.model.EstadoPedido
 import com.reyes.lavacampus.ui.components.graficos.DatoGrafico
@@ -11,13 +12,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 
-class PanelViewModel(repo: LavaRepository) : ViewModel() {
+class PanelViewModel(
+    repo: LavaRepository,
+    private val prefs: PreferenciasStore
+) : ViewModel() {
 
     private val hoy = LocalDate.now().toString()
+
+    /** Si esta en false, los estudiantes no pueden crear pedidos (ajuste "Recibir pedidos"). */
+    val recibiendoPedidos: StateFlow<Boolean> = prefs.recibirPedidos
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    fun abrirRecepcion() {
+        viewModelScope.launch { prefs.guardarRecibirPedidos(true) }
+    }
 
     // Lunes de esta semana (si hoy es domingo, retrocede al lunes anterior)
     private val inicioSemana = LocalDate.now()
@@ -40,6 +53,10 @@ class PanelViewModel(repo: LavaRepository) : ViewModel() {
     /** Cantidad de pedidos atrasados (entrega vencida y sin cerrar). */
     val atrasados: StateFlow<Int> = repo.observarPedidosAtrasados(hoy)
         .map { it.size }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    /** Pedidos de la semana (desde el lunes, sin cancelados). */
+    val pedidosSemana: StateFlow<Int> = repo.observarPedidosDesde(inicioSemana)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     /** Suma del total de los pedidos pagados desde el lunes. */

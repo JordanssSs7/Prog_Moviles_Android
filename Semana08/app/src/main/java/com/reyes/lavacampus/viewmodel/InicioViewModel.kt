@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.reyes.lavacampus.data.local.entity.Servicio
 import com.reyes.lavacampus.data.local.entity.Usuario
 import com.reyes.lavacampus.data.local.relation.PedidoConDetalle
+import com.reyes.lavacampus.data.prefs.PreferenciasStore
 import com.reyes.lavacampus.data.repository.LavaRepository
 import com.reyes.lavacampus.model.EstadoPedido
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,8 +15,13 @@ import kotlinx.coroutines.flow.stateIn
 
 class InicioViewModel(
     repo: LavaRepository,
-    val usuario: Usuario
+    val usuario: Usuario,
+    prefs: PreferenciasStore
 ) : ViewModel() {
+
+    /** false cuando el administrador cerro la recepcion de pedidos. */
+    val recibiendoPedidos: StateFlow<Boolean> = prefs.recibirPedidos
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
     private val activos = setOf(EstadoPedido.RECIBIDO, EstadoPedido.EN_PROCESO, EstadoPedido.LISTO)
 

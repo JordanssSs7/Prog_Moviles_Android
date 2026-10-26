@@ -33,9 +33,9 @@ object DatosIniciales {
     )
 
     private val usuarios = listOf(
-        Usuario(1, "Ana Torres", "U202310234", "ana@correo.test", "1234", Rol.CLIENTE.name),
-        Usuario(2, "Luis Paredes", "U202310871", "luis@correo.test", "1234", Rol.CLIENTE.name),
-        Usuario(3, "Marta Salas", "U202411093", "marta@correo.test", "1234", Rol.CLIENTE.name),
+        Usuario(1, "Ana Torres", "231023", "ana@correo.test", "1234", Rol.CLIENTE.name),
+        Usuario(2, "Luis Paredes", "231087", "luis@correo.test", "1234", Rol.CLIENTE.name),
+        Usuario(3, "Marta Salas", "241109", "marta@correo.test", "1234", Rol.CLIENTE.name),
         Usuario(4, "Administrador", "", "admin@lavacampus.test", "admin", Rol.ADMIN.name)
     )
 

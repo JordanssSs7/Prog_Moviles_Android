@@ -36,6 +36,7 @@ import com.reyes.lavacampus.ui.estudiante.LoginScreen
 import com.reyes.lavacampus.ui.estudiante.MisPedidosScreen
 import com.reyes.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.reyes.lavacampus.ui.estudiante.PerfilScreen
+import com.reyes.lavacampus.ui.estudiante.RegistroScreen
 import com.reyes.lavacampus.ui.estudiante.SplashScreen
 import com.reyes.lavacampus.ui.estudiante.TarifasScreen
 import com.reyes.lavacampus.viewmodel.BandejaViewModel
@@ -79,7 +80,7 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
 
     // Iconos claros de la barra de estado sobre los fondos azules (splash, bienvenida, login) y en modo oscuro
     IconosBarraEstado(
-        claros = oscuro || rutaActual == Rutas.SPLASH || rutaActual == Rutas.BIENVENIDA || rutaActual == Rutas.LOGIN
+        claros = oscuro || rutaActual in setOf(Rutas.SPLASH, Rutas.BIENVENIDA, Rutas.LOGIN, Rutas.REGISTRO)
     )
 
     // Barra inferior: 4 items para el estudiante y 5 para el administrador
@@ -114,17 +115,29 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                 })
             }
             composable(Rutas.BIENVENIDA) {
-                BienvenidaScreen(onElegirPerfil = { rol -> navController.navigate(Rutas.login(rol.name)) })
+                BienvenidaScreen(
+                    onIniciarSesion = { navController.navigate(Rutas.LOGIN) },
+                    onCrearCuenta = { navController.navigate(Rutas.REGISTRO) }
+                )
             }
-            composable(
-                route = Rutas.LOGIN,
-                arguments = listOf(navArgument("rol") { type = NavType.StringType; defaultValue = "CLIENTE" })
-            ) { entradaLogin ->
-                val rolInicial = Rol.valueOf(entradaLogin.arguments?.getString("rol") ?: Rol.CLIENTE.name)
+            composable(Rutas.LOGIN) {
                 LoginScreen(
                     vm = sesion,
-                    rolInicial = rolInicial,
                     onLoginExitoso = { rol -> navController.irAPrincipal(rol) },
+                    // Se reemplaza el login por el registro para no apilar pantallas de acceso
+                    onCrearCuenta = {
+                        navController.navigate(Rutas.REGISTRO) { popUpTo(Rutas.BIENVENIDA) }
+                    },
+                    onVolver = { navController.popBackStack() }
+                )
+            }
+            composable(Rutas.REGISTRO) {
+                RegistroScreen(
+                    vm = sesion,
+                    onRegistroExitoso = { rol -> navController.irAPrincipal(rol) },
+                    onIniciarSesion = {
+                        navController.navigate(Rutas.LOGIN) { popUpTo(Rutas.BIENVENIDA) }
+                    },
                     onVolver = { navController.popBackStack() }
                 )
             }
@@ -133,8 +146,8 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
             composable(Rutas.INICIO) {
                 usuario?.let { u ->
                     val vm: InicioViewModel = viewModel(
-                        key = "inicio-${u.id}",
-                        factory = viewModelFactory { initializer { InicioViewModel(factory.repo, u) } }
+                        key = "inicio-${u.id}-${u.nombre}",
+                        factory = viewModelFactory { initializer { InicioViewModel(factory.repo, u, factory.prefs) } }
                     )
                     InicioScreen(
                         vm = vm,
@@ -199,7 +212,7 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
             composable(Rutas.PERFIL) {
                 usuario?.let { u ->
                     val perfil: PerfilViewModel = viewModel(
-                        key = "perfil-${u.id}",
+                        key = "perfil-${u.id}-${u.nombre}",
                         factory = viewModelFactory { initializer { PerfilViewModel(factory.repo, u) } }
                     )
                     PerfilScreen(

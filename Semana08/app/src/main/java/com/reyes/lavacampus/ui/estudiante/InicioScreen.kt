@@ -63,6 +63,7 @@ fun InicioScreen(
     val activo by vm.pedidoActivo.collectAsState()
     val recientes by vm.recientes.collectAsState()
     val servicios by vm.servicios.collectAsState()
+    val recibiendo by vm.recibiendoPedidos.collectAsState()
     val primerNombre = vm.usuario.nombre.substringBefore(" ")
 
     Column(
@@ -87,6 +88,27 @@ fun InicioScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+
+        // Aviso claro cuando el administrador cerro la recepcion de pedidos
+        if (!recibiendo) {
+            LavaCard(
+                modifier = Modifier.padding(horizontal = 20.dp).fillMaxWidth(),
+                colorFondo = Color(0xFFFEF3C7)
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        "La lavandería no está recibiendo pedidos",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color(0xFF92400E)
+                    )
+                    Text(
+                        "Por ahora no puedes crear uno nuevo. Vuelve a intentarlo más tarde.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF92400E)
+                    )
+                }
             }
         }
 

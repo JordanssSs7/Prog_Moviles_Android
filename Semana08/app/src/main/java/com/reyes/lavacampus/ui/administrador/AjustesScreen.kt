@@ -6,29 +6,31 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.model.Rol
-import com.reyes.lavacampus.ui.components.Avatar
-import com.reyes.lavacampus.ui.components.EstiloBoton
-import com.reyes.lavacampus.ui.components.FilaSwitch
-import com.reyes.lavacampus.ui.components.LavaButton
+import com.reyes.lavacampus.ui.components.BotonContorno
+import com.reyes.lavacampus.ui.components.EncabezadoPerfil
+import com.reyes.lavacampus.ui.components.FilaPreferencia
+import com.reyes.lavacampus.ui.components.IconoCerrarSesion
 import com.reyes.lavacampus.ui.components.LavaCard
-import com.reyes.lavacampus.ui.theme.degradadoMarca
+import com.reyes.lavacampus.ui.components.NotaDispositivo
+import com.reyes.lavacampus.ui.components.TarjetaCambiarPerfil
+import com.reyes.lavacampus.ui.components.TituloSeccion
 import com.reyes.lavacampus.viewmodel.SesionViewModel
 
 @Composable
@@ -39,39 +41,40 @@ fun AjustesScreen(sesion: SesionViewModel, onCambiarPerfil: () -> Unit, onCerrar
     val recibir by sesion.recibirPedidos.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        Box(modifier = Modifier.fillMaxWidth().height(230.dp).background(degradadoMarca(Rol.ADMIN))) {
-            Column(
-                modifier = Modifier.fillMaxWidth().statusBarsPadding().padding(top = 18.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Avatar(usuario?.nombre ?: "Administrador", tamano = 76.dp)
-                Text(usuario?.nombre ?: "", style = MaterialTheme.typography.titleLarge, color = Color.White)
-                Text(usuario?.correo ?: "", style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.85f))
-            }
-        }
+        EncabezadoPerfil(
+            nombre = usuario?.nombre ?: "Administrador",
+            detalles = listOf(usuario?.correo ?: ""),
+            etiqueta = "Perfil activo",
+            rol = Rol.ADMIN
+        )
 
         Surface(
-            modifier = Modifier.fillMaxSize().padding(top = 195.dp),
+            modifier = Modifier.fillMaxSize().padding(top = 255.dp),
             shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
             color = MaterialTheme.colorScheme.background
         ) {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()).padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.verticalScroll(rememberScrollState()).padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
+                TarjetaCambiarPerfil("Modo práctica: ir a la vista Estudiante", onCambiarPerfil)
+
+                TituloSeccion("Preferencias")
                 LavaCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        FilaSwitch("Modo oscuro", oscuro, sesion::cambiarModoOscuro)
-                        FilaSwitch("Notificaciones", avisos, sesion::cambiarNotificaciones)
-                        FilaSwitch(
-                            "Recibir pedidos", recibir, sesion::cambiarRecibirPedidos,
-                            "Si lo apagas, los estudiantes no pueden crear pedidos"
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        FilaPreferencia(Icons.Filled.DarkMode, "Modo oscuro", "Cambia el tema de la app", oscuro, sesion::cambiarModoOscuro)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        FilaPreferencia(Icons.Filled.Notifications, "Notificaciones", "Avisar de pedidos nuevos", avisos, sesion::cambiarNotificaciones)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        FilaPreferencia(
+                            Icons.Filled.Storefront, "Recibir pedidos",
+                            "Abrir o cerrar la recepción", recibir, sesion::cambiarRecibirPedidos
                         )
                     }
                 }
-                LavaButton(texto = "Cambiar de perfil", onClick = onCambiarPerfil, estilo = EstiloBoton.Suave)
-                LavaButton(texto = "Cerrar sesión", onClick = onCerrarSesion, estilo = EstiloBoton.Peligro)
+                NotaDispositivo()
+
+                BotonContorno("Cerrar sesión", onCerrarSesion, icono = IconoCerrarSesion)
             }
         }
     }

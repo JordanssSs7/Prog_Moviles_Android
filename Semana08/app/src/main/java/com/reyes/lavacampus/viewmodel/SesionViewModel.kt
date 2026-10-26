@@ -6,6 +6,11 @@ import com.reyes.lavacampus.data.local.entity.Usuario
 import com.reyes.lavacampus.data.prefs.PreferenciasStore
 import com.reyes.lavacampus.data.repository.LavaRepository
 import com.reyes.lavacampus.model.Rol
+import com.reyes.lavacampus.model.normalizarCodigo
+import com.reyes.lavacampus.model.normalizarCorreo
+import com.reyes.lavacampus.model.validarCambioClave
+import com.reyes.lavacampus.model.validarNombre
+import com.reyes.lavacampus.model.validarRegistro
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -50,25 +55,80 @@ class SesionViewModel(
         }
     }
 
-    fun login(correo: String, clave: String, rolSeleccionado: Rol) {
+    /** Un solo acceso para todos: el rol sale de la cuenta (administrador o estudiante). */
+    fun login(correo: String, clave: String) {
         if (correo.isBlank() || clave.isBlank()) {
             _error.value = "Completa el correo y la contraseña"
             return
         }
         viewModelScope.launch {
-            val usuario = repo.login(correo.trim(), clave)
+            val usuario = repo.login(normalizarCorreo(correo), clave)
+            if (usuario == null) {
+                _error.value = "Correo o contraseña incorrectos"
+            } else {
+                iniciarSesion(usuario)
+            }
+        }
+    }
+
+    /** Crea una cuenta de estudiante y entra directamente. Las cuentas de administrador no se crean aqui. */
+    fun registrar(nombre: String, codigo: String, correo: String, clave: String, confirmacion: String) {
+        validarRegistro(nombre, codigo, correo, clave, confirmacion)?.let {
+            _error.value = it
+            return
+        }
+        viewModelScope.launch {
+            val correoNormal = normalizarCorreo(correo)
+            val codigoNormal = normalizarCodigo(codigo)
             when {
-                usuario == null -> _error.value = "Correo o contraseña incorrectos"
-                usuario.rol != rolSeleccionado.name -> _error.value =
-                    if (rolSeleccionado == Rol.ADMIN) "Esta cuenta no es de administrador"
-                    else "Esta cuenta no es de estudiante"
+                repo.existeCorreo(correoNormal) -> _error.value = "Ya existe una cuenta con ese correo"
+                repo.existeCodigo(codigoNormal) -> _error.value = "Ya existe una cuenta con ese código"
                 else -> {
-                    prefs.guardarSesion(usuario.rol, usuario.id)
-                    _error.value = null
-                    _usuarioActual.value = usuario
+                    val nueva = repo.crearUsuario(
+                        Usuario(
+                            nombre = nombre.trim(),
+                            codigo = codigoNormal,
+                            correo = correoNormal,
+                            clave = clave,
+                            rol = Rol.CLIENTE.name
+                        )
+                    )
+                    iniciarSesion(nueva)
                 }
             }
         }
+    }
+
+    /**
+     * Cambia el nombre de la cuenta activa. [alTerminar] recibe el mensaje de error o null si todo salio bien.
+     * El codigo y el correo no se pueden cambiar.
+     */
+    fun editarNombre(nombre: String, alTerminar: (String?) -> Unit) {
+        val actual = _usuarioActual.value ?: return alTerminar("No hay una sesión activa")
+        validarNombre(nombre)?.let { return alTerminar(it) }
+        viewModelScope.launch {
+            val nuevo = nombre.trim()
+            repo.actualizarNombre(actual.id, nuevo)
+            _usuarioActual.value = actual.copy(nombre = nuevo)
+            alTerminar(null)
+        }
+    }
+
+    /** Cambia la contrasena de la cuenta activa. [alTerminar] recibe el mensaje de error o null si salio bien. */
+    fun cambiarClave(claveActual: String, claveNueva: String, confirmacion: String, alTerminar: (String?) -> Unit) {
+        val actual = _usuarioActual.value ?: return alTerminar("No hay una sesión activa")
+        validarCambioClave(actual.clave, claveActual, claveNueva, confirmacion)?.let { return alTerminar(it) }
+        viewModelScope.launch {
+            repo.actualizarClave(actual.id, claveNueva)
+            _usuarioActual.value = actual.copy(clave = claveNueva)
+            alTerminar(null)
+        }
+    }
+
+    private suspend fun iniciarSesion(usuario: Usuario) {
+        prefs.guardarSesion(usuario.rol, usuario.id)
+        _error.value = null
+        _usuarioActual.value = usuario
     }
 
     fun limpiarError() {

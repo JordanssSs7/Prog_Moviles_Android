@@ -22,6 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +49,12 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
     val ingresos by vm.ingresosSemana.collectAsState()
     val porEstado by vm.porEstado.collectAsState()
     val porServicio by vm.porServicio.collectAsState()
+    val recibiendo by vm.recibiendoPedidos.collectAsState()
+    val pedidosSemana by vm.pedidosSemana.collectAsState()
+    val fechaHoy = remember {
+        "Hoy · " + LocalDate.now().format(DateTimeFormatter.ofPattern("EEE dd MMM", Locale("es", "PE")))
+            .replaceFirstChar { it.uppercase() }
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         // Encabezado con degradado: titulo e ingresos de la semana
@@ -54,14 +64,30 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text("Panel de la lavandería", style = MaterialTheme.typography.titleLarge, color = Color.White)
-                Text("Resumen de hoy", style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.8f))
+                Text(fechaHoy, style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.8f))
                 Text(
                     "Ingresos de la semana",
                     style = MaterialTheme.typography.labelLarge,
                     color = Color.White.copy(alpha = 0.85f),
                     modifier = Modifier.padding(top = 18.dp)
                 )
-                Text("S/ %.2f".format(ingresos), style = MaterialTheme.typography.displaySmall, color = Color.White)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("S/ %.2f".format(ingresos), style = MaterialTheme.typography.displaySmall, color = Color.White)
+                    Text(
+                        "$pedidosSemana pedidos",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.White,
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.2f))
+                            .padding(horizontal = 12.dp, vertical = 5.dp)
+                    )
+                }
                 Text(
                     "Solo pedidos pagados, desde el lunes",
                     style = MaterialTheme.typography.bodySmall,
@@ -80,6 +106,17 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
                 modifier = Modifier.verticalScroll(rememberScrollState()).padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // La recepcion de pedidos esta cerrada: se avisa y se puede abrir desde aqui
+                if (!recibiendo) {
+                    Alerta(
+                        texto = "La recepción de pedidos está cerrada",
+                        fondo = Color(0xFFFEF3C7),
+                        colorTexto = Color(0xFF92400E),
+                        textoBoton = "Abrir",
+                        onVer = vm::abrirRecepcion
+                    )
+                }
+
                 // 3 contadores
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                     Contador("Hoy", pedidosHoy, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
@@ -89,7 +126,7 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
 
                 // Alerta de pedidos LISTO esperando recojo
                 if (porRecoger > 0) {
-                    Alerta("$porRecoger pedido(s) listo(s) esperando recojo", Color(0xFFFEF3C7), Color(0xFF92400E), onVerListos)
+                    Alerta("$porRecoger pedido(s) esperan recojo", Color(0xFFFEF3C7), Color(0xFF92400E), onVerListos, subtitulo = "Avisa a los estudiantes")
                 }
                 // Alerta de pedidos atrasados (entrega vencida y sin cerrar)
                 if (atrasados > 0) {
@@ -149,11 +186,14 @@ private fun Contador(titulo: String, valor: Int, color: Color, modifier: Modifie
 }
 
 @Composable
-private fun Alerta(texto: String, fondo: Color, colorTexto: Color, onVer: () -> Unit) {
+private fun Alerta(texto: String, fondo: Color, colorTexto: Color, onVer: () -> Unit, textoBoton: String = "Ver", subtitulo: String? = null) {
     LavaCard(modifier = Modifier.fillMaxWidth(), colorFondo = fondo) {
         Row(modifier = Modifier.padding(start = 18.dp, end = 12.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(texto, modifier = Modifier.weight(1f), color = colorTexto, style = MaterialTheme.typography.titleSmall)
-            Button(onClick = onVer) { Text("Ver") }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(texto, color = colorTexto, style = MaterialTheme.typography.titleSmall)
+                subtitulo?.let { Text(it, color = colorTexto.copy(alpha = 0.8f), style = MaterialTheme.typography.bodySmall) }
+            }
+            Button(onClick = onVer) { Text(textoBoton) }
         }
     }
 }

@@ -3,8 +3,8 @@ package com.reyes.lavacampus.ui.navigation
 object Rutas {
     const val SPLASH = "splash"
     const val BIENVENIDA = "bienvenida"
-    const val LOGIN = "login?rol={rol}"
-    fun login(rol: String = "CLIENTE") = "login?rol=$rol"
+    const val LOGIN = "login"
+    const val REGISTRO = "registro"
 
     // Estudiante
     const val INICIO = "inicio"

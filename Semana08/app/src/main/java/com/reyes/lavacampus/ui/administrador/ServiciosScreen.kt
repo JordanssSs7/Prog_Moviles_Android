@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -109,34 +110,48 @@ fun ServiciosScreen(vm: ServiciosViewModel, onEditar: (Int) -> Unit, onNuevo: ()
 @Composable
 private fun ServicioItem(s: Servicio, onToggle: () -> Unit, onEditar: () -> Unit, onEliminar: () -> Unit) {
     LavaCard(modifier = Modifier.fillMaxWidth(), onClick = onEditar) {
-        Row(
-            modifier = Modifier.padding(start = 14.dp, top = 12.dp, bottom = 12.dp, end = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
-            ) { IconoServicio(s.icono, MaterialTheme.colorScheme.primary, tamano = 30.dp) }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(s.nombre, style = MaterialTheme.typography.titleSmall)
-                Text(
-                    "${s.textoPrecio()} · ${s.horasEntrega} h",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    if (s.activo) "Activo" else "Inactivo",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = if (s.activo) EstadoPedido.LISTO.color else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+        Column(modifier = Modifier.padding(start = 14.dp, end = 8.dp, top = 14.dp, bottom = 6.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) { IconoServicio(s.icono, MaterialTheme.colorScheme.primary, tamano = 30.dp) }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(s.nombre, style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        "${s.textoPrecio()} · ${s.horasEntrega} h",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-            Switch(checked = s.activo, onCheckedChange = { onToggle() })
-            IconButton(onClick = onEliminar) {
-                Icon(Icons.Filled.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Switch(checked = s.activo, onCheckedChange = { onToggle() })
+                    Text(
+                        if (s.activo) "Activo" else "Inactivo",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (s.activo) EstadoPedido.LISTO.color else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Row {
+                    IconButton(onClick = onEditar) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Editar", tint = MaterialTheme.colorScheme.primary)
+                    }
+                    IconButton(onClick = onEliminar) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
             }
         }
     }

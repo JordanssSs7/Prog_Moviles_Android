@@ -29,6 +29,17 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
 
     override suspend fun obtenerUsuarioPorRol(rol: String): Usuario? = usuarioDao.primeroPorRol(rol)
 
+    override suspend fun existeCorreo(correo: String): Boolean = usuarioDao.contarPorCorreo(correo) > 0
+
+    override suspend fun existeCodigo(codigo: String): Boolean = usuarioDao.contarPorCodigo(codigo) > 0
+
+    override suspend fun crearUsuario(usuario: Usuario): Usuario =
+        usuario.copy(id = usuarioDao.insertar(usuario).toInt())
+
+    override suspend fun actualizarNombre(id: Int, nombre: String) = usuarioDao.actualizarNombre(id, nombre)
+
+    override suspend fun actualizarClave(id: Int, clave: String) = usuarioDao.actualizarClave(id, clave)
+
     override fun observarClientes(): Flow<List<ClienteResumen>> = usuarioDao.observarClientes()
 
     // Servicios
@@ -122,6 +133,8 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
 
     override fun observarIngresosPorServicio(fechaInicio: String): Flow<List<IngresoServicio>> =
         detalleDao.observarIngresosPorServicio(fechaInicio)
+
+    override fun observarPedidosDesde(fechaInicio: String): Flow<Int> = pedidoDao.contarDesde(fechaInicio)
 
     override fun observarPedidosAtrasados(hoy: String): Flow<List<Int>> =
         pedidoDao.observarIdsAtrasados(hoy)

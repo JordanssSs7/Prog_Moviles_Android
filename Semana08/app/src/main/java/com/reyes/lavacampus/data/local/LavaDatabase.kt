@@ -15,7 +15,7 @@ import com.reyes.lavacampus.data.local.entity.Usuario
 
 @Database(
     entities = [Servicio::class, Usuario::class, Pedido::class, DetallePedido::class],
-    version = 2, // v2: Pedido.descuento
+    version = 3, // v2: Pedido.descuento; v3: codigos de estudiante de 6 digitos
     exportSchema = false
 )
 abstract class LavaDatabase : RoomDatabase() {

@@ -1,7 +1,12 @@
 package com.reyes.lavacampus.ui.administrador
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -23,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.data.local.relation.PedidoConDetalle
 import com.reyes.lavacampus.model.EstadoPedido
 import com.reyes.lavacampus.ui.components.AppTopBar
-import com.reyes.lavacampus.ui.components.Avatar
+import com.reyes.lavacampus.ui.components.IconoServicio
 import com.reyes.lavacampus.ui.components.EstadoPedidoChip
 import com.reyes.lavacampus.ui.components.EstadoVacio
 import com.reyes.lavacampus.ui.components.LavaCard
@@ -86,6 +91,23 @@ fun BandejaScreen(vm: BandejaViewModel, onAbrirGestion: (Int) -> Unit) {
     }
 }
 
+/** "Luis Paredes" -> "Luis P." */
+private fun nombreCorto(nombre: String): String {
+    val partes = nombre.trim().split(" ").filter { it.isNotBlank() }
+    return if (partes.size >= 2) "${partes[0]} ${partes[1].first()}." else nombre
+}
+
+/** "3.5 kg + 5 prendas" a partir de las lineas del pedido. */
+private fun resumenCantidades(p: PedidoConDetalle): String = p.detalles.joinToString(" + ") { d ->
+    val c = d.detalle.cantidad
+    val texto = if (c % 1.0 == 0.0) c.toInt().toString() else "%.1f".format(c)
+    when (d.servicio.unidad) {
+        "KG" -> "$texto kg"
+        "PRENDA" -> if (c > 1) "$texto prendas" else "$texto prenda"
+        else -> "$texto un."
+    }
+}
+
 @Composable
 private fun TarjetaBandeja(p: PedidoConDetalle, atrasado: Boolean, onAbrir: () -> Unit, onIniciar: () -> Unit) {
     val estado = EstadoPedido.valueOf(p.pedido.estado)
@@ -96,48 +118,52 @@ private fun TarjetaBandeja(p: PedidoConDetalle, atrasado: Boolean, onAbrir: () -
         // Un pedido atrasado se marca en rojo
         borde = if (atrasado) BorderStroke(2.dp, rojo) else null
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+        Row(
+            modifier = Modifier.padding(14.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Icono del primer servicio del pedido
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
             ) {
-                Avatar(p.usuario.nombre, tamano = 42.dp)
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(p.usuario.nombre, style = MaterialTheme.typography.titleSmall)
-                    Text(
-                        "#${p.pedido.id} · ${p.detalles.joinToString(", ") { it.servicio.nombre }}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                EstadoPedidoChip(estado)
-            }
-            if (atrasado) {
-                Text(
-                    "Atrasado: debía entregarse el ${p.pedido.fechaEntrega.fechaCorta()}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = rojo
+                IconoServicio(
+                    p.detalles.firstOrNull()?.servicio?.icono ?: "wash",
+                    MaterialTheme.colorScheme.primary,
+                    tamano = 30.dp
                 )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text("S/ %.2f".format(p.pedido.total), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Pedido #${p.pedido.id}", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    "${nombreCorto(p.usuario.nombre)} · ${resumenCantidades(p)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                EstadoPedidoChip(estado)
+                if (atrasado) {
                     Text(
-                        if (p.pedido.pagado) "Cobrado" else "Pago pendiente",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        "Atrasado: debía entregarse el ${p.pedido.fechaEntrega.fechaCorta()}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = rojo
                     )
                 }
+            }
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("S/ %.2f".format(p.pedido.total), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Text(
+                    if (p.pedido.pagado) "Cobrado" else "Pago pendiente",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 // Boton de accion segun el estado: Iniciar, Marcar listo o Entregar
                 when (estado) {
-                    EstadoPedido.RECIBIDO -> Button(onClick = onIniciar) { Text("Iniciar") }
-                    EstadoPedido.EN_PROCESO -> Button(onClick = onAbrir) { Text("Marcar listo") }
-                    EstadoPedido.LISTO -> Button(onClick = onAbrir) { Text("Entregar") }
+                    EstadoPedido.RECIBIDO -> Button(onClick = onIniciar, contentPadding = PaddingValues(horizontal = 16.dp)) { Text("Iniciar") }
+                    EstadoPedido.EN_PROCESO -> Button(onClick = onAbrir, contentPadding = PaddingValues(horizontal = 16.dp)) { Text("Marcar listo") }
+                    EstadoPedido.LISTO -> Button(onClick = onAbrir, contentPadding = PaddingValues(horizontal = 16.dp)) { Text("Entregar") }
                     else -> {}
                 }
             }

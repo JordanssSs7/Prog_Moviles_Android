@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.model.Casilleros
@@ -153,7 +154,7 @@ fun GestionPedidoScreen(vm: GestionPedidoViewModel, onVolver: () -> Unit) {
                     if (estado != EstadoPedido.CANCELADO && estado != EstadoPedido.ENTREGADO) {
                         LavaCard(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Text("Casillero", style = MaterialTheme.typography.titleMedium)
+                                Text("Casillero para el recojo", style = MaterialTheme.typography.titleMedium)
                                 FlowRow(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -167,6 +168,11 @@ fun GestionPedidoScreen(vm: GestionPedidoViewModel, onVolver: () -> Unit) {
                                         )
                                     }
                                 }
+                                Text(
+                                    "Los casilleros en gris ya están ocupados",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
@@ -188,8 +194,14 @@ fun GestionPedidoScreen(vm: GestionPedidoViewModel, onVolver: () -> Unit) {
                                 }
                             }
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Total", style = MaterialTheme.typography.titleMedium)
-                                Text("S/ %.2f".format(p.pedido.total), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                                Column {
+                                    Text("Total S/ %.2f".format(p.pedido.total), style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        "Se cobra al entregarse",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
                             Row(
                                 Modifier.fillMaxWidth(),
@@ -203,9 +215,14 @@ fun GestionPedidoScreen(vm: GestionPedidoViewModel, onVolver: () -> Unit) {
                     }
 
                     Text(
-                        "Para marcar Listo elige un casillero libre. Para entregar, el pedido debe estar cobrado.",
+                        "Regla: no se entrega un pedido sin cobrar, ni se pasa a Listo sin casillero.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .padding(14.dp)
                     )
 
                     if (puedeCancelar) {

@@ -14,6 +14,12 @@ interface LavaRepository {
     suspend fun login(correo: String, clave: String): Usuario?
     suspend fun obtenerUsuario(id: Int): Usuario?
     suspend fun obtenerUsuarioPorRol(rol: String): Usuario?
+    suspend fun existeCorreo(correo: String): Boolean
+    suspend fun existeCodigo(codigo: String): Boolean
+    /** Guarda una cuenta nueva y la devuelve con su id. */
+    suspend fun crearUsuario(usuario: Usuario): Usuario
+    suspend fun actualizarNombre(id: Int, nombre: String)
+    suspend fun actualizarClave(id: Int, clave: String)
     fun observarClientes(): Flow<List<ClienteResumen>>
 
     // Servicios (ejemplo resuelto)
@@ -44,6 +50,9 @@ interface LavaRepository {
     fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int>
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
     fun observarIngresosPorServicio(fechaInicio: String): Flow<List<IngresoServicio>>
+
+    /** Pedidos registrados desde esa fecha (sin cancelados). */
+    fun observarPedidosDesde(fechaInicio: String): Flow<Int>
 
     /** Ids de los pedidos cuya fecha de entrega ya paso y no estan ENTREGADO ni CANCELADO. */
     fun observarPedidosAtrasados(hoy: String): Flow<List<Int>>

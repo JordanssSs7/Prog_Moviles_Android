@@ -10,8 +10,24 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UsuarioDao {
 
-    @Query("SELECT * FROM usuarios WHERE correo = :correo AND clave = :clave LIMIT 1")
+    // El correo no distingue mayusculas; la clave si
+    @Query("SELECT * FROM usuarios WHERE LOWER(correo) = LOWER(:correo) AND clave = :clave LIMIT 1")
     suspend fun login(correo: String, clave: String): Usuario?
+
+    @Query("SELECT COUNT(*) FROM usuarios WHERE LOWER(correo) = LOWER(:correo)")
+    suspend fun contarPorCorreo(correo: String): Int
+
+    @Query("SELECT COUNT(*) FROM usuarios WHERE codigo != '' AND UPPER(codigo) = UPPER(:codigo)")
+    suspend fun contarPorCodigo(codigo: String): Int
+
+    @Insert
+    suspend fun insertar(u: Usuario): Long
+
+    @Query("UPDATE usuarios SET nombre = :nombre WHERE id = :id")
+    suspend fun actualizarNombre(id: Int, nombre: String)
+
+    @Query("UPDATE usuarios SET clave = :clave WHERE id = :id")
+    suspend fun actualizarClave(id: Int, clave: String)
 
     @Query("SELECT * FROM usuarios WHERE id = :id")
     suspend fun obtener(id: Int): Usuario?
