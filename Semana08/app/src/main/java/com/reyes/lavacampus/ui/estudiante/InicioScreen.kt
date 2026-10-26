@@ -79,24 +79,16 @@ fun InicioScreen(
             .padding(top = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(22.dp)
     ) {
-        // Saludo con avatar
+        // Menu a la izquierda y saludo a la derecha
         Row(
             modifier = Modifier.padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Avatar(vm.usuario.nombre)
-            Column {
-                Text("Hola, $primerNombre", style = MaterialTheme.typography.titleLarge)
-                Text(
-                    vm.usuario.codigo,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(Modifier.weight(1f))
-            // Abre el menu lateral
             BotonCircular(onClick = onMenu) { Icon(Icons.Filled.Menu, contentDescription = "Menú") }
+            Spacer(Modifier.weight(1f))
+            Text("Hola, $primerNombre", style = MaterialTheme.typography.titleLarge, maxLines = 1)
+            Avatar(vm.usuario.nombre)
         }
 
         // Aviso claro cuando el administrador cerro la recepcion de pedidos

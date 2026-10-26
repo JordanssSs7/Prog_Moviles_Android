@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.model.Rol
 import com.reyes.lavacampus.ui.components.AvatarGrande
 import com.reyes.lavacampus.ui.components.DatoPerfil
+import com.reyes.lavacampus.ui.components.colorTarjetaPerfil
 import com.reyes.lavacampus.ui.components.EditarPerfilDialog
 import com.reyes.lavacampus.ui.components.PerfilColor
 import com.reyes.lavacampus.ui.components.SeccionClara
@@ -68,7 +69,7 @@ fun PerfilAdminScreen(sesion: SesionViewModel, onAtras: () -> Unit, onConfigurac
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
+                    .background(colorTarjetaPerfil())
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -86,9 +87,9 @@ fun PerfilAdminScreen(sesion: SesionViewModel, onAtras: () -> Unit, onConfigurac
                     Text(
                         if (recibir) "Los estudiantes pueden crear pedidos" else "Los estudiantes no pueden crear pedidos",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Tinta
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    Text("Se cambia en Ajustes", style = MaterialTheme.typography.labelSmall, color = TintaSuave)
+                    Text("Se cambia en Ajustes", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

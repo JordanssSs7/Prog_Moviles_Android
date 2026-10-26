@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
@@ -51,15 +52,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.lavacampus.model.Rol
+import com.reyes.lavacampus.ui.theme.FondoOscuro
+import com.reyes.lavacampus.ui.theme.SuperficieOscuraAlta
+import com.reyes.lavacampus.ui.theme.VerdeClaro
 import com.reyes.lavacampus.ui.theme.VerdeMarca
 import com.reyes.lavacampus.ui.theme.Tinta
 import com.reyes.lavacampus.ui.theme.TintaSuave
 
-// El perfil usa siempre un fondo de color intenso (tambien en modo oscuro) para que el texto blanco se lea bien
-fun colorMarca(@Suppress("UNUSED_PARAMETER") rol: Rol) = VerdeMarca
+/** true cuando la app esta en modo oscuro (el fondo del tema es oscuro). */
+@Composable
+fun esOscuro(): Boolean = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
-fun fondoPerfil(rol: Rol): Brush =
-    Brush.verticalGradient(listOf(Color(0xFF1B7556), VerdeMarca))
+/** Verde de la marca; en modo oscuro se aclara para que se lea sobre fondos oscuros. */
+@Composable
+fun colorMarca(@Suppress("UNUSED_PARAMETER") rol: Rol): Color = if (esOscuro()) VerdeClaro else VerdeMarca
+
+/** Color de las tarjetas que van sobre el fondo del perfil: blancas de dia y superficie oscura de noche. */
+@Composable
+fun colorTarjetaPerfil(): Color = if (esOscuro()) SuperficieOscuraAlta else Color.White
+
+/** Fondo de las pantallas a color completo: verde de dia y verde casi negro en modo oscuro. */
+@Composable
+fun fondoPerfil(@Suppress("UNUSED_PARAMETER") rol: Rol): Brush =
+    if (esOscuro()) Brush.verticalGradient(listOf(FondoOscuro, Color(0xFF16302A)))
+    else Brush.verticalGradient(listOf(Color(0xFF1B7556), VerdeMarca))
 
 /**
  * Pantalla de color completo, como la referencia: arriba una flecha para volver (opcional), el titulo
@@ -139,7 +155,7 @@ fun AvatarGrande(rol: Rol, modifier: Modifier = Modifier, onEditar: (() -> Unit)
         Surface(
             modifier = Modifier.size(140.dp),
             shape = CircleShape,
-            color = Color.White,
+            color = colorTarjetaPerfil(),
             shadowElevation = 10.dp
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -156,7 +172,7 @@ fun AvatarGrande(rol: Rol, modifier: Modifier = Modifier, onEditar: (() -> Unit)
                 onClick = onEditar,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(end = 34.dp, bottom = 40.dp).size(46.dp),
                 shape = CircleShape,
-                color = Color.White,
+                color = colorTarjetaPerfil(),
                 shadowElevation = 8.dp
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -181,9 +197,9 @@ fun DatoPerfil(etiqueta: String, valor: String, modifier: Modifier = Modifier, i
     ) {
         if (icono != null) {
             Box(
-                modifier = Modifier.size(44.dp).clip(CircleShape).background(Color.White),
+                modifier = Modifier.size(44.dp).clip(CircleShape).background(colorTarjetaPerfil()),
                 contentAlignment = Alignment.Center
-            ) { Icon(icono, contentDescription = null, tint = VerdeMarca, modifier = Modifier.size(24.dp)) }
+            ) { Icon(icono, contentDescription = null, tint = colorMarca(Rol.CLIENTE), modifier = Modifier.size(24.dp)) }
         }
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(
@@ -225,7 +241,7 @@ fun BarraNivel(rol: Rol, pedidos: Int, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .background(Color.White)
+            .background(colorTarjetaPerfil())
             .padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
@@ -235,16 +251,17 @@ fun BarraNivel(rol: Rol, pedidos: Int, modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text("$pedidos", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Text("pedidos", fontSize = 11.sp, color = Color.White)
+                val sobreMarca = if (esOscuro()) FondoOscuro else Color.White
+                Text("$pedidos", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = sobreMarca)
+                Text("pedidos", fontSize = 11.sp, color = sobreMarca)
             }
             Column {
-                Text(nombreNivel(estrellas), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Tinta)
+                Text(nombreNivel(estrellas), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                 Text(
                     if (faltan == 0) "¡Nivel máximo alcanzado!"
                     else "Te ${if (faltan == 1) "falta 1 pedido" else "faltan $faltan pedidos"} para la siguiente estrella",
                     style = MaterialTheme.typography.bodySmall,
-                    color = TintaSuave
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -279,7 +296,7 @@ fun BarraActividad(rol: Rol, datos: List<Triple<ImageVector, String, String>>, m
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(22.dp))
-                    .background(Color.White)
+                    .background(colorTarjetaPerfil())
                     .padding(vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -287,9 +304,9 @@ fun BarraActividad(rol: Rol, datos: List<Triple<ImageVector, String, String>>, m
                 Box(
                     modifier = Modifier.size(46.dp).clip(CircleShape).background(marca),
                     contentAlignment = Alignment.Center
-                ) { Icon(icono, contentDescription = null, tint = Color.White, modifier = Modifier.size(25.dp)) }
-                Text(valor, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Tinta)
-                Text(leyenda, style = MaterialTheme.typography.labelMedium, color = TintaSuave)
+                ) { Icon(icono, contentDescription = null, tint = if (esOscuro()) FondoOscuro else Color.White, modifier = Modifier.size(25.dp)) }
+                Text(valor, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                Text(leyenda, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

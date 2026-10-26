@@ -42,8 +42,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.model.Rol
 import com.reyes.lavacampus.ui.components.colorMarca
+import com.reyes.lavacampus.ui.components.colorTarjetaPerfil
 import com.reyes.lavacampus.ui.components.fondoPerfil
-import com.reyes.lavacampus.ui.theme.Tinta
 
 /** Opcion del menu lateral. [ruta] es el patron del destino (para marcar la activa) y [destino] a donde se navega. */
 data class ItemMenu(
@@ -71,8 +71,10 @@ fun MenuLateral(
     onCerrar: () -> Unit
 ) {
     val marca = colorMarca(rol)
+    val superficie = MaterialTheme.colorScheme.surface
+    val textoItem = MaterialTheme.colorScheme.onSurface
     ModalDrawerSheet(
-        drawerContainerColor = Color.White,
+        drawerContainerColor = MaterialTheme.colorScheme.surface,
         drawerShape = RoundedCornerShape(topEnd = 36.dp, bottomEnd = 36.dp),
         windowInsets = WindowInsets(0),
         modifier = Modifier.width(310.dp)
@@ -91,7 +93,7 @@ fun MenuLateral(
                             lineTo(0f, h)
                             close()
                         }
-                        drawPath(onda, Color.White)
+                        drawPath(onda, superficie)
                     }
                     IconButton(
                         onClick = onCerrar,
@@ -103,7 +105,7 @@ fun MenuLateral(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
-                        Surface(modifier = Modifier.size(74.dp), shape = CircleShape, color = Color.White, shadowElevation = 6.dp) {
+                        Surface(modifier = Modifier.size(74.dp), shape = CircleShape, color = colorTarjetaPerfil(), shadowElevation = 6.dp) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(Icons.Filled.Person, contentDescription = null, tint = marca, modifier = Modifier.size(52.dp))
                             }
@@ -139,7 +141,7 @@ fun MenuLateral(
                             Text(
                                 item.titulo,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = Tinta,
+                                color = textoItem,
                                 fontWeight = if (activa) FontWeight.Bold else FontWeight.Normal
                             )
                         }
@@ -160,7 +162,7 @@ fun MenuLateral(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null, tint = marca, modifier = Modifier.size(22.dp))
-                        Text("Cerrar sesión", style = MaterialTheme.typography.bodyLarge, color = Tinta)
+                        Text("Cerrar sesión", style = MaterialTheme.typography.bodyLarge, color = textoItem)
                     }
                     Surface(
                         onClick = onInicio,
@@ -170,7 +172,7 @@ fun MenuLateral(
                         shadowElevation = 6.dp
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Filled.Home, contentDescription = "Inicio", tint = Color.White)
+                            Icon(Icons.Filled.Home, contentDescription = "Inicio", tint = MaterialTheme.colorScheme.onPrimary)
                         }
                     }
                 }

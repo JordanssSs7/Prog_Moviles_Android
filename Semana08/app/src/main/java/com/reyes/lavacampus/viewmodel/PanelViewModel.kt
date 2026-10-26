@@ -36,9 +36,17 @@ class PanelViewModel(
     private val inicioSemana = LocalDate.now()
         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toString()
 
-    // Paleta de los graficos de barras: azules y acentos de la marca
+    // Escala de verdes de los graficos (de la paleta elegida): de oscuro a claro para los servicios
     private val colores = listOf(
-        Color(0xFF319E74), Color(0xFF22B8F0), Color(0xFF6366F1), Color(0xFFF59E0B), Color(0xFF16A34A)
+        Color(0xFF435B45), Color(0xFF637757), Color(0xFFA7B08E), Color(0xFFCBCBB3), Color(0xFF3A5044)
+    )
+
+    // Un verde por estado, del mas claro (recien recibido) al mas oscuro (entregado)
+    private val coloresEstado = mapOf(
+        EstadoPedido.RECIBIDO to Color(0xFFA7B08E),
+        EstadoPedido.EN_PROCESO to Color(0xFF637757),
+        EstadoPedido.LISTO to Color(0xFF435B45),
+        EstadoPedido.ENTREGADO to Color(0xFF2E4237)
     )
 
     val pedidosHoy: StateFlow<Int> = repo.observarPedidosDeFecha(hoy)
@@ -68,7 +76,7 @@ class PanelViewModel(
         listOf(
             EstadoPedido.RECIBIDO, EstadoPedido.EN_PROCESO, EstadoPedido.LISTO, EstadoPedido.ENTREGADO
         ).map { estado ->
-            repo.observarCantidadPorEstado(estado).map { DatoGrafico(estado.etiqueta, it.toDouble(), estado.color) }
+            repo.observarCantidadPorEstado(estado).map { DatoGrafico(estado.etiqueta, it.toDouble(), coloresEstado.getValue(estado)) }
         }
     ) { it.toList() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

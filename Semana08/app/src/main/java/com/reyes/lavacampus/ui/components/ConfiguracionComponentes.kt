@@ -32,10 +32,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reyes.lavacampus.R
+import com.reyes.lavacampus.model.Rol
 
 /** Verde plano de la pantalla de configuracion de la referencia. */
 val VerdeConfig = Color(0xFF319E74)
-val FondoConfig: Brush = Brush.verticalGradient(listOf(VerdeConfig, VerdeConfig))
+
+/** Verde plano de la referencia; en modo oscuro, el mismo fondo oscuro del perfil. */
+@Composable
+fun fondoConfig(): Brush =
+    if (esOscuro()) fondoPerfil(Rol.CLIENTE) else Brush.verticalGradient(listOf(VerdeConfig, VerdeConfig))
 
 /**
  * Tipografia de la pantalla de configuracion: Poppins (geometrica y redondeada, como la referencia).

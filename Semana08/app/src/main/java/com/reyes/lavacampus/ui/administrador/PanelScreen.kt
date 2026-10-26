@@ -38,9 +38,8 @@ import com.reyes.lavacampus.model.EstadoPedido
 import com.reyes.lavacampus.model.Rol
 import com.reyes.lavacampus.ui.components.BotonCircular
 import com.reyes.lavacampus.ui.components.LavaCard
-import com.reyes.lavacampus.ui.components.graficos.DatoGrafico
-import com.reyes.lavacampus.ui.components.graficos.GraficoBarras
-import com.reyes.lavacampus.ui.components.graficos.GraficoDona
+import com.reyes.lavacampus.ui.components.graficos.IngresosPorServicio
+import com.reyes.lavacampus.ui.components.graficos.ResumenEstados
 import com.reyes.lavacampus.ui.theme.degradadoMarca
 import com.reyes.lavacampus.viewmodel.PanelViewModel
 
@@ -130,8 +129,8 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
                 // 3 contadores
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                     Contador("Hoy", pedidosHoy, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
-                    Contador("En proceso", enProceso, EstadoPedido.EN_PROCESO.color, Modifier.weight(1f))
-                    Contador("Por recoger", porRecoger, EstadoPedido.LISTO.color, Modifier.weight(1f))
+                    Contador("En proceso", enProceso, Color(0xFF637757), Modifier.weight(1f))
+                    Contador("Por recoger", porRecoger, Color(0xFF435B45), Modifier.weight(1f))
                 }
 
                 // Alerta de pedidos LISTO esperando recojo
@@ -143,36 +142,15 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
                     Alerta("$atrasados pedido(s) atrasado(s)", Color(0xFFFEE2E2), Color(0xFF991B1B), onVerAtrasados)
                 }
 
-                // Dona: pedidos por estado
-                Tarjeta("Pedidos por estado") {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
-                        Box(contentAlignment = Alignment.Center) {
-                            GraficoDona(datos = porEstado, tamano = 140.dp)
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("${porEstado.sumOf { it.valor }.toInt()}", style = MaterialTheme.typography.headlineSmall)
-                                Text("pedidos", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            porEstado.forEach { Leyenda(it) }
-                        }
-                    }
-                }
+                // Pedidos por estado: total, barra apilada y cantidad de cada estado
+                Tarjeta("Pedidos por estado") { ResumenEstados(porEstado) }
 
-                // Barras: ingresos por servicio
+                // Ingresos por servicio: monto, porcentaje y barra horizontal
                 Tarjeta("Ingresos por servicio") {
                     if (porServicio.isEmpty()) {
                         Text("Aún no hay ingresos esta semana", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
-                        GraficoBarras(datos = porServicio)
-                        Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
-                            porServicio.forEach { d ->
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Punto(d.color)
-                                    Text("${d.etiqueta}: S/ %.2f".format(d.valor), style = MaterialTheme.typography.bodySmall)
-                                }
-                            }
-                        }
+                        IngresosPorServicio(porServicio)
                     }
                 }
                 // Espacio para que la barra flotante no tape el ultimo grafico
@@ -216,17 +194,4 @@ private fun Tarjeta(titulo: String, contenido: @Composable () -> Unit) {
             contenido()
         }
     }
-}
-
-@Composable
-private fun Leyenda(d: DatoGrafico) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Punto(d.color)
-        Text("${d.etiqueta}: ${d.valor.toInt()}", style = MaterialTheme.typography.bodySmall)
-    }
-}
-
-@Composable
-private fun Punto(color: Color) {
-    Box(Modifier.size(10.dp).clip(CircleShape).background(color))
 }

@@ -83,6 +83,9 @@ private fun NavHostController.irAPrincipal(rol: Rol) {
 
 /** Cambia de pestana de la barra inferior conservando el estado de cada una. */
 private fun NavHostController.irAPestana(p: Pestana, raiz: String) {
+    // La casita vuelve a la pantalla principal que ya esta en la pila; navegar hacia ella con restoreState
+    // la dejaba sin responder cuando se venia de otra pantalla abierta encima (por ejemplo Mis pedidos)
+    if (p.destino == raiz && popBackStack(raiz, inclusive = false)) return
     navigate(p.destino) {
         popUpTo(raiz) { saveState = true }
         launchSingleTop = true

@@ -28,7 +28,7 @@ import com.reyes.lavacampus.ui.components.EditarPerfilDialog
 import com.reyes.lavacampus.ui.components.EstiloTituloConfig
 import com.reyes.lavacampus.ui.components.FilaConfig
 import com.reyes.lavacampus.ui.components.FilaConfigLinea
-import com.reyes.lavacampus.ui.components.FondoConfig
+import com.reyes.lavacampus.ui.components.fondoConfig
 import com.reyes.lavacampus.ui.components.PerfilColor
 import com.reyes.lavacampus.ui.components.SeccionConfig
 import com.reyes.lavacampus.viewmodel.SesionViewModel
@@ -62,7 +62,7 @@ fun ConfiguracionScreen(
         iconoAccion = if (oscuro) Icons.Filled.LightMode else Icons.Filled.DarkMode,
         descripcionAccion = "Modo oscuro",
         onAccion = { sesion.cambiarModoOscuro(!oscuro) },
-        fondo = FondoConfig,
+        fondo = fondoConfig(),
         estiloTitulo = EstiloTituloConfig
     ) {
         // Espacio entre el titulo y la primera seccion, como en la referencia
