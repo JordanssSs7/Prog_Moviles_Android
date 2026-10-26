@@ -1,6 +1,13 @@
 package com.reyes.lavacampus.ui.administrador
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import com.reyes.lavacampus.model.EstadoPedido
+import com.reyes.lavacampus.ui.components.LavaCard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,8 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -58,19 +63,23 @@ fun ServiciosScreen(vm: ServiciosViewModel, onEditar: (Int) -> Unit, onNuevo: ()
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = { AppTopBar("Servicios") },
         snackbarHost = { SnackbarHost(snackbar) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNuevo,
+                shape = CircleShape,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("Nuevo servicio") }
+                text = { Text("Nuevo servicio", style = MaterialTheme.typography.titleSmall) }
             )
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp),
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(servicios, key = { it.id }) { s ->
@@ -99,28 +108,35 @@ fun ServiciosScreen(vm: ServiciosViewModel, onEditar: (Int) -> Unit, onNuevo: ()
 
 @Composable
 private fun ServicioItem(s: Servicio, onToggle: () -> Unit, onEditar: () -> Unit, onEliminar: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable { onEditar() },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
+    LavaCard(modifier = Modifier.fillMaxWidth(), onClick = onEditar) {
         Row(
-            modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp, end = 8.dp),
+            modifier = Modifier.padding(start = 14.dp, top = 12.dp, bottom = 12.dp, end = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            IconoServicio(s.icono, MaterialTheme.colorScheme.primary)
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) { IconoServicio(s.icono, MaterialTheme.colorScheme.primary, tamano = 30.dp) }
             Column(modifier = Modifier.weight(1f)) {
-                Text(s.nombre, fontWeight = FontWeight.Bold)
-                Text("${s.textoPrecio()} · ${s.horasEntrega} h", style = MaterialTheme.typography.bodySmall)
+                Text(s.nombre, style = MaterialTheme.typography.titleSmall)
+                Text(
+                    "${s.textoPrecio()} · ${s.horasEntrega} h",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Text(
                     if (s.activo) "Activo" else "Inactivo",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = if (s.activo) EstadoPedido.LISTO.color else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Switch(checked = s.activo, onCheckedChange = { onToggle() })
             IconButton(onClick = onEliminar) {
-                Icon(Icons.Filled.Delete, contentDescription = "Eliminar")
+                Icon(Icons.Filled.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

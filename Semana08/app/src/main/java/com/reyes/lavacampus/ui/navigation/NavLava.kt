@@ -28,6 +28,8 @@ import com.reyes.lavacampus.ui.administrador.FormularioServicioScreen
 import com.reyes.lavacampus.ui.administrador.GestionPedidoScreen
 import com.reyes.lavacampus.ui.administrador.PanelScreen
 import com.reyes.lavacampus.ui.administrador.ServiciosScreen
+import com.reyes.lavacampus.ui.components.IconosBarraEstado
+import com.reyes.lavacampus.ui.estudiante.BienvenidaScreen
 import com.reyes.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.reyes.lavacampus.ui.estudiante.InicioScreen
 import com.reyes.lavacampus.ui.estudiante.LoginScreen
@@ -73,6 +75,12 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
     val usuario by sesion.usuarioActual.collectAsState()
     val entrada by navController.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
+    val oscuro by sesion.modoOscuro.collectAsState()
+
+    // Iconos claros de la barra de estado sobre los fondos azules (splash, bienvenida, login) y en modo oscuro
+    IconosBarraEstado(
+        claros = oscuro || rutaActual == Rutas.SPLASH || rutaActual == Rutas.BIENVENIDA || rutaActual == Rutas.LOGIN
+    )
 
     // Barra inferior: 4 items para el estudiante y 5 para el administrador
     val esAdmin = usuario?.rol == Rol.ADMIN.name
@@ -101,12 +109,24 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                         // Ya hay perfil guardado: salta el login
                         navController.irAPrincipal(Rol.valueOf(u.rol))
                     } else {
-                        navController.navigate(Rutas.LOGIN) { popUpTo(Rutas.SPLASH) { inclusive = true } }
+                        navController.navigate(Rutas.BIENVENIDA) { popUpTo(Rutas.SPLASH) { inclusive = true } }
                     }
                 })
             }
-            composable(Rutas.LOGIN) {
-                LoginScreen(vm = sesion, onLoginExitoso = { rol -> navController.irAPrincipal(rol) })
+            composable(Rutas.BIENVENIDA) {
+                BienvenidaScreen(onElegirPerfil = { rol -> navController.navigate(Rutas.login(rol.name)) })
+            }
+            composable(
+                route = Rutas.LOGIN,
+                arguments = listOf(navArgument("rol") { type = NavType.StringType; defaultValue = "CLIENTE" })
+            ) { entradaLogin ->
+                val rolInicial = Rol.valueOf(entradaLogin.arguments?.getString("rol") ?: Rol.CLIENTE.name)
+                LoginScreen(
+                    vm = sesion,
+                    rolInicial = rolInicial,
+                    onLoginExitoso = { rol -> navController.irAPrincipal(rol) },
+                    onVolver = { navController.popBackStack() }
+                )
             }
 
             // ---------- Estudiante ----------
@@ -157,14 +177,13 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                         vm = vm,
                         onVerPedido = { id -> navController.navigate(Rutas.detalle(id)) },
                         onNuevoPedido = { navController.navigate(Rutas.nuevoPedido()) },
-                        onRepetir = { id -> navController.navigate(Rutas.nuevoPedido(repetir = id)) },
-                        onVolver = { navController.popBackStack() }
+                        onRepetir = { id -> navController.navigate(Rutas.nuevoPedido(repetir = id)) }
                     )
                 }
             }
             composable(Rutas.TARIFAS) {
                 val vm: TarifasViewModel = viewModel(factory = factory)
-                TarifasScreen(vm = vm, onVolver = { navController.popBackStack() })
+                TarifasScreen(vm = vm)
             }
             composable(
                 route = Rutas.DETALLE_PEDIDO,
@@ -189,7 +208,7 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                         onCambiarPerfil = { sesion.cambiarPerfil { rol -> navController.irAPrincipal(rol) } },
                         onCerrarSesion = {
                             sesion.cerrarSesion {
-                                navController.navigate(Rutas.LOGIN) { popUpTo(0) { inclusive = true } }
+                                navController.navigate(Rutas.BIENVENIDA) { popUpTo(0) { inclusive = true } }
                             }
                         }
                     )
@@ -218,8 +237,7 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                 )
                 BandejaScreen(
                     vm = vm,
-                    onAbrirGestion = { id -> navController.navigate(Rutas.gestion(id)) },
-                    onVolver = { navController.popBackStack() }
+                    onAbrirGestion = { id -> navController.navigate(Rutas.gestion(id)) }
                 )
             }
             composable(
@@ -259,7 +277,7 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                     onCambiarPerfil = { sesion.cambiarPerfil { rol -> navController.irAPrincipal(rol) } },
                     onCerrarSesion = {
                         sesion.cerrarSesion {
-                            navController.navigate(Rutas.LOGIN) { popUpTo(0) { inclusive = true } }
+                            navController.navigate(Rutas.BIENVENIDA) { popUpTo(0) { inclusive = true } }
                         }
                     }
                 )

@@ -23,8 +23,9 @@ class PanelViewModel(repo: LavaRepository) : ViewModel() {
     private val inicioSemana = LocalDate.now()
         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).toString()
 
+    // Paleta de los graficos de barras: azules y acentos de la marca
     private val colores = listOf(
-        Color(0xFF6D28D9), Color(0xFF0891B2), Color(0xFFD97706), Color(0xFF16A34A), Color(0xFFDC2626)
+        Color(0xFF1F5BFF), Color(0xFF22B8F0), Color(0xFF4F46E5), Color(0xFFF59E0B), Color(0xFF16A34A)
     )
 
     val pedidosHoy: StateFlow<Int> = repo.observarPedidosDeFecha(hoy)

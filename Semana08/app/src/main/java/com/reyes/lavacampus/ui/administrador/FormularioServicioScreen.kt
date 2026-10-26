@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
+import com.reyes.lavacampus.ui.components.LavaChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -72,7 +72,7 @@ fun FormularioServicioScreen(vm: ServiciosViewModel, servicioId: Int, onVolver: 
             Text("Se cobra por", fontWeight = FontWeight.SemiBold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Unidad.entries.forEach { u ->
-                    FilterChip(selected = unidad == u.name, onClick = { unidad = u.name }, label = { Text(u.etiqueta) })
+                    LavaChip(texto = u.etiqueta, seleccionado = unidad == u.name, onClick = { unidad = u.name })
                 }
             }
 
@@ -86,7 +86,7 @@ fun FormularioServicioScreen(vm: ServiciosViewModel, servicioId: Int, onVolver: 
             Text("Tiempo de entrega", fontWeight = FontWeight.SemiBold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Horas.forEach { h ->
-                    FilterChip(selected = horas == h, onClick = { horas = h }, label = { Text("$h h") })
+                    LavaChip(texto = "$h h", seleccionado = horas == h, onClick = { horas = h })
                 }
             }
 
@@ -95,7 +95,7 @@ fun FormularioServicioScreen(vm: ServiciosViewModel, servicioId: Int, onVolver: 
             Text("Ícono", fontWeight = FontWeight.SemiBold)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Iconos.forEach { (clave, texto) ->
-                    FilterChip(selected = icono == clave, onClick = { icono = clave }, label = { Text(texto) })
+                    LavaChip(texto = texto, seleccionado = icono == clave, onClick = { icono = clave })
                 }
             }
             IconoServicio(icono, MaterialTheme.colorScheme.primary, tamano = 56.dp)

@@ -1,20 +1,19 @@
 package com.reyes.lavacampus.ui.estudiante
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.reyes.lavacampus.ui.components.IconoServicio
+import com.reyes.lavacampus.ui.components.LogoLava
+import com.reyes.lavacampus.ui.theme.AzulHielo
+import com.reyes.lavacampus.ui.theme.AzulIntermedio
+import com.reyes.lavacampus.ui.theme.AzulProfundo
 import kotlinx.coroutines.delay
 
 /** [sesionLista]: el Splash espera a saber si hay un perfil guardado antes de continuar. */
@@ -26,24 +25,20 @@ fun SplashScreen(sesionLista: Boolean = true, onTerminar: () -> Unit) {
             onTerminar()
         }
     }
-    Column(
+    // Azul profundo arriba que se aclara hacia abajo, con el logo al centro
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .background(
+                Brush.verticalGradient(
+                    0.0f to AzulProfundo,
+                    0.55f to AzulIntermedio,
+                    0.88f to AzulHielo,
+                    1.0f to Color.White
+                )
+            ),
+        contentAlignment = Alignment.Center
     ) {
-        IconoServicio(icono = "wash", color = MaterialTheme.colorScheme.onPrimary, tamano = 96.dp)
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = "LavaCampus",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
-        Text(
-            text = "Lavandería universitaria",
-            color = MaterialTheme.colorScheme.onPrimary
-        )
+        LogoLava(tamano = 52.dp)
     }
 }

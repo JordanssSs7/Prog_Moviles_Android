@@ -2,6 +2,7 @@ package com.reyes.lavacampus.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.reyes.lavacampus.data.local.entity.Servicio
 import com.reyes.lavacampus.data.local.entity.Usuario
 import com.reyes.lavacampus.data.local.relation.PedidoConDetalle
 import com.reyes.lavacampus.data.repository.LavaRepository
@@ -25,6 +26,10 @@ class InicioViewModel(
     val pedidoActivo: StateFlow<PedidoConDetalle?> = pedidos
         .map { lista -> lista.firstOrNull { EstadoPedido.valueOf(it.pedido.estado) in activos } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    /** Servicios activos: se muestran como categorias en el inicio. */
+    val servicios: StateFlow<List<Servicio>> = repo.observarServiciosActivos()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /** Los 2 ultimos pedidos. */
     val recientes: StateFlow<List<PedidoConDetalle>> = pedidos

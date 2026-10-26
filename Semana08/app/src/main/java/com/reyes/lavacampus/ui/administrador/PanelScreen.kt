@@ -5,17 +5,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,13 +26,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.model.EstadoPedido
-import com.reyes.lavacampus.ui.components.AppTopBar
+import com.reyes.lavacampus.model.Rol
+import com.reyes.lavacampus.ui.components.LavaCard
 import com.reyes.lavacampus.ui.components.graficos.DatoGrafico
 import com.reyes.lavacampus.ui.components.graficos.GraficoBarras
 import com.reyes.lavacampus.ui.components.graficos.GraficoDona
+import com.reyes.lavacampus.ui.theme.degradadoMarca
 import com.reyes.lavacampus.viewmodel.PanelViewModel
 
 @Composable
@@ -43,108 +46,90 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
     val porEstado by vm.porEstado.collectAsState()
     val porServicio by vm.porServicio.collectAsState()
 
-    Scaffold(topBar = { AppTopBar("Panel") }) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // 3 contadores de color
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                Contador("Hoy", pedidosHoy, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
-                Contador("En proceso", enProceso, EstadoPedido.EN_PROCESO.color, Modifier.weight(1f))
-                Contador("Por recoger", porRecoger, EstadoPedido.LISTO.color, Modifier.weight(1f))
-            }
-
-            // Ingresos de la semana
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        // Encabezado con degradado: titulo e ingresos de la semana
+        Box(modifier = Modifier.fillMaxWidth().height(250.dp).background(degradadoMarca(Rol.ADMIN))) {
+            Column(
+                modifier = Modifier.statusBarsPadding().padding(horizontal = 22.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text("Ingresos de la semana", color = MaterialTheme.colorScheme.onPrimary)
-                    Text(
-                        "S/ %.2f".format(ingresos),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    Text(
-                        "Solo pedidos pagados, desde el lunes",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
+                Text("Panel de la lavandería", style = MaterialTheme.typography.titleLarge, color = Color.White)
+                Text("Resumen de hoy", style = MaterialTheme.typography.bodyMedium, color = Color.White.copy(alpha = 0.8f))
+                Text(
+                    "Ingresos de la semana",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White.copy(alpha = 0.85f),
+                    modifier = Modifier.padding(top = 18.dp)
+                )
+                Text("S/ %.2f".format(ingresos), style = MaterialTheme.typography.displaySmall, color = Color.White)
+                Text(
+                    "Solo pedidos pagados, desde el lunes",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.75f)
+                )
             }
+        }
 
-            // Alerta de pedidos LISTO esperando recojo
-            if (porRecoger > 0) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF3C7))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "$porRecoger pedido(s) listo(s) esperando recojo",
-                            modifier = Modifier.weight(1f),
-                            color = Color(0xFF92400E),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Button(onClick = onVerListos) { Text("Ver") }
+        // Hoja que sube sobre el encabezado
+        Surface(
+            modifier = Modifier.fillMaxSize().padding(top = 215.dp),
+            shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()).padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // 3 contadores
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    Contador("Hoy", pedidosHoy, MaterialTheme.colorScheme.primary, Modifier.weight(1f))
+                    Contador("En proceso", enProceso, EstadoPedido.EN_PROCESO.color, Modifier.weight(1f))
+                    Contador("Por recoger", porRecoger, EstadoPedido.LISTO.color, Modifier.weight(1f))
+                }
+
+                // Alerta de pedidos LISTO esperando recojo
+                if (porRecoger > 0) {
+                    Alerta("$porRecoger pedido(s) listo(s) esperando recojo", Color(0xFFFEF3C7), Color(0xFF92400E), onVerListos)
+                }
+                // Alerta de pedidos atrasados (entrega vencida y sin cerrar)
+                if (atrasados > 0) {
+                    Alerta("$atrasados pedido(s) atrasado(s)", Color(0xFFFEE2E2), Color(0xFF991B1B), onVerAtrasados)
+                }
+
+                // Dona: pedidos por estado
+                Tarjeta("Pedidos por estado") {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+                        Box(contentAlignment = Alignment.Center) {
+                            GraficoDona(datos = porEstado, tamano = 140.dp)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("${porEstado.sumOf { it.valor }.toInt()}", style = MaterialTheme.typography.headlineSmall)
+                                Text("pedidos", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            porEstado.forEach { Leyenda(it) }
+                        }
                     }
                 }
-            }
 
-            // Alerta de pedidos atrasados (entrega vencida y sin cerrar)
-            if (atrasados > 0) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFEE2E2))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "$atrasados pedido(s) atrasado(s)",
-                            modifier = Modifier.weight(1f),
-                            color = Color(0xFF991B1B),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Button(onClick = onVerAtrasados) { Text("Ver") }
-                    }
-                }
-            }
-
-            // Dona: pedidos por estado
-            Tarjeta("Pedidos por estado") {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    GraficoDona(datos = porEstado)
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        porEstado.forEach { Leyenda(it) }
-                    }
-                }
-            }
-
-            // Barras: ingresos por servicio
-            Tarjeta("Ingresos por servicio") {
-                if (porServicio.isEmpty()) Text("Aún no hay ingresos esta semana")
-                else {
-                    GraficoBarras(datos = porServicio)
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(top = 8.dp)) {
-                        porServicio.forEach { d ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Punto(d.color)
-                                Text("${d.etiqueta}: S/ %.2f".format(d.valor), style = MaterialTheme.typography.bodySmall)
+                // Barras: ingresos por servicio
+                Tarjeta("Ingresos por servicio") {
+                    if (porServicio.isEmpty()) {
+                        Text("Aún no hay ingresos esta semana", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    } else {
+                        GraficoBarras(datos = porServicio)
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 4.dp)) {
+                            porServicio.forEach { d ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Punto(d.color)
+                                    Text("${d.etiqueta}: S/ %.2f".format(d.valor), style = MaterialTheme.typography.bodySmall)
+                                }
                             }
                         }
                     }
                 }
+                // Espacio para que la barra flotante no tape el ultimo grafico
+                Box(Modifier.height(24.dp))
             }
         }
     }
@@ -152,22 +137,32 @@ fun PanelScreen(vm: PanelViewModel, onVerListos: () -> Unit, onVerAtrasados: () 
 
 @Composable
 private fun Contador(titulo: String, valor: Int, color: Color, modifier: Modifier) {
-    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor = color)) {
-        Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("$valor", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Color.White)
-            Text(titulo, style = MaterialTheme.typography.labelMedium, color = Color.White)
+    LavaCard(modifier = modifier) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("$valor", style = MaterialTheme.typography.headlineMedium, color = color)
+            Text(titulo, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun Alerta(texto: String, fondo: Color, colorTexto: Color, onVer: () -> Unit) {
+    LavaCard(modifier = Modifier.fillMaxWidth(), colorFondo = fondo) {
+        Row(modifier = Modifier.padding(start = 18.dp, end = 12.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(texto, modifier = Modifier.weight(1f), color = colorTexto, style = MaterialTheme.typography.titleSmall)
+            Button(onClick = onVer) { Text("Ver") }
         }
     }
 }
 
 @Composable
 private fun Tarjeta(titulo: String, contenido: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(titulo, fontWeight = FontWeight.Bold)
+    LavaCard(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(titulo, style = MaterialTheme.typography.titleMedium)
             contenido()
         }
     }

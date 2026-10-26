@@ -1,15 +1,17 @@
 package com.reyes.lavacampus.ui.estudiante
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -20,7 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.reyes.lavacampus.data.local.entity.Servicio
 import com.reyes.lavacampus.model.EstadoPedido
@@ -28,8 +30,9 @@ import com.reyes.lavacampus.model.PORCENTAJE_DESCUENTO
 import com.reyes.lavacampus.model.UMBRAL_DESCUENTO_KG
 import com.reyes.lavacampus.model.Unidad
 import com.reyes.lavacampus.ui.components.AppTopBar
+import com.reyes.lavacampus.ui.components.BarraAccion
 import com.reyes.lavacampus.ui.components.IconoServicio
-import com.reyes.lavacampus.ui.components.LavaButton
+import com.reyes.lavacampus.ui.components.LavaCard
 import com.reyes.lavacampus.ui.components.LavaTextField
 import com.reyes.lavacampus.ui.components.SelectorCantidad
 import com.reyes.lavacampus.viewmodel.NuevoPedidoViewModel
@@ -39,6 +42,8 @@ import com.reyes.lavacampus.viewmodel.pasoCantidad
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+
+private val Verde = EstadoPedido.LISTO.color
 
 private fun textoUnidad(unidad: String) = when (unidad) {
     Unidad.KG.name -> "kg"
@@ -66,27 +71,50 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onVolver: () -> Unit, onPedidoCr
 
     LaunchedEffect(creado) { if (creado) onPedidoCreado() }
 
-    Scaffold(topBar = { AppTopBar("Nuevo pedido", onAtras = onVolver) }) { padding ->
+    Scaffold(
+        topBar = { AppTopBar("Nuevo pedido", onAtras = onVolver) },
+        bottomBar = {
+            // Importe a la izquierda y boton a la derecha
+            BarraAccion(
+                etiqueta = "Total",
+                valor = "S/ %.2f".format(total),
+                textoBoton = "Confirmar",
+                onClick = vm::confirmar,
+                enabled = elegidos.isNotEmpty() && recibiendo,
+                nota = fechaEntrega?.let { "Entrega ${it.formatoCorto()}" },
+                error = mensaje
+            )
+        }
+    ) { padding ->
         LazyColumn(
             modifier = Modifier.padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             if (!recibiendo) {
                 item {
                     Text(
                         "La lavandería no está recibiendo pedidos",
                         color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleSmall
                     )
                 }
             }
             info?.let {
                 item {
-                    Text(it, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .padding(14.dp)
+                    )
                 }
             }
-            item { Text("Elige tus servicios", fontWeight = FontWeight.Bold) }
+            item { Text("Elige tus servicios", style = MaterialTheme.typography.titleMedium) }
 
             items(servicios, key = { it.id }) { s ->
                 FilaServicio(
@@ -106,14 +134,11 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onVolver: () -> Unit, onPedidoCr
             }
 
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Resumen", fontWeight = FontWeight.Bold)
+                LavaCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("Resumen", style = MaterialTheme.typography.titleMedium)
                         if (elegidos.isEmpty()) {
-                            Text("Aún no eliges ningún servicio")
+                            Text("Aún no eliges ningún servicio", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         } else {
                             elegidos.forEach { (s, c) ->
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -121,42 +146,28 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onVolver: () -> Unit, onPedidoCr
                                     Text("S/ %.2f".format(c * s.precio))
                                 }
                             }
-                        }
-                        HorizontalDivider()
-                        // Descuento por volumen visible en el resumen
-                        if (descuento > 0.0) {
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text("Subtotal")
-                                Text("S/ %.2f".format(subtotal))
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            // Descuento por volumen visible en el resumen
+                            if (descuento > 0.0) {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("Subtotal", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text("S/ %.2f".format(subtotal))
+                                }
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("Descuento por volumen ($PORCENTAJE_DESCUENTO %)", color = Verde, style = MaterialTheme.typography.titleSmall)
+                                    Text("- S/ %.2f".format(descuento), color = Verde, style = MaterialTheme.typography.titleSmall)
+                                }
                             }
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            fechaEntrega?.let {
                                 Text(
-                                    "Descuento por volumen ($PORCENTAJE_DESCUENTO %)",
-                                    color = EstadoPedido.LISTO.color,
-                                    fontWeight = FontWeight.SemiBold
+                                    "Entrega estimada: ${it.formatoLargo()}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                Text("- S/ %.2f".format(descuento), color = EstadoPedido.LISTO.color, fontWeight = FontWeight.SemiBold)
                             }
                         }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Total", fontWeight = FontWeight.Bold)
-                            Text("S/ %.2f".format(total), fontWeight = FontWeight.Bold)
-                        }
-                        fechaEntrega?.let { Text("Entrega estimada: ${it.formatoLargo()}") }
                     }
                 }
-            }
-
-            mensaje?.let {
-                item { Text(it, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.SemiBold) }
-            }
-
-            item {
-                LavaButton(
-                    texto = "Confirmar pedido",
-                    onClick = vm::confirmar,
-                    enabled = elegidos.isNotEmpty() && recibiendo
-                )
             }
         }
     }
@@ -164,27 +175,31 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onVolver: () -> Unit, onPedidoCr
 
 @Composable
 private fun FilaServicio(s: Servicio, cantidad: Double, onCambio: (Double) -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
+    LavaCard(modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            IconoServicio(s.icono, MaterialTheme.colorScheme.primary)
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) { IconoServicio(s.icono, MaterialTheme.colorScheme.primary, tamano = 30.dp) }
             Column(modifier = Modifier.weight(1f)) {
-                Text(s.nombre, fontWeight = FontWeight.Bold)
+                Text(s.nombre, style = MaterialTheme.typography.titleSmall)
                 Text(
                     "S/ %.2f por %s · %d h".format(s.precio, textoUnidad(s.unidad), s.horasEntrega),
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 if (s.unidad == Unidad.KG.name) {
                     Text(
-                        "Más de ${UMBRAL_DESCUENTO_KG.toInt()} kg: $PORCENTAJE_DESCUENTO % de descuento",
+                        "Más de ${UMBRAL_DESCUENTO_KG.toInt()} kg: $PORCENTAJE_DESCUENTO % menos",
                         style = MaterialTheme.typography.labelSmall,
-                        color = EstadoPedido.LISTO.color
+                        color = Verde
                     )
                 }
             }
@@ -201,3 +216,6 @@ private fun FilaServicio(s: Servicio, cantidad: Double, onCambio: (Double) -> Un
 
 private fun LocalDate.formatoLargo(): String =
     format(DateTimeFormatter.ofPattern("EEEE dd 'de' MMMM", Locale("es", "PE")))
+
+private fun LocalDate.formatoCorto(): String =
+    format(DateTimeFormatter.ofPattern("EEE dd MMM", Locale("es", "PE")))
