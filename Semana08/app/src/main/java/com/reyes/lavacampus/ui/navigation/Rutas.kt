@@ -6,7 +6,9 @@ object Rutas {
 
     // Estudiante
     const val INICIO = "inicio"
-    const val NUEVO_PEDIDO = "nuevo_pedido"
+    const val NUEVO_PEDIDO = "nuevo_pedido?repetir={repetir}"
+    /** [repetir] > 0 abre Nuevo pedido con las lineas de ese pedido ("Pedir de nuevo"). */
+    fun nuevoPedido(repetir: Int = 0) = "nuevo_pedido?repetir=$repetir"
     const val MIS_PEDIDOS = "mis_pedidos"
     const val TARIFAS = "tarifas"
     const val PERFIL = "perfil"

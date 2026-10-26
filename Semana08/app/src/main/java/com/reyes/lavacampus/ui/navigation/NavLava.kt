@@ -118,19 +118,23 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                     )
                     InicioScreen(
                         vm = vm,
-                        onNuevoPedido = { navController.navigate(Rutas.NUEVO_PEDIDO) },
+                        onNuevoPedido = { navController.navigate(Rutas.nuevoPedido()) },
                         onVerPedido = { id -> navController.navigate(Rutas.detalle(id)) },
                         onMisPedidos = { navController.navigate(Rutas.MIS_PEDIDOS) },
                         onTarifas = { navController.navigate(Rutas.TARIFAS) }
                     )
                 }
             }
-            composable(Rutas.NUEVO_PEDIDO) {
+            composable(
+                route = Rutas.NUEVO_PEDIDO,
+                arguments = listOf(navArgument("repetir") { type = NavType.IntType; defaultValue = 0 })
+            ) { entradaNuevo ->
+                val repetir = entradaNuevo.arguments?.getInt("repetir") ?: 0
                 usuario?.let { u ->
                     val vm: NuevoPedidoViewModel = viewModel(
-                        key = "nuevo-pedido-${u.id}",
+                        key = "nuevo-pedido-${u.id}-$repetir",
                         factory = viewModelFactory {
-                            initializer { NuevoPedidoViewModel(factory.repo, factory.prefs, u) }
+                            initializer { NuevoPedidoViewModel(factory.repo, factory.prefs, u, repetir) }
                         }
                     )
                     NuevoPedidoScreen(
@@ -152,7 +156,8 @@ fun NavLava(sesion: SesionViewModel, factory: LavaViewModelFactory) {
                     MisPedidosScreen(
                         vm = vm,
                         onVerPedido = { id -> navController.navigate(Rutas.detalle(id)) },
-                        onNuevoPedido = { navController.navigate(Rutas.NUEVO_PEDIDO) },
+                        onNuevoPedido = { navController.navigate(Rutas.nuevoPedido()) },
+                        onRepetir = { id -> navController.navigate(Rutas.nuevoPedido(repetir = id)) },
                         onVolver = { navController.popBackStack() }
                     )
                 }

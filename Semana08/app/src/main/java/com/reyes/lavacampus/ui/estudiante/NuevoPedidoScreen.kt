@@ -60,6 +60,7 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onVolver: () -> Unit, onPedidoCr
     val fechaEntrega by vm.fechaEntrega.collectAsState()
     val nota by vm.nota.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
+    val info by vm.info.collectAsState()
     val creado by vm.pedidoCreado.collectAsState()
     val recibiendo by vm.recibiendoPedidos.collectAsState()
 
@@ -78,6 +79,11 @@ fun NuevoPedidoScreen(vm: NuevoPedidoViewModel, onVolver: () -> Unit, onPedidoCr
                         color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
+                }
+            }
+            info?.let {
+                item {
+                    Text(it, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
                 }
             }
             item { Text("Elige tus servicios", fontWeight = FontWeight.Bold) }

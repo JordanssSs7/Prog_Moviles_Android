@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -27,6 +28,16 @@ fun pasoCantidad(unidad: String): Double = if (unidad == Unidad.KG.name) 0.5 els
 fun minimoCantidad(unidad: String): Double = 1.0
 fun maximoCantidad(unidad: String): Double = if (unidad == Unidad.KG.name) 10.0 else 30.0
 
+/**
+ * Adapta una cantidad de un pedido anterior a las reglas actuales: la acerca al paso
+ * (0.5 kg o 1 unidad) y la deja entre el minimo y el maximo.
+ */
+fun ajustarCantidad(unidad: String, cantidad: Double): Double {
+    val paso = pasoCantidad(unidad)
+    val ajustada = Math.round(cantidad / paso) * paso
+    return ajustada.coerceIn(minimoCantidad(unidad), maximoCantidad(unidad))
+}
+
 /** Hoy + dias de entrega; si cae domingo, pasa al lunes. */
 fun calcularFechaEntrega(hoy: LocalDate, dias: Int): LocalDate {
     var fecha = hoy.plusDays(dias.toLong())
@@ -37,7 +48,8 @@ fun calcularFechaEntrega(hoy: LocalDate, dias: Int): LocalDate {
 class NuevoPedidoViewModel(
     private val repo: LavaRepository,
     prefs: PreferenciasStore,
-    private val usuario: Usuario
+    private val usuario: Usuario,
+    repetirPedidoId: Int = 0 // > 0: carga las lineas de ese pedido ("Pedir de nuevo")
 ) : ViewModel() {
 
     /** Si el administrador apaga "Recibir pedidos", el estudiante no puede crear uno. */
@@ -59,6 +71,42 @@ class NuevoPedidoViewModel(
 
     private val _pedidoCreado = MutableStateFlow(false)
     val pedidoCreado: StateFlow<Boolean> = _pedidoCreado.asStateFlow()
+
+    /** Aviso informativo (no es un error), por ejemplo al repetir un pedido. */
+    private val _info = MutableStateFlow<String?>(null)
+    val info: StateFlow<String?> = _info.asStateFlow()
+
+    init {
+        if (repetirPedidoId > 0) cargarPedidoAnterior(repetirPedidoId)
+    }
+
+    /**
+     * "Pedir de nuevo": copia las lineas de un pedido anterior. Los precios y los descuentos se
+     * recalculan con las tarifas ACTUALES, y los servicios que ya no estan activos se omiten.
+     */
+    private fun cargarPedidoAnterior(id: Int) {
+        viewModelScope.launch {
+            val anterior = repo.observarPedido(id).first() ?: return@launch
+            if (anterior.usuario.id != usuario.id) {
+                _mensaje.value = "Ese pedido no es tuyo"
+                return@launch
+            }
+            val activos = repo.observarServiciosActivos().first()
+            val cantidades = mutableMapOf<Int, Double>()
+            var omitidos = 0
+            anterior.detalles.forEach { d ->
+                val servicio = activos.firstOrNull { it.id == d.servicio.id }
+                if (servicio == null) omitidos++
+                else cantidades[servicio.id] = ajustarCantidad(servicio.unidad, d.detalle.cantidad)
+            }
+            _cantidades.value = cantidades
+            _info.value = when {
+                cantidades.isEmpty() -> "Los servicios de ese pedido ya no están disponibles"
+                omitidos > 0 -> "Pedido #$id cargado con precios actuales. $omitidos servicio(s) ya no están disponibles"
+                else -> "Pedido #$id cargado con los precios actuales"
+            }
+        }
+    }
 
     /** Servicios elegidos con su cantidad (solo los que siguen activos). */
     val elegidos: StateFlow<List<Pair<Servicio, Double>>> = combine(servicios, _cantidades) { lista, mapa ->

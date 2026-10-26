@@ -35,6 +35,7 @@ fun MisPedidosScreen(
     vm: MisPedidosViewModel,
     onVerPedido: (Int) -> Unit,
     onNuevoPedido: () -> Unit,
+    onRepetir: (Int) -> Unit,
     onVolver: () -> Unit
 ) {
     val activos by vm.activos.collectAsState()
@@ -72,9 +73,14 @@ fun MisPedidosScreen(
                     PedidoCard(
                         p = p,
                         onClick = { onVerPedido(p.pedido.id) },
-                        acciones = if (vm.puedeCancelar(p)) {
-                            { TextButton(onClick = { porCancelar = p }) { Text("Cancelar") } }
-                        } else null
+                        acciones = when {
+                            vm.puedeCancelar(p) ->
+                                ({ TextButton(onClick = { porCancelar = p }) { Text("Cancelar") } })
+                            // Desde el historial se puede repetir el pedido con las tarifas actuales
+                            pestana == 1 ->
+                                ({ TextButton(onClick = { onRepetir(p.pedido.id) }) { Text("Pedir de nuevo") } })
+                            else -> null
+                        }
                     )
                 }
             }
