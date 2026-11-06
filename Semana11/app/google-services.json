@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "393237012958",
+    "project_id": "fir-e7a04",
+    "storage_bucket": "fir-e7a04.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:393237012958:android:430b6e1694de4d97d43d4f",
+        "android_client_info": {
+          "package_name": "com.reyes.firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZCa_t9FecVmJ__jh4Ob-gDp4jivclcUQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
