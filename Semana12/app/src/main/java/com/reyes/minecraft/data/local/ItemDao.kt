@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class ItemDao {
 
-    @Query("SELECT * FROM items ORDER BY nombre")
+    @Query("SELECT * FROM items ORDER BY COALESCE(nombreEs, nombre)")
     abstract fun observarTodos(): Flow<List<ItemEntity>>
 
-    @Query("SELECT * FROM items WHERE esFavorito = 1 ORDER BY nombre")
+    @Query("SELECT * FROM items WHERE esFavorito = 1 ORDER BY COALESCE(nombreEs, nombre)")
     abstract fun observarFavoritos(): Flow<List<ItemEntity>>
 
     @Query("SELECT * FROM items WHERE id = :id")
@@ -37,6 +37,9 @@ abstract class ItemDao {
     @Query("UPDATE items SET descripcion = :descripcion, imagenDetalle = :imagen WHERE id = :id")
     abstract suspend fun guardarDetalle(id: Int, descripcion: String?, imagen: String?)
 
+    @Query("UPDATE items SET receta = :receta WHERE id = :id")
+    abstract suspend fun guardarReceta(id: Int, receta: String)
+
     @Query("DELETE FROM items")
     abstract suspend fun borrarTodo()
 
@@ -54,6 +57,7 @@ abstract class ItemDao {
                 esFavorito = previo.esFavorito,
                 descripcion = previo.descripcion,
                 imagenDetalle = previo.imagenDetalle,
+                receta = previo.receta,
             )
         })
     }

@@ -10,6 +10,14 @@ interface ApiService {
     @GET("PrismarineJS/minecraft-data/master/data/pc/1.20.2/items.json")
     suspend fun obtenerItems(): List<ItemDto>
 
+    /** Endpoint 4: nombres de todo el juego en español (archivo de idioma es_es.json). */
+    @GET("InventivetalentDev/minecraft-assets/1.20.2/assets/minecraft/lang/es_es.json")
+    suspend fun obtenerIdiomaEs(): Map<String, String>
+
+    /** Endpoint 3: recetas de crafteo de todos los ítems (clave = id del ítem resultado). */
+    @GET("PrismarineJS/minecraft-data/master/data/pc/1.20.2/recipes.json")
+    suspend fun obtenerRecetas(): Map<String, List<RecetaDto>>
+
     /** Endpoint 2: detalle de un ítem (descripción e imagen) en minecraft.wiki. */
     @GET
     suspend fun obtenerDetalle(
@@ -26,5 +34,6 @@ interface ApiService {
 
     companion object {
         const val WIKI_URL = "https://minecraft.wiki/api.php"
+        const val WIKI_ES_URL = "https://es.minecraft.wiki/api.php"
     }
 }
