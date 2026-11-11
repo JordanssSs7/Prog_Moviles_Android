@@ -15,6 +15,8 @@ import kotlinx.coroutines.launch
 
 data class DetalleContenido(
     val item: Item,
+    /** Ítems de la receta, por id, para dibujar cada ingrediente. */
+    val ingredientes: Map<Int, Item>,
     val cargandoDetalle: Boolean,
     val aviso: String?,
 )
@@ -28,23 +30,28 @@ class DetalleViewModel(
     private val aviso = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<UiState<DetalleContenido>> = combine(
-        repositorio.observarItem(id), cargandoDetalle, aviso
-    ) { item, cargando, mensaje ->
-        if (item == null) UiState.Error("No se encontró este elemento en tu catálogo guardado.")
-        else UiState.Exito(DetalleContenido(item, cargando, mensaje))
+        repositorio.observarItem(id), repositorio.observarItems(), cargandoDetalle, aviso
+    ) { item, todos, cargando, mensaje ->
+        if (item == null) {
+            UiState.Error("No se encontró este elemento en tu catálogo guardado.")
+        } else {
+            val idsReceta = item.receta?.filas?.flatten()?.filterNotNull()?.toSet().orEmpty()
+            val ingredientes = todos.filter { it.id in idsReceta }.associateBy { it.id }
+            UiState.Exito(DetalleContenido(item, ingredientes, cargando, mensaje))
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UiState.Cargando)
 
     init {
         cargarDetalle()
     }
 
-    /** Endpoint 2: pide el detalle; si falla, se sigue mostrando lo que ya hay en Room. */
+    /** Endpoints 2 y 3: pide descripción y receta; si falla, se sigue mostrando lo que ya hay en Room. */
     fun cargarDetalle() {
         viewModelScope.launch {
             cargandoDetalle.value = true
             aviso.value = null
             val r = repositorio.cargarDetalle(id)
-            if (r !is ResultadoRed.Exito) aviso.value = "${mensajeError(r)} No se pudo cargar la descripción."
+            if (r !is ResultadoRed.Exito) aviso.value = "${mensajeError(r)} No se pudo cargar todo el detalle."
             cargandoDetalle.value = false
         }
     }
