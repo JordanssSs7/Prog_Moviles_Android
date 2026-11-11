@@ -1,5 +1,6 @@
 package com.reyes.minecraft
 
+import com.reyes.minecraft.data.conectividad.Conectividad
 import com.reyes.minecraft.data.repository.ItemRepository
 import com.reyes.minecraft.data.repository.ResultadoRed
 import com.reyes.minecraft.model.Item
@@ -62,6 +63,10 @@ private class RepositorioFalso(
     }
 }
 
+private class ConectividadFalsa(var internet: Boolean = true) : Conectividad {
+    override fun hayInternet() = internet
+}
+
 private class NotificadorFalso : Notificador {
     val avisos = mutableListOf<Int>()
     override fun sincronizacionTerminada(cantidad: Int) {
@@ -82,7 +87,7 @@ class ListaViewModelTest {
     fun `con Room vacio descarga, muestra los datos y notifica la cantidad`() = runTest {
         val repo = RepositorioFalso(remoto = listOf(item(1, "Stone"), item(2, "Dirt")))
         val notificador = NotificadorFalso()
-        val vm = ListaViewModel(repo, notificador)
+        val vm = ListaViewModel(repo, notificador, ConectividadFalsa())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         val estado = vm.uiState.value
@@ -94,7 +99,7 @@ class ListaViewModelTest {
     @Test
     fun `sin internet y sin datos guardados muestra Error`() = runTest {
         val repo = RepositorioFalso(respuestaRed = ResultadoRed.SinConexion)
-        val vm = ListaViewModel(repo, NotificadorFalso())
+        val vm = ListaViewModel(repo, NotificadorFalso(), ConectividadFalsa())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         assertTrue(vm.uiState.value is UiState.Error)
@@ -107,7 +112,7 @@ class ListaViewModelTest {
             respuestaRed = ResultadoRed.SinConexion,
         )
         val notificador = NotificadorFalso()
-        val vm = ListaViewModel(repo, notificador)
+        val vm = ListaViewModel(repo, notificador, ConectividadFalsa())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         val estado = vm.uiState.value
@@ -123,7 +128,7 @@ class ListaViewModelTest {
             respuestaRed = ResultadoRed.SinConexion,
             remoto = listOf(item(1, "Stone")),
         )
-        val vm = ListaViewModel(repo, NotificadorFalso())
+        val vm = ListaViewModel(repo, NotificadorFalso(), ConectividadFalsa())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
         assertTrue(vm.uiState.value is UiState.Error)
 
@@ -136,7 +141,7 @@ class ListaViewModelTest {
     @Test
     fun `buscar filtra la lista por nombre`() = runTest {
         val repo = RepositorioFalso(inicial = listOf(item(1, "Stone"), item(2, "Diamond Pickaxe")))
-        val vm = ListaViewModel(repo, NotificadorFalso())
+        val vm = ListaViewModel(repo, NotificadorFalso(), ConectividadFalsa())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         vm.buscar("pick")
@@ -148,12 +153,31 @@ class ListaViewModelTest {
     @Test
     fun `marcar favorito actualiza el item`() = runTest {
         val repo = RepositorioFalso(inicial = listOf(item(1, "Stone")))
-        val vm = ListaViewModel(repo, NotificadorFalso())
+        val vm = ListaViewModel(repo, NotificadorFalso(), ConectividadFalsa())
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
 
         vm.alternarFavorito(1)
 
         val datos = (vm.uiState.value as UiState.Exito).datos
         assertTrue(datos.first().esFavorito)
+    }
+
+    @Test
+    fun `abrir sin internet con datos guardados muestra la lista y activa el aviso`() = runTest {
+        val repo = RepositorioFalso(inicial = listOf(item(1, "Stone")))
+        val vm = ListaViewModel(repo, NotificadorFalso(), ConectividadFalsa(internet = false))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
+
+        assertTrue(vm.uiState.value is UiState.Exito)
+        assertTrue(vm.sinConexion.value)
+    }
+
+    @Test
+    fun `abrir con internet no muestra el aviso de sin conexion`() = runTest {
+        val repo = RepositorioFalso(inicial = listOf(item(1, "Stone")))
+        val vm = ListaViewModel(repo, NotificadorFalso(), ConectividadFalsa(internet = true))
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect {} }
+
+        assertEquals(false, vm.sinConexion.value)
     }
 }
