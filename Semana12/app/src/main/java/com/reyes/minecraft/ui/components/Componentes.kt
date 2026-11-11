@@ -2,12 +2,29 @@
 
 package com.reyes.minecraft.ui.components
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import com.reyes.minecraft.ui.theme.FuenteTitulo
+import com.reyes.minecraft.ui.theme.VerdeOscuro
+import com.reyes.minecraft.ui.theme.VerdeMedio
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.shadow
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.draw.clip
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,6 +42,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -32,10 +50,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.reyes.minecraft.model.Item
 
@@ -104,12 +126,23 @@ fun PantallaVacia(
 }
 
 @Composable
-fun BotonFavorito(esFavorito: Boolean, onClick: () -> Unit) {
+fun BotonFavorito(
+    esFavorito: Boolean,
+    onClick: () -> Unit,
+    tinteSinMarcar: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+) {
+    // El corazón "salta" con un rebote al marcarlo.
+    val escala by animateFloatAsState(
+        targetValue = if (esFavorito) 1.25f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessLow),
+        label = "corazon",
+    )
     IconButton(onClick = onClick) {
         Icon(
             imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
             contentDescription = if (esFavorito) "Quitar de favoritos" else "Marcar como favorito",
-            tint = if (esFavorito) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.graphicsLayer { scaleX = escala; scaleY = escala },
+            tint = if (esFavorito) Color(0xFFE53935) else tinteSinMarcar,
         )
     }
 }
@@ -123,17 +156,34 @@ fun TarjetaItem(
 ) {
     Card(
         modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ImagenItem(item.imagenesCandidatas, Modifier.size(48.dp))
-            Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
-                Text(item.nombre, style = MaterialTheme.typography.titleMedium)
+            // La imagen va en una casilla redonda con fondo suave, todas del mismo tamaño.
+            Box(
+                Modifier
+                    .size(58.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center,
+            ) {
+                ImagenItem(item.imagenesCandidatas, Modifier.size(40.dp))
+            }
+            Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
                 Text(
-                    "Máx. por pila: ${item.stackSize ?: "-"}",
+                    item.nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    "${item.categoria.titulo}  ·  Pila máx. ${item.stackSize ?: "-"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -143,19 +193,66 @@ fun TarjetaItem(
     }
 }
 
+/** Etiqueta redondeada pequeña (categoría, pila máxima...). */
+@Composable
+fun Etiqueta(texto: String, modifier: Modifier = Modifier) {
+    Text(
+        texto,
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(50))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onPrimaryContainer,
+    )
+}
+
 @Composable
 fun BarraSuperior(
     titulo: String,
     onAtras: (() -> Unit)? = null,
+    icono: (@Composable () -> Unit)? = null,
     acciones: @Composable () -> Unit = {},
 ) {
-    TopAppBar(
-        title = { Text(titulo) },
-        navigationIcon = {
+    // Encabezado con degradado verde y esquinas redondeadas abajo.
+    val forma = RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp)
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, forma)
+            .background(Brush.horizontalGradient(listOf(VerdeOscuro, VerdeMedio)), forma),
+    ) {
+        Row(
+            modifier = Modifier
+                .statusBarsPadding()
+                .fillMaxWidth()
+                .heightIn(min = 66.dp)
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             if (onAtras != null) {
-                androidx.compose.material3.TextButton(onClick = onAtras) { Text("Atrás") }
+                IconButton(onClick = onAtras) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                }
+            } else {
+                Spacer(Modifier.width(10.dp))
             }
-        },
-        actions = { acciones() },
-    )
+            icono?.let {
+                it()
+                Spacer(Modifier.width(10.dp))
+            }
+            Text(
+                titulo.uppercase(),
+                modifier = Modifier.weight(1f),
+                color = Color.White,
+                fontFamily = FuenteTitulo,
+                fontWeight = FontWeight.Bold,
+                fontSize = 22.sp,
+                letterSpacing = 1.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            acciones()
+        }
+    }
 }
