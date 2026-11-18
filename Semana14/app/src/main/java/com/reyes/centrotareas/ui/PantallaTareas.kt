@@ -31,6 +31,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Switch
+import androidx.compose.ui.Alignment
 import com.reyes.centrotareas.model.CargaUi
 import com.reyes.centrotareas.model.PrimosUi
 import com.reyes.centrotareas.ui.theme.VerdeFondo
@@ -45,6 +47,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     val corriendo by vm.corriendo.collectAsState()
     val primos by vm.primos.collectAsState()
     val carga by vm.carga.collectAsState()
+    val simularError by vm.simularError.collectAsState()
     var textoN by rememberSaveable { mutableStateOf("500000") }
     var nCalculado by rememberSaveable { mutableIntStateOf(0) }
     // Prueba de vida: si deja de sumar, la pantalla está congelada
@@ -153,7 +156,17 @@ fun PantallaTareas(vm: TareasViewModel) {
 
             // ----- Dos cargas (pasos 6 y 7)
             Tarjeta(titulo = "Dos cargas") {
-                // TODO Paso 7: interruptor Simular error
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Switch(
+                        checked = simularError,
+                        onCheckedChange = { vm.cambiarSimularError(it) }
+                    )
+                    Text("Simular error", style = MaterialTheme.typography.bodyMedium)
+                }
                 val cargando = carga is CargaUi.Cargando
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
@@ -178,7 +191,14 @@ fun PantallaTareas(vm: TareasViewModel) {
                             "Tiempo: ${c.milisegundos} ms"
                         )
                     )
-                    is CargaUi.Error -> Unit // TODO Paso 7
+                    is CargaUi.Error -> {
+                        Recuadro(
+                            fondo = MaterialTheme.colorScheme.errorContainer,
+                            texto = MaterialTheme.colorScheme.onErrorContainer,
+                            lineas = listOf(c.mensaje)
+                        )
+                        OutlinedButton(onClick = { vm.cargarALaVez() }) { Text("Reintentar") }
+                    }
                 }
             }
         }
