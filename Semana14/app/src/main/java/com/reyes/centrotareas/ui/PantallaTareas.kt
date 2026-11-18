@@ -21,11 +21,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.reyes.centrotareas.model.PrimosUi
+import com.reyes.centrotareas.ui.theme.VerdeFondo
+import com.reyes.centrotareas.ui.theme.VerdeTexto
 import com.reyes.centrotareas.viewmodel.TareasViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,6 +41,9 @@ fun PantallaTareas(vm: TareasViewModel) {
     val mensaje by vm.mensaje.collectAsState()
     val progreso by vm.progreso.collectAsState()
     val corriendo by vm.corriendo.collectAsState()
+    val primos by vm.primos.collectAsState()
+    var textoN by rememberSaveable { mutableStateOf("500000") }
+    var nCalculado by rememberSaveable { mutableIntStateOf(0) }
     // Prueba de vida: si deja de sumar, la pantalla está congelada
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
@@ -87,7 +97,56 @@ fun PantallaTareas(vm: TareasViewModel) {
                 )
             }
 
-            // TODO Paso 5: tarjeta Contar números primos
+            // ----- Contar números primos (paso 5)
+            Tarjeta(titulo = "Contar números primos") {
+                OutlinedTextField(
+                    value = textoN,
+                    // ignora lo que no sean dígitos
+                    onValueChange = { nuevo -> if (nuevo.all { it.isDigit() }) textoN = nuevo },
+                    label = { Text("Hasta el número") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                val calculando = primos is PrimosUi.Calculando
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = {
+                            val n = textoN.toIntOrNull()
+                            if (n != null && n >= 2) { // ignora menores que 2
+                                nCalculado = n
+                                vm.contar(n)
+                            }
+                        },
+                        enabled = !calculando
+                    ) { Text("Contar") }
+                    OutlinedButton(
+                        onClick = { vm.cancelarPrimos() },
+                        enabled = calculando
+                    ) { Text("Cancelar") }
+                }
+                when (val p = primos) {
+                    PrimosUi.Inicial -> Unit
+                    PrimosUi.Calculando -> Text(
+                        "Calculando...",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    PrimosUi.Cancelado -> Text(
+                        "Cancelado",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    is PrimosUi.Listo -> Recuadro(
+                        fondo = VerdeFondo,
+                        texto = VerdeTexto,
+                        lineas = listOf(
+                            "Primos hasta $nCalculado: ${p.cantidad}",
+                            "Tiempo: ${p.milisegundos} ms"
+                        )
+                    )
+                }
+            }
 
             // TODO Paso 6 y 7: tarjeta Dos cargas
         }
