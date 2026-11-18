@@ -15,7 +15,10 @@ import com.reyes.minecraft.data.repository.ItemRepositoryImpl
 import com.reyes.minecraft.notificacion.AndroidNotificador
 import com.reyes.minecraft.notificacion.Notificador
 
-/** Crea las dependencias una sola vez. Los ViewModels reciben solo interfaces. */
+/**
+ * Crea las dependencias una sola vez. Los ViewModels reciben solo interfaces.
+ * Aquí se conecta Retrofit (RetrofitClient.api) con el repositorio de ítems.
+ */
 class AppContainer(context: Context) {
     private val baseDatos = AppDatabase.crear(context)
 

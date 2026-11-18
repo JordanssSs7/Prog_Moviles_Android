@@ -7,6 +7,9 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
+/**
+ * Aquí se crea Retrofit (dirección base, cliente de red y conversor de JSON) y se obtiene el ApiService.
+ */
 object RetrofitClient {
     private const val BASE_URL = "https://raw.githubusercontent.com/"
 

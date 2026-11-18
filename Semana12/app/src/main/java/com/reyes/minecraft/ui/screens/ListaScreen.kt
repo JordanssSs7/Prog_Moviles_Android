@@ -48,6 +48,9 @@ import com.reyes.minecraft.ui.components.PantallaVacia
 import com.reyes.minecraft.ui.components.TarjetaItem
 import com.reyes.minecraft.ui.viewmodel.ListaViewModel
 
+/**
+ * Pantalla del catálogo (ruta "lista"). La lista sale de Room; Actualizar llama a la API.
+ */
 @Composable
 fun ListaScreen(
     usuario: Usuario,

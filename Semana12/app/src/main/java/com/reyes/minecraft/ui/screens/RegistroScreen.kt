@@ -51,7 +51,10 @@ import com.reyes.minecraft.ui.theme.VerdeProfundo
 import com.reyes.minecraft.ui.theme.VerdeSalvia
 import com.reyes.minecraft.ui.viewmodel.SesionViewModel
 
-/** Registro: nombre de jugador, correo y contraseña. Al terminar va al login. */
+/**
+ * Registro: nombre de jugador, correo y contraseña. Al terminar va al login.
+ * Se abre desde AuthFlow; la cuenta se crea con Firebase.
+ */
 @Composable
 fun RegistroScreen(vm: SesionViewModel, onIrALogin: () -> Unit, onVolver: () -> Unit) {
     val registrando by vm.registrando.collectAsStateWithLifecycle()

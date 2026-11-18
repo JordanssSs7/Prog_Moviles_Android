@@ -54,6 +54,9 @@ import com.reyes.minecraft.ui.viewmodel.PerfilViewModel
 import com.reyes.minecraft.ui.viewmodel.QuizViewModel
 import com.reyes.minecraft.ui.viewmodel.SesionViewModel
 
+/**
+ * Rutas de la app: cada una abre una pantalla de ui/screens (el NavHost las enlaza en Principal).
+ */
 private object Rutas {
     const val LISTA = "lista"
     const val FAVORITOS = "favoritos"

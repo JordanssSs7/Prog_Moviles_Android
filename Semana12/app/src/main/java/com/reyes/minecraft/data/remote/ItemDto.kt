@@ -3,6 +3,7 @@ package com.reyes.minecraft.data.remote
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// DTOs: clases que copian la forma del JSON que llega de la API (lista, receta y wiki).
 /** Endpoint 1 (lista): un elemento de items.json. */
 @Serializable
 data class ItemDto(

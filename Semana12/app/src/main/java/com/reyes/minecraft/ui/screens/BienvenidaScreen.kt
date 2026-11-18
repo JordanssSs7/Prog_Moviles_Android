@@ -26,7 +26,10 @@ import com.reyes.minecraft.ui.theme.VerdeMedio
 import com.reyes.minecraft.ui.theme.VerdeOscuro
 import com.reyes.minecraft.ui.theme.VerdeProfundo
 
-/** Inicio: bienvenida arriba, Steve grande al centro y los dos botones abajo, uno al lado del otro. */
+/**
+ * Inicio: bienvenida arriba, Steve grande al centro y los dos botones abajo, uno al lado del otro.
+ * Se abre desde AuthFlow.
+ */
 @Composable
 fun BienvenidaScreen(onIniciarSesion: () -> Unit, onRegistrarse: () -> Unit) {
     Column(

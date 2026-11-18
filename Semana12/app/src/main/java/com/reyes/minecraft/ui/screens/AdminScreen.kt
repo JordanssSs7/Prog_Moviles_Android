@@ -55,6 +55,9 @@ import com.reyes.minecraft.ui.theme.VerdeSalvia
 import com.reyes.minecraft.ui.viewmodel.AdminViewModel
 import com.reyes.minecraft.ui.viewmodel.ItemPopularUi
 
+/**
+ * Panel Admin (ruta "admin", solo rol admin): contadores, sincronizar, limpiar caché, usuarios y ranking.
+ */
 @Composable
 fun AdminScreen(vm: AdminViewModel) {
     val totales by vm.totales.collectAsStateWithLifecycle()

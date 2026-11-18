@@ -36,6 +36,9 @@ import com.reyes.minecraft.ui.components.PantallaError
 import com.reyes.minecraft.ui.components.TipoBoton
 import com.reyes.minecraft.ui.viewmodel.QuizViewModel
 
+/**
+ * Pantalla del quiz (ruta "quiz"): adivinar cuántos caben en una pila.
+ */
 @Composable
 fun QuizScreen(vm: QuizViewModel) {
     val estado by vm.estado.collectAsStateWithLifecycle()

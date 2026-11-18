@@ -17,6 +17,10 @@ import kotlinx.serialization.SerializationException
 import retrofit2.HttpException
 import java.io.IOException
 
+/**
+ * Aquí se hacen las llamadas a la API (con Retrofit) y se guardan en Room.
+ * La pantalla lee siempre de Room.
+ */
 class ItemRepositoryImpl(
     private val api: ApiService,
     private val dao: ItemDao,

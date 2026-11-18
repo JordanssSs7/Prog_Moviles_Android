@@ -19,6 +19,9 @@ import com.reyes.minecraft.ui.components.PantallaVacia
 import com.reyes.minecraft.ui.components.TarjetaItem
 import com.reyes.minecraft.ui.viewmodel.FavoritosViewModel
 
+/**
+ * Pantalla de favoritos (ruta "favoritos"): los ítems marcados, leídos de Room.
+ */
 @Composable
 fun FavoritosScreen(
     vm: FavoritosViewModel,

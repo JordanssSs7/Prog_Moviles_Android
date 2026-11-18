@@ -49,6 +49,9 @@ import com.reyes.minecraft.ui.components.PantallaCargando
 import com.reyes.minecraft.ui.components.PantallaError
 import com.reyes.minecraft.ui.viewmodel.DetalleViewModel
 
+/**
+ * Pantalla de detalle (ruta "detalle/{id}"). La descripción y la receta vienen de la API.
+ */
 @Composable
 fun DetalleScreen(vm: DetalleViewModel, onItemClick: (Int) -> Unit, onAtras: () -> Unit) {
     val estado by vm.uiState.collectAsStateWithLifecycle()

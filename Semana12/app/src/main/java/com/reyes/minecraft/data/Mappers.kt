@@ -6,9 +6,13 @@ import com.reyes.minecraft.data.remote.RecetaDto
 import com.reyes.minecraft.model.Item
 import com.reyes.minecraft.model.Receta
 
+// Mappers: convierten un mismo ítem entre sus 3 formas: ItemDto (red) -> ItemEntity (Room) -> Item (pantalla).
+// Los usa ItemRepositoryImpl.
+
 /** Texto que se guarda cuando un ítem no tiene receta (así no se vuelve a pedir a la red). */
 const val SIN_RECETA = "0|"
-
+/** Se usan tres clases separadas para que cada capa sea independiente.
+ * Si cambia el JSON de la API, solo cambia el DTO y el mapper, no las pantallas.*/
 /**
  * DTO (red) -> Entity (Room). Un ítem recién descargado nunca es favorito.
  * [idioma] es el archivo es_es.json del juego: el nombre sale de "item.minecraft.x" o "block.minecraft.x".

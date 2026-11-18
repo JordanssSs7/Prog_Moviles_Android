@@ -58,7 +58,10 @@ import com.reyes.minecraft.ui.theme.VerdeOscuro
 import com.reyes.minecraft.ui.theme.VerdeProfundo
 import com.reyes.minecraft.ui.theme.VerdeSalvia
 
-/** Perfil: banner de pasto en píxeles, el jugador de cuerpo entero, sus datos y estadísticas. */
+/**
+ * Perfil: banner de pasto en píxeles, el jugador de cuerpo entero, sus datos y estadísticas.
+ * Ruta "perfil".
+ */
 @Composable
 fun PerfilScreen(usuario: Usuario, totales: Totales, onCerrarSesion: () -> Unit) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {

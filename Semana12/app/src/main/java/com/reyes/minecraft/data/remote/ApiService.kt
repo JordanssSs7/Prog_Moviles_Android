@@ -4,6 +4,10 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Url
 
+/**
+ * Aquí están los endpoints (los pedidos a la API). Retrofit genera las llamadas;
+ * solo las usa ItemRepositoryImpl.
+ */
 interface ApiService {
 
     /** Endpoint 1: lista completa de ítems (PrismarineJS/minecraft-data). */

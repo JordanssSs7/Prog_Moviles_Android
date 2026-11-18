@@ -51,7 +51,10 @@ import com.reyes.minecraft.ui.theme.VerdeProfundo
 import com.reyes.minecraft.ui.theme.VerdeSalvia
 import com.reyes.minecraft.ui.viewmodel.SesionViewModel
 
-/** [cuentaCreada] llega cuando la persona acaba de registrarse: se muestra un aviso y se rellena el correo. */
+/**
+ * [cuentaCreada] llega cuando la persona acaba de registrarse: se muestra un aviso y se rellena el correo.
+ * Pantalla de login; se abre desde AuthFlow.
+ */
 @Composable
 fun LoginScreen(
     vm: SesionViewModel,
