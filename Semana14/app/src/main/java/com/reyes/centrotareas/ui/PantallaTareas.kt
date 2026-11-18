@@ -30,6 +30,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.CircularProgressIndicator
+import com.reyes.centrotareas.model.CargaUi
 import com.reyes.centrotareas.model.PrimosUi
 import com.reyes.centrotareas.ui.theme.VerdeFondo
 import com.reyes.centrotareas.ui.theme.VerdeTexto
@@ -42,6 +44,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     val progreso by vm.progreso.collectAsState()
     val corriendo by vm.corriendo.collectAsState()
     val primos by vm.primos.collectAsState()
+    val carga by vm.carga.collectAsState()
     var textoN by rememberSaveable { mutableStateOf("500000") }
     var nCalculado by rememberSaveable { mutableIntStateOf(0) }
     // Prueba de vida: si deja de sumar, la pantalla está congelada
@@ -148,7 +151,36 @@ fun PantallaTareas(vm: TareasViewModel) {
                 }
             }
 
-            // TODO Paso 6 y 7: tarjeta Dos cargas
+            // ----- Dos cargas (pasos 6 y 7)
+            Tarjeta(titulo = "Dos cargas") {
+                // TODO Paso 7: interruptor Simular error
+                val cargando = carga is CargaUi.Cargando
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        onClick = { vm.cargarUnaPorUna() },
+                        enabled = !cargando
+                    ) { Text("Una por una") }
+                    Button(
+                        onClick = { vm.cargarALaVez() },
+                        enabled = !cargando
+                    ) { Text("A la vez") }
+                }
+                when (val c = carga) {
+                    CargaUi.Inicial -> Unit
+                    CargaUi.Cargando -> CircularProgressIndicator()
+                    is CargaUi.Exito -> Recuadro(
+                        fondo = VerdeFondo,
+                        texto = VerdeTexto,
+                        lineas = listOf(
+                            "Modo: ${c.modo}",
+                            "Perfil: ${c.perfil}",
+                            "Pedidos: ${c.pedidos}",
+                            "Tiempo: ${c.milisegundos} ms"
+                        )
+                    )
+                    is CargaUi.Error -> Unit // TODO Paso 7
+                }
+            }
         }
     }
 }
