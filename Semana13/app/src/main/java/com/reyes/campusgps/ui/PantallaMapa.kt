@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,9 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -25,13 +28,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reyes.campusgps.model.UbicacionUi
+import com.reyes.campusgps.util.formatearDistancia
 import com.reyes.campusgps.viewmodel.MapaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +47,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsStateWithLifecycle()
     val lugares by vm.lugares.collectAsStateWithLifecycle()
     val seleccionado by vm.seleccionado.collectAsStateWithLifecycle()
+    val masCercano by vm.masCercano.collectAsStateWithLifecycle()
 
     // Paso 2: permiso en tiempo de ejecución
     val contexto = LocalContext.current
@@ -108,6 +116,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 estado = estado,
                 lugares = lugares,
                 seleccionado = seleccionado,
+                masCercano = masCercano,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -122,21 +131,50 @@ fun PantallaMapa(vm: MapaViewModel) {
             ) {
                 botonBuscar()
 
-                when (val e = estado) {
-                    UbicacionUi.Inicial ->
-                        Text("Pulsa el botón para empezar", fontSize = 15.sp)
-                    is UbicacionUi.Error -> Text(
-                        e.mensaje,
+                // Paso 7: ir al más cercano
+                val hayCercano = masCercano != null
+                val azul = MaterialTheme.colorScheme.primary
+                OutlinedButton(
+                    onClick = { masCercano?.let { vm.seleccionar(it.id) } },
+                    enabled = hayCercano,
+                    border = BorderStroke(2.dp, if (hayCercano) azul else azul.copy(alpha = 0.35f)),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = azul,
+                        disabledContentColor = azul.copy(alpha = 0.4f)
+                    ),
+                    contentPadding = PaddingValues(horizontal = 40.dp, vertical = 12.dp)
+                ) {
+                    Text("Ir al más cercano", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                }
+
+                val cercano = masCercano
+                val metros = lugares.firstOrNull { it.lugar.id == cercano?.id }?.metros
+                if (cercano != null && metros != null) {
+                    Text(
+                        buildAnnotatedString {
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("Más cercano: ")
+                            }
+                            append("${cercano.nombre} (${formatearDistancia(metros)})")
+                        },
+                        fontSize = 17.sp
+                    )
+                } else if (estado is UbicacionUi.Inicial) {
+                    // Antes de buscar: la pista va debajo de los botones
+                    Text("Pulsa el botón para empezar", fontSize = 15.sp)
+                } else if (estado is UbicacionUi.Error) {
+                    Text(
+                        (estado as UbicacionUi.Error).mensaje,
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center
                     )
-                    else -> Unit
                 }
 
                 // Paso 6: lista con altura fija
                 ListaLugares(
                     lugares = lugares,
                     seleccionado = seleccionado,
+                    masCercanoId = masCercano?.id,
                     onClick = { vm.seleccionar(it) },
                     modifier = Modifier
                         .fillMaxWidth()

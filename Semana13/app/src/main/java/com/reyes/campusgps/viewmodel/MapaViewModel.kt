@@ -4,13 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reyes.campusgps.data.LugaresRepository
 import com.reyes.campusgps.data.UbicacionRepository
+import com.reyes.campusgps.model.Lugar
 import com.reyes.campusgps.model.LugarConDistancia
 import com.reyes.campusgps.model.Posicion
 import com.reyes.campusgps.model.UbicacionUi
 import com.reyes.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class MapaViewModel(
@@ -28,6 +32,11 @@ class MapaViewModel(
 
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
+
+    // Paso 7: el primero de la lista ordenada que ya tiene distancia
+    val masCercano: StateFlow<Lugar?> = lugares
+        .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     fun buscar() {
         _estado.value = UbicacionUi.Buscando
@@ -49,7 +58,6 @@ class MapaViewModel(
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
     }
-    // TODO Paso 7: val masCercano: StateFlow<Lugar?>
 
     // Paso 5: calcula la distancia a cada lugar y ordena de menor a mayor
     private fun actualizarDistancias(pos: Posicion) {

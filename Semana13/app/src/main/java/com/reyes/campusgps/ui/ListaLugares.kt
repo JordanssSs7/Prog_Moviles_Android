@@ -30,6 +30,7 @@ import com.reyes.campusgps.model.LugarConDistancia
 import com.reyes.campusgps.ui.theme.AzulMarcador
 import com.reyes.campusgps.ui.theme.TarjetaFondo
 import com.reyes.campusgps.ui.theme.TarjetaSeleccionada
+import com.reyes.campusgps.ui.theme.VerdeCercano
 import com.reyes.campusgps.util.formatearDistancia
 
 // No conoce el ViewModel: recibe la lista, el seleccionado y qué hacer al tocar
@@ -37,6 +38,7 @@ import com.reyes.campusgps.util.formatearDistancia
 fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
+    masCercanoId: Int?,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -48,6 +50,7 @@ fun ListaLugares(
             TarjetaLugar(
                 item = item,
                 seleccionada = item.lugar.id == seleccionado,
+                esMasCercano = item.lugar.id == masCercanoId,
                 onClick = { onClick(item.lugar.id) }
             )
         }
@@ -58,6 +61,7 @@ fun ListaLugares(
 private fun TarjetaLugar(
     item: LugarConDistancia,
     seleccionada: Boolean,
+    esMasCercano: Boolean,
     onClick: () -> Unit
 ) {
     Card(
@@ -76,7 +80,7 @@ private fun TarjetaLugar(
             Box(
                 Modifier
                     .size(8.dp)
-                    .background(AzulMarcador, CircleShape)
+                    .background(if (esMasCercano) VerdeCercano else AzulMarcador, CircleShape)
             )
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
