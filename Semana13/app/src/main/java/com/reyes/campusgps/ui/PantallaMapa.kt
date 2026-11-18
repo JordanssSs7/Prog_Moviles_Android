@@ -1,0 +1,88 @@
+package com.reyes.campusgps.ui
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.reyes.campusgps.model.UbicacionUi
+import com.reyes.campusgps.viewmodel.MapaViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PantallaMapa(vm: MapaViewModel) {
+    val estado by vm.estado.collectAsStateWithLifecycle()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("CampusGPS", fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { padding ->
+        val botonBuscar = @Composable {
+            Button(
+                onClick = { vm.buscar() },
+                enabled = estado !is UbicacionUi.Buscando,
+                contentPadding = PaddingValues(horizontal = 40.dp, vertical = 12.dp)
+            ) {
+                if (estado is UbicacionUi.Buscando) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(26.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text("Obtener mi ubicación", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            botonBuscar()
+
+            when (val e = estado) {
+                UbicacionUi.Inicial ->
+                    Text("Pulsa el botón para empezar", fontSize = 15.sp)
+                UbicacionUi.Buscando -> Unit
+                is UbicacionUi.Lista -> {
+                    Text("Latitud: ${e.posicion.latitud}", fontSize = 16.sp)
+                    Text("Longitud: ${e.posicion.longitud}", fontSize = 16.sp)
+                }
+                is UbicacionUi.Error -> Text(
+                    e.mensaje,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
