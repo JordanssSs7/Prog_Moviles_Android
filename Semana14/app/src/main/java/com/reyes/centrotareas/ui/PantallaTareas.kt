@@ -3,11 +3,13 @@ package com.reyes.centrotareas.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -28,6 +30,7 @@ import com.reyes.centrotareas.viewmodel.TareasViewModel
 @Composable
 fun PantallaTareas(vm: TareasViewModel) {
     val mensaje by vm.mensaje.collectAsState()
+    val progreso by vm.progreso.collectAsState()
     // Prueba de vida: si deja de sumar, la pantalla está congelada
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
@@ -51,11 +54,19 @@ fun PantallaTareas(vm: TareasViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // ----- Tarea con progreso (pasos 1 a 4)
-            Tarjeta {
+            Tarjeta(titulo = "Tarea con progreso") {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Button(onClick = { vm.tareaLarga() }) { Text("Tarea larga") }
-                // TODO Paso 3: barra de progreso y porcentaje
-                // TODO Paso 4: botones Iniciar y Cancelar
+                // TODO Paso 4: botón Cancelar
+                Button(onClick = { vm.tareaLarga() }) { Text("Iniciar") }
+                LinearProgressIndicator(
+                    progress = { progreso },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = "${(progreso * 100).toInt()} %",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
                 Text(
                     text = mensaje,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
