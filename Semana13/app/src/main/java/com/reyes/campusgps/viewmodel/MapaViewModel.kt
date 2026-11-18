@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -35,8 +36,19 @@ class MapaViewModel(
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
 
-    // Paso 7: el primero de la lista ordenada que ya tiene distancia
-    val masCercano: StateFlow<Lugar?> = lugares
+    // Mejora 1: filtrar por categoría (null = Todos)
+    val categorias: List<String> = lugaresRepo.obtenerLugares().map { it.categoria }.distinct()
+
+    private val _categoria = MutableStateFlow<String?>(null)
+    val categoria: StateFlow<String?> = _categoria.asStateFlow()
+
+    // Lo que se dibuja en el mapa y en la lista: los lugares de la categoría elegida
+    val lugaresVisibles: StateFlow<List<LugarConDistancia>> = combine(_lugares, _categoria) { lista, cat ->
+        if (cat == null) lista else lista.filter { it.lugar.categoria == cat }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _lugares.value)
+
+    // Paso 7: el más cercano entre los lugares visibles (respeta el filtro)
+    val masCercano: StateFlow<Lugar?> = lugaresVisibles
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
@@ -69,6 +81,14 @@ class MapaViewModel(
     // Paso 6
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+    }
+
+    // Mejora 1: si el lugar seleccionado queda oculto por el filtro, se deselecciona
+    fun filtrar(categoria: String?) {
+        _categoria.value = categoria
+        val sigueVisible = categoria == null ||
+            _lugares.value.any { it.lugar.id == _seleccionado.value && it.lugar.categoria == categoria }
+        if (!sigueVisible) _seleccionado.value = null
     }
 
     // Paso 5: calcula la distancia a cada lugar y ordena de menor a mayor

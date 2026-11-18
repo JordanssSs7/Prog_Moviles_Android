@@ -44,9 +44,11 @@ import com.reyes.campusgps.viewmodel.MapaViewModel
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsStateWithLifecycle()
-    val lugares by vm.lugares.collectAsStateWithLifecycle()
+    // Mejora 1: el mapa y la lista muestran solo los lugares de la categoría elegida
+    val lugares by vm.lugaresVisibles.collectAsStateWithLifecycle()
     val seleccionado by vm.seleccionado.collectAsStateWithLifecycle()
     val masCercano by vm.masCercano.collectAsStateWithLifecycle()
+    val categoria by vm.categoria.collectAsStateWithLifecycle()
 
     // Paso 2: permiso en tiempo de ejecución
     val contexto = LocalContext.current
@@ -143,6 +145,14 @@ fun PantallaMapa(vm: MapaViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // Mejora 1: chips de categoría
+                    FiltroCategorias(
+                        categorias = vm.categorias,
+                        seleccionada = categoria,
+                        onElegir = { vm.filtrar(it) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
                     botonBuscar()
 
                     // Paso 7: ir al más cercano
