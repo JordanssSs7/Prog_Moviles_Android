@@ -53,7 +53,7 @@ fun PantallaTareas(vm: TareasViewModel) {
             // ----- Tarea con progreso (pasos 1 a 4)
             Tarjeta {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                // TODO Paso 1: botón Tarea larga (MAL)
+                Button(onClick = { vm.tareaLargaMala() }) { Text("Tarea larga (MAL)") }
                 // TODO Paso 3: barra de progreso y porcentaje
                 // TODO Paso 4: botones Iniciar y Cancelar
                 Text(
