@@ -47,6 +47,18 @@ class MapaViewModel(
         if (cat == null) lista else lista.filter { it.lugar.categoria == cat }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _lugares.value)
 
+    // Mejora 2: radio de cercanía en metros (null = sin radio)
+    val radios: List<Int> = listOf(100, 200, 500)
+
+    private val _radio = MutableStateFlow<Int?>(null)
+    val radio: StateFlow<Int?> = _radio.asStateFlow()
+
+    // Ids de los lugares que quedan dentro del radio (se calcula aquí, no en el Composable)
+    val dentroDelRadio: StateFlow<Set<Int>> = combine(_lugares, _radio) { lista, r ->
+        if (r == null) emptySet()
+        else lista.filter { it.metros != null && it.metros <= r }.map { it.lugar.id }.toSet()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
     // Paso 7: el más cercano entre los lugares visibles (respeta el filtro)
     val masCercano: StateFlow<Lugar?> = lugaresVisibles
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
@@ -89,6 +101,11 @@ class MapaViewModel(
         val sigueVisible = categoria == null ||
             _lugares.value.any { it.lugar.id == _seleccionado.value && it.lugar.categoria == categoria }
         if (!sigueVisible) _seleccionado.value = null
+    }
+
+    // Mejora 2: tocar el mismo radio otra vez lo quita
+    fun cambiarRadio(metros: Int) {
+        _radio.value = if (_radio.value == metros) null else metros
     }
 
     // Paso 5: calcula la distancia a cada lugar y ordena de menor a mayor

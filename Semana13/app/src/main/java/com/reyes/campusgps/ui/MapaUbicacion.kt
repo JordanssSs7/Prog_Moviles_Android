@@ -4,10 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -23,6 +25,7 @@ fun MapaUbicacion(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercano: Lugar?,
+    radio: Int?,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -44,10 +47,23 @@ fun MapaUbicacion(
     }
 
     GoogleMap(modifier = modifier, cameraPositionState = camara) {
-        // Paso 3: tu posición, marcador rojo por defecto
         if (estado is UbicacionUi.Lista) {
             val p = estado.posicion
-            val miMarcador = rememberUpdatedMarkerState(position = LatLng(p.latitud, p.longitud))
+            val centro = LatLng(p.latitud, p.longitud)
+
+            // Mejora 2: círculo del radio de cercanía alrededor de tu posición
+            if (radio != null) {
+                Circle(
+                    center = centro,
+                    radius = radio.toDouble(),
+                    fillColor = Color(0x332B7BC0),
+                    strokeColor = Color(0xFF2B7BC0),
+                    strokeWidth = 4f
+                )
+            }
+
+            // Paso 3: tu posición, marcador rojo por defecto
+            val miMarcador = rememberUpdatedMarkerState(position = centro)
             LaunchedEffect(p) { miMarcador.showInfoWindow() }
             Marker(
                 state = miMarcador,

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -31,6 +32,26 @@ fun FiltroCategorias(
         Chip(texto = "Todos", activo = seleccionada == null) { onElegir(null) }
         categorias.forEach { c ->
             Chip(texto = c, activo = seleccionada == c) { onElegir(c) }
+        }
+    }
+}
+
+// Mejora 2: selector de radio (100, 200 o 500 m)
+@Composable
+fun SelectorRadio(
+    radios: List<Int>,
+    seleccionado: Int?,
+    onElegir: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Radio:", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+        radios.forEach { r ->
+            Chip(texto = "$r m", activo = seleccionado == r) { onElegir(r) }
         }
     }
 }

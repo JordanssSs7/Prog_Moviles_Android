@@ -49,6 +49,9 @@ fun PantallaMapa(vm: MapaViewModel) {
     val seleccionado by vm.seleccionado.collectAsStateWithLifecycle()
     val masCercano by vm.masCercano.collectAsStateWithLifecycle()
     val categoria by vm.categoria.collectAsStateWithLifecycle()
+    // Mejora 2: radio de cercanía
+    val radio by vm.radio.collectAsStateWithLifecycle()
+    val dentroDelRadio by vm.dentroDelRadio.collectAsStateWithLifecycle()
 
     // Paso 2: permiso en tiempo de ejecución
     val contexto = LocalContext.current
@@ -133,6 +136,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     lugares = lugares,
                     seleccionado = seleccionado,
                     masCercano = masCercano,
+                    radio = radio,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
@@ -150,6 +154,13 @@ fun PantallaMapa(vm: MapaViewModel) {
                         categorias = vm.categorias,
                         seleccionada = categoria,
                         onElegir = { vm.filtrar(it) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    // Mejora 2: selector de radio
+                    SelectorRadio(
+                        radios = vm.radios,
+                        seleccionado = radio,
+                        onElegir = { vm.cambiarRadio(it) },
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -196,7 +207,8 @@ fun PantallaMapa(vm: MapaViewModel) {
                         onClick = { vm.seleccionar(it) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(220.dp)
+                            .height(220.dp),
+                        dentroDelRadio = dentroDelRadio
                     )
                 }
             }

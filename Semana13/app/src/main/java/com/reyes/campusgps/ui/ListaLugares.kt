@@ -40,7 +40,8 @@ fun ListaLugares(
     seleccionado: Int?,
     masCercanoId: Int?,
     onClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dentroDelRadio: Set<Int> = emptySet()
 ) {
     LazyColumn(
         modifier = modifier,
@@ -51,6 +52,7 @@ fun ListaLugares(
                 item = item,
                 seleccionada = item.lugar.id == seleccionado,
                 esMasCercano = item.lugar.id == masCercanoId,
+                dentroRadio = item.lugar.id in dentroDelRadio,
                 onClick = { onClick(item.lugar.id) }
             )
         }
@@ -62,6 +64,7 @@ private fun TarjetaLugar(
     item: LugarConDistancia,
     seleccionada: Boolean,
     esMasCercano: Boolean,
+    dentroRadio: Boolean,
     onClick: () -> Unit
 ) {
     Card(
@@ -90,12 +93,24 @@ private fun TarjetaLugar(
                     fontSize = 15.sp,
                     lineHeight = 18.sp
                 )
-                Text(
-                    item.lugar.categoria,
-                    color = Color.Gray,
-                    fontSize = 13.sp,
-                    lineHeight = 16.sp
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        item.lugar.categoria,
+                        color = Color.Gray,
+                        fontSize = 13.sp,
+                        lineHeight = 16.sp
+                    )
+                    // Mejora 2: el ViewModel ya calculó si está dentro del radio
+                    if (dentroRadio) {
+                        Text(
+                            "  · Dentro del radio",
+                            color = VerdeCercano,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp
+                        )
+                    }
+                }
             }
             Text(
                 text = item.metros?.let { formatearDistancia(it) } ?: "Sin calcular",
