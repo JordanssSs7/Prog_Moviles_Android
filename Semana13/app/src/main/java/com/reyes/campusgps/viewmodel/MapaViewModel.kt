@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.reyes.campusgps.data.LugaresRepository
 import com.reyes.campusgps.data.UbicacionRepository
 import com.reyes.campusgps.model.LugarConDistancia
+import com.reyes.campusgps.model.Posicion
 import com.reyes.campusgps.model.UbicacionUi
+import com.reyes.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +35,7 @@ class MapaViewModel(
             ubicacionRepo.obtenerPosicion()
                 .onSuccess {
                     _estado.value = UbicacionUi.Lista(it)
-                    // TODO Paso 5: actualizarDistancias(it)
+                    actualizarDistancias(it)
                 }
                 .onFailure { _estado.value = UbicacionUi.Error(mensajeDe(it)) }
         }
@@ -45,6 +47,13 @@ class MapaViewModel(
 
     // TODO Paso 6: fun seleccionar(id: Int?)
     // TODO Paso 7: val masCercano: StateFlow<Lugar?>
+
+    // Paso 5: calcula la distancia a cada lugar y ordena de menor a mayor
+    private fun actualizarDistancias(pos: Posicion) {
+        _lugares.value = lugaresRepo.obtenerLugares()
+            .map { LugarConDistancia(it, distanciaMetros(pos, it)) }
+            .sortedBy { it.metros }
+    }
 
     private fun mensajeDe(e: Throwable): String = when (e) {
         is SecurityException -> "Falta el permiso de ubicación"
