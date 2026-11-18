@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -36,6 +37,8 @@ import com.reyes.campusgps.viewmodel.MapaViewModel
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsStateWithLifecycle()
+    val lugares by vm.lugares.collectAsStateWithLifecycle()
+    val seleccionado by vm.seleccionado.collectAsStateWithLifecycle()
 
     // Paso 2: permiso en tiempo de ejecución
     val contexto = LocalContext.current
@@ -96,26 +99,42 @@ fun PantallaMapa(vm: MapaViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(padding),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            botonBuscar()
+            // Paso 3: el mapa ocupa el espacio libre
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
 
-            when (val e = estado) {
-                UbicacionUi.Inicial ->
-                    Text("Pulsa el botón para empezar", fontSize = 15.sp)
-                UbicacionUi.Buscando -> Unit
-                is UbicacionUi.Lista -> {
-                    Text("Latitud: ${e.posicion.latitud}", fontSize = 16.sp)
-                    Text("Longitud: ${e.posicion.longitud}", fontSize = 16.sp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                botonBuscar()
+
+                when (val e = estado) {
+                    UbicacionUi.Inicial ->
+                        Text("Pulsa el botón para empezar", fontSize = 15.sp)
+                    UbicacionUi.Buscando -> Unit
+                    is UbicacionUi.Lista -> {
+                        Text("Latitud: ${e.posicion.latitud}", fontSize = 16.sp)
+                        Text("Longitud: ${e.posicion.longitud}", fontSize = 16.sp)
+                    }
+                    is UbicacionUi.Error -> Text(
+                        e.mensaje,
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
                 }
-                is UbicacionUi.Error -> Text(
-                    e.mensaje,
-                    color = MaterialTheme.colorScheme.error,
-                    textAlign = TextAlign.Center
-                )
             }
         }
     }
