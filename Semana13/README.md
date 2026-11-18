@@ -39,6 +39,7 @@ com.reyes.campusgps/
     ├── MapaUbicacion.kt
     ├── ListaLugares.kt
     ├── MensajeError.kt
+    ├── Filtros.kt                    chips de categoría y selector de radio (Fase 2)
     └── theme/
 ```
 
@@ -85,6 +86,28 @@ Para probar en el emulador: tres puntos (Extended controls) > Location > `-12.04
 | Lista ordenada | Error |
 |---|---|
 | ![Lista](capturas/04-lista.png) | ![Error](capturas/05-error.png) |
+
+## Fase 2: mejoras con IA (rama `campusgps-ia`)
+
+La rama `main` tiene la Fase 1 (sin IA). En la rama `campusgps-ia` agregué 3 mejoras respetando MVVM + Repository: el ViewModel sigue sin recibir un Context y los Composables solo dibujan lo que reciben.
+
+| Mejora | Qué hace | Capas que cambian |
+|---|---|---|
+| **1. Filtrar por categoría** | Chips *Todos, Estudio, Comida, Eventos y Servicios* que muestran solo esos lugares en el mapa y en la lista. El "más cercano" se calcula entre los lugares visibles. | ViewModel + View |
+| **2. Radio de cercanía** | Selector de 100, 200 o 500 m que dibuja un círculo alrededor de mi posición. La lista marca **"Dentro del radio"** los lugares que quedan dentro. | ViewModel + View |
+| **3. Punto azul nativo** | Activa el punto azul de Google (`isMyLocationEnabled`) y el botón de mi ubicación del mapa, solo si el permiso fue concedido. | View |
+
+**Cómo está hecho:**
+
+- **Filtro:** `MapaViewModel` expone `categorias`, `categoria` y `lugaresVisibles` (con `combine`). `filtrar()` cambia la categoría y quita la selección si el lugar elegido queda oculto.
+- **Radio:** `MapaViewModel` expone `radios`, `radio` y `dentroDelRadio`, que calcula en el ViewModel qué lugares están a `metros <= radio`. `cambiarRadio()` lo activa o lo quita. `MapaUbicacion` dibuja un `Circle` y `ListaLugares` recibe los ids que están dentro.
+- **Punto azul:** `PantallaMapa` guarda si el permiso está concedido y se lo pasa a `MapaUbicacion`, que activa `MapProperties(isMyLocationEnabled)` y `MapUiSettings(myLocationButtonEnabled)`. Sin permiso no se activa, porque la app se cerraría con `SecurityException`.
+
+| Filtro por categoría | Radio de 200 m | Punto azul nativo |
+|---|---|---|
+| ![Filtro](capturas/06-filtro.png) | ![Radio](capturas/07-radio.png) | ![Punto azul](capturas/08-punto-azul.png) |
+
+Los prompts que usé y el análisis de qué acepté o cambié están en [PROMPTS.md](PROMPTS.md).
 
 ## Para pensar
 
