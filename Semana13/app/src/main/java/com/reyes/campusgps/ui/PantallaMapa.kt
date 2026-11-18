@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -124,17 +125,23 @@ fun PantallaMapa(vm: MapaViewModel) {
                 when (val e = estado) {
                     UbicacionUi.Inicial ->
                         Text("Pulsa el botón para empezar", fontSize = 15.sp)
-                    UbicacionUi.Buscando -> Unit
-                    is UbicacionUi.Lista -> {
-                        Text("Latitud: ${e.posicion.latitud}", fontSize = 16.sp)
-                        Text("Longitud: ${e.posicion.longitud}", fontSize = 16.sp)
-                    }
                     is UbicacionUi.Error -> Text(
                         e.mensaje,
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center
                     )
+                    else -> Unit
                 }
+
+                // Paso 6: lista con altura fija
+                ListaLugares(
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    onClick = { vm.seleccionar(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp)
+                )
             }
         }
     }
