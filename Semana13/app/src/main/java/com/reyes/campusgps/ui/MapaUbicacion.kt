@@ -3,6 +3,7 @@ package com.reyes.campusgps.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -11,6 +12,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
@@ -26,6 +29,7 @@ fun MapaUbicacion(
     seleccionado: Int?,
     masCercano: Lugar?,
     radio: Int?,
+    puntoAzulNativo: Boolean,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -46,7 +50,17 @@ fun MapaUbicacion(
         camara.animate(CameraUpdateFactory.newLatLngZoom(LatLng(lugar.latitud, lugar.longitud), 17f))
     }
 
-    GoogleMap(modifier = modifier, cameraPositionState = camara) {
+    // Mejora 3: punto azul nativo y botón "mi ubicación", solo si hay permiso
+    // (isMyLocationEnabled sin permiso lanzaría SecurityException)
+    val propiedades = remember(puntoAzulNativo) { MapProperties(isMyLocationEnabled = puntoAzulNativo) }
+    val ajustes = remember(puntoAzulNativo) { MapUiSettings(myLocationButtonEnabled = puntoAzulNativo) }
+
+    GoogleMap(
+        modifier = modifier,
+        cameraPositionState = camara,
+        properties = propiedades,
+        uiSettings = ajustes
+    ) {
         if (estado is UbicacionUi.Lista) {
             val p = estado.posicion
             val centro = LatLng(p.latitud, p.longitud)

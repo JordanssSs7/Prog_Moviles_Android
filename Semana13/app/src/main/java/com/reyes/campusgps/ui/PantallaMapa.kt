@@ -25,6 +25,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -55,21 +58,31 @@ fun PantallaMapa(vm: MapaViewModel) {
 
     // Paso 2: permiso en tiempo de ejecución
     val contexto = LocalContext.current
-    val lanzador = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { resultado ->
-        if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
-    }
 
-    fun alPulsar() {
+    fun tienePermiso(): Boolean {
         val fine = ContextCompat.checkSelfPermission(
             contexto, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
         val coarse = ContextCompat.checkSelfPermission(
             contexto, Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+        return fine || coarse
+    }
 
-        if (fine || coarse) {
+    // Mejora 3: el punto azul nativo solo se activa con el permiso concedido
+    var permisoConcedido by remember { mutableStateOf(tienePermiso()) }
+
+    val lanzador = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { resultado ->
+        permisoConcedido = resultado.values.any { it }
+        if (permisoConcedido) vm.buscar() else vm.permisoDenegado()
+    }
+
+    fun alPulsar() {
+        // Se revisa otra vez por si el permiso cambió desde Ajustes
+        permisoConcedido = tienePermiso()
+        if (permisoConcedido) {
             vm.buscar()
         } else {
             lanzador.launch(
@@ -137,6 +150,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     seleccionado = seleccionado,
                     masCercano = masCercano,
                     radio = radio,
+                    puntoAzulNativo = permisoConcedido,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
