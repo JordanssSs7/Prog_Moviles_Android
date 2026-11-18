@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -105,81 +104,91 @@ fun PantallaMapa(vm: MapaViewModel) {
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Paso 3: el mapa ocupa el espacio libre
-            MapaUbicacion(
-                estado = estado,
-                lugares = lugares,
-                seleccionado = seleccionado,
-                masCercano = masCercano,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            )
-
+        val e = estado
+        if (e is UbicacionUi.Error) {
+            // Paso 8: sin mapa; botón arriba, recuadro de error y la acción
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 botonBuscar()
-
-                // Paso 7: ir al más cercano
-                val hayCercano = masCercano != null
-                val azul = MaterialTheme.colorScheme.primary
-                OutlinedButton(
-                    onClick = { masCercano?.let { vm.seleccionar(it.id) } },
-                    enabled = hayCercano,
-                    border = BorderStroke(2.dp, if (hayCercano) azul else azul.copy(alpha = 0.35f)),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = azul,
-                        disabledContentColor = azul.copy(alpha = 0.4f)
-                    ),
-                    contentPadding = PaddingValues(horizontal = 40.dp, vertical = 12.dp)
-                ) {
-                    Text("Ir al más cercano", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                }
-
-                val cercano = masCercano
-                val metros = lugares.firstOrNull { it.lugar.id == cercano?.id }?.metros
-                if (cercano != null && metros != null) {
-                    Text(
-                        buildAnnotatedString {
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Más cercano: ")
-                            }
-                            append("${cercano.nombre} (${formatearDistancia(metros)})")
-                        },
-                        fontSize = 17.sp
-                    )
-                } else if (estado is UbicacionUi.Inicial) {
-                    // Antes de buscar: la pista va debajo de los botones
-                    Text("Pulsa el botón para empezar", fontSize = 15.sp)
-                } else if (estado is UbicacionUi.Error) {
-                    Text(
-                        (estado as UbicacionUi.Error).mensaje,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                // Paso 6: lista con altura fija
-                ListaLugares(
+                MensajeError(error = e, onReintentar = { alPulsar() })
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Paso 3: el mapa ocupa el espacio libre
+                MapaUbicacion(
+                    estado = estado,
                     lugares = lugares,
                     seleccionado = seleccionado,
-                    masCercanoId = masCercano?.id,
-                    onClick = { vm.seleccionar(it) },
+                    masCercano = masCercano,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(220.dp)
+                        .weight(1f)
                 )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    botonBuscar()
+
+                    // Paso 7: ir al más cercano
+                    val hayCercano = masCercano != null
+                    val azul = MaterialTheme.colorScheme.primary
+                    OutlinedButton(
+                        onClick = { masCercano?.let { vm.seleccionar(it.id) } },
+                        enabled = hayCercano,
+                        border = BorderStroke(2.dp, if (hayCercano) azul else azul.copy(alpha = 0.35f)),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = azul,
+                            disabledContentColor = azul.copy(alpha = 0.4f)
+                        ),
+                        contentPadding = PaddingValues(horizontal = 40.dp, vertical = 12.dp)
+                    ) {
+                        Text("Ir al más cercano", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    }
+
+                    val cercano = masCercano
+                    val metros = lugares.firstOrNull { it.lugar.id == cercano?.id }?.metros
+                    if (cercano != null && metros != null) {
+                        Text(
+                            buildAnnotatedString {
+                                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append("Más cercano: ")
+                                }
+                                append("${cercano.nombre} (${formatearDistancia(metros)})")
+                            },
+                            fontSize = 17.sp
+                        )
+                    } else if (estado is UbicacionUi.Inicial) {
+                        // Antes de buscar: la pista va debajo de los botones
+                        Text("Pulsa el botón para empezar", fontSize = 15.sp)
+                    }
+
+                    // Paso 6: lista con altura fija
+                    ListaLugares(
+                        lugares = lugares,
+                        seleccionado = seleccionado,
+                        masCercanoId = masCercano?.id,
+                        onClick = { vm.seleccionar(it) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                    )
+                }
             }
         }
     }
