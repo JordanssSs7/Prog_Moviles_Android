@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.reyes.centrotareas.data.TareasRepository
 import com.reyes.centrotareas.model.CargaUi
 import com.reyes.centrotareas.model.PrimosUi
+import com.reyes.centrotareas.model.RegistroTiempo
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
@@ -119,12 +120,14 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 // Mejora 2: si el interruptor está activo, la carga no puede pasar de 4 s
                 val (perfil, pedidos) =
                     if (_tiempoMaximo.value) withTimeout(LIMITE_MS) { bloque() } else bloque()
+                val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito(
                     modo = modo,
                     perfil = perfil,
                     pedidos = pedidos.size,
-                    milisegundos = System.currentTimeMillis() - inicio
+                    milisegundos = ms
                 )
+                registrarTiempo(modo, ms) // Mejora 3: solo se guardan las cargas exitosas
             } catch (e: TimeoutCancellationException) {
                 // va ANTES: también es una CancellationException, pero aquí sí es un error
                 _carga.value = CargaUi.Error("Tardó demasiado (más de ${LIMITE_MS / 1000} s)")
@@ -149,5 +152,18 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     fun cambiarTiempoMaximo(valor: Boolean) {
         _tiempoMaximo.value = valor
+    }
+
+    // ----- Mejora 3: comparación de tiempos (modo -> veces, promedio y último)
+    private val _tiempos = MutableStateFlow<Map<String, RegistroTiempo>>(emptyMap())
+    val tiempos: StateFlow<Map<String, RegistroTiempo>> = _tiempos.asStateFlow()
+
+    private fun registrarTiempo(modo: String, ms: Long) {
+        val actual = _tiempos.value[modo] ?: RegistroTiempo()
+        _tiempos.value = _tiempos.value + (modo to actual.agregar(ms))
+    }
+
+    fun limpiarTiempos() {
+        _tiempos.value = emptyMap()
     }
 }

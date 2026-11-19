@@ -49,6 +49,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     val carga by vm.carga.collectAsState()
     val simularError by vm.simularError.collectAsState()
     val tiempoMaximo by vm.tiempoMaximo.collectAsState()
+    val tiempos by vm.tiempos.collectAsState()
     var textoN by rememberSaveable { mutableStateOf("500000") }
     var nCalculado by rememberSaveable { mutableIntStateOf(0) }
     // Prueba de vida: si deja de sumar, la pantalla está congelada
@@ -212,6 +213,38 @@ fun PantallaTareas(vm: TareasViewModel) {
                         )
                         OutlinedButton(onClick = { vm.cargarALaVez() }) { Text("Reintentar") }
                     }
+                }
+            }
+
+            // ----- Mejora 3: comparación de tiempos
+            Tarjeta(titulo = "Comparación de tiempos") {
+                if (tiempos.isEmpty()) {
+                    Text(
+                        "Aún no hay cargas exitosas. Prueba \"Una por una\" y \"A la vez\".",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    listOf("Una por una", "A la vez").forEach { modo ->
+                        val r = tiempos[modo]
+                        Text(
+                            if (r == null) "$modo: sin datos"
+                            else "$modo: ${r.veces} vez(es) · promedio ${r.promedioMs} ms · último ${r.ultimoMs} ms",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    val serie = tiempos["Una por una"]
+                    val paralelo = tiempos["A la vez"]
+                    if (serie != null && paralelo != null) {
+                        Recuadro(
+                            fondo = VerdeFondo,
+                            texto = VerdeTexto,
+                            lineas = listOf(
+                                "A la vez ahorra ${serie.promedioMs - paralelo.promedioMs} ms en promedio",
+                                "Es ${"%.1f".format(serie.promedioMs.toDouble() / paralelo.promedioMs)} veces más rápido"
+                            )
+                        )
+                    }
+                    OutlinedButton(onClick = { vm.limpiarTiempos() }) { Text("Limpiar") }
                 }
             }
         }
