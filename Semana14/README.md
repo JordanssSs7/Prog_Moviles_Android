@@ -21,15 +21,16 @@ App Android que hace tres cosas que tardan sin congelar nunca la pantalla: una t
 com.reyes.centrotareas/
 ├── MainActivity.kt
 ├── model/
-│   └── Estados.kt                    PrimosUi, CargaUi
+│   ├── Estados.kt                    PrimosUi, CargaUi
+│   └── Comparacion.kt                RegistroTiempo (Fase 2)
 ├── data/
 │   ├── TareasRepository.kt           interface
-│   └── TareasRepositoryLocal.kt      cargas simuladas y contarPrimos
+│   └── TareasRepositoryLocal.kt      progresoTarea (Flow), cargas simuladas y contarPrimos
 ├── viewmodel/
 │   ├── TareasViewModel.kt
 │   └── TareasViewModelFactory.kt
 └── ui/
-    ├── PantallaTareas.kt             las tres tarjetas
+    ├── PantallaTareas.kt             las tres tarjetas + Comparación de tiempos
     ├── Componentes.kt                Tarjeta y Recuadro
     └── theme/
 ```
@@ -97,6 +98,25 @@ D HILO    : Despues: main
 | Error simulado + Reintentar | Recuadro rojo; al desactivar el interruptor y reintentar, éxito | ✔ |
 | Rotar la pantalla durante la tarea | La tarea continúa y el progreso no se reinicia | ✔ |
 | Revisar el código | `git grep` no encuentra `GlobalScope`, `runBlocking` ni `Thread.sleep` en los `.kt` | ✔ |
+
+## Fase 2: mejoras con IA (rama `centrotareas-ia`)
+
+| Mejora | Qué hace | Capas |
+|---|---|---|
+| 1. Progreso desde el Repository | `progresoTarea(): Flow<Float>` emite el avance con `flowOn(Dispatchers.Default)`; el ViewModel solo lo recolecta con `collect`. | Repository + ViewModel |
+| 2. Tiempo máximo con `withTimeout` | Interruptor *Tiempo máximo 4 s*: si la carga pasa de 4 s se cancela y aparece *Tardó demasiado (más de 4 s)*. | ViewModel + View |
+| 3. Comparación de tiempos | Tarjeta con veces, promedio y último tiempo de cada modo, cuánto ahorra *A la vez* y botón *Limpiar*. | Model + ViewModel + View |
+
+| Prueba de la Fase 2 | Resultado | OK |
+|---|---|---|
+| Iniciar la tarea con progreso (Mejora 1) | La barra va de 0 a 100 % en ≈ 4,3 s, Tócame sigue sumando y el Logcat muestra `main` / `DefaultDispatcher-worker-1` / `main` | ✔ |
+| Cancelar a mitad (Mejora 1) | Se detiene en 35 % y dice Cancelado | ✔ |
+| Tiempo máximo + Una por una (Mejora 2) | *Tardó demasiado (más de 4 s)* con botón Reintentar | ✔ |
+| Tiempo máximo + A la vez (Mejora 2) | Termina bien en ≈ 3011 ms | ✔ |
+| Una por una y luego A la vez (Mejora 3) | 5011 ms y 3002 ms: *A la vez ahorra 2009 ms en promedio*, *Es 1.7 veces más rápido* | ✔ |
+| Limpiar (Mejora 3) | La tarjeta vuelve a *Aún no hay cargas exitosas* | ✔ |
+
+El detalle de los prompts y las decisiones está en [PROMPTS.md](PROMPTS.md).
 
 ## Para pensar
 
