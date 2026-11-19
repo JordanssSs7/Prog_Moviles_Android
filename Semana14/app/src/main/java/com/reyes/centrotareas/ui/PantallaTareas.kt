@@ -48,6 +48,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     val primos by vm.primos.collectAsState()
     val carga by vm.carga.collectAsState()
     val simularError by vm.simularError.collectAsState()
+    val tiempoMaximo by vm.tiempoMaximo.collectAsState()
     var textoN by rememberSaveable { mutableStateOf("500000") }
     var nCalculado by rememberSaveable { mutableIntStateOf(0) }
     // Prueba de vida: si deja de sumar, la pantalla está congelada
@@ -166,6 +167,18 @@ fun PantallaTareas(vm: TareasViewModel) {
                         onCheckedChange = { vm.cambiarSimularError(it) }
                     )
                     Text("Simular error", style = MaterialTheme.typography.bodyMedium)
+                }
+                // Mejora 2: tiempo máximo con withTimeout
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Switch(
+                        checked = tiempoMaximo,
+                        onCheckedChange = { vm.cambiarTiempoMaximo(it) }
+                    )
+                    Text("Tiempo máximo 4 s", style = MaterialTheme.typography.bodyMedium)
                 }
                 val cargando = carga is CargaUi.Cargando
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

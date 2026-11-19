@@ -8,14 +8,17 @@ import com.reyes.centrotareas.model.CargaUi
 import com.reyes.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
 private const val TAG = "HILO"
+private const val LIMITE_MS = 4000L // Mejora 2: tiempo máximo para una carga
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
@@ -113,13 +116,18 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
             try {
-                val (perfil, pedidos) = bloque()
+                // Mejora 2: si el interruptor está activo, la carga no puede pasar de 4 s
+                val (perfil, pedidos) =
+                    if (_tiempoMaximo.value) withTimeout(LIMITE_MS) { bloque() } else bloque()
                 _carga.value = CargaUi.Exito(
                     modo = modo,
                     perfil = perfil,
                     pedidos = pedidos.size,
                     milisegundos = System.currentTimeMillis() - inicio
                 )
+            } catch (e: TimeoutCancellationException) {
+                // va ANTES: también es una CancellationException, pero aquí sí es un error
+                _carga.value = CargaUi.Error("Tardó demasiado (más de ${LIMITE_MS / 1000} s)")
             } catch (e: Exception) {
                 if (e is CancellationException) throw e // la cancelación no es un error
                 _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
@@ -133,5 +141,13 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     fun cambiarSimularError(valor: Boolean) {
         _simularError.value = valor
+    }
+
+    // Mejora 2: interruptor para poner un tiempo máximo a las cargas
+    private val _tiempoMaximo = MutableStateFlow(false)
+    val tiempoMaximo: StateFlow<Boolean> = _tiempoMaximo.asStateFlow()
+
+    fun cambiarTiempoMaximo(valor: Boolean) {
+        _tiempoMaximo.value = valor
     }
 }
