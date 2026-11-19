@@ -7,16 +7,13 @@ import com.reyes.centrotareas.data.TareasRepository
 import com.reyes.centrotareas.model.CargaUi
 import com.reyes.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private const val TAG = "HILO"
 
@@ -35,7 +32,8 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     val corriendo: StateFlow<Boolean> = _corriendo.asStateFlow()
     private var trabajo: Job? = null
 
-    // Pasos 2 a 4: el trabajo va en segundo plano; el hilo principal queda libre.
+    // Pasos 2 a 4 + Mejora 1: el trabajo lo hace el Repository (Flow en Dispatchers.Default);
+    // el ViewModel solo recolecta el avance y actualiza el estado.
     fun tareaLarga() {
         if (_corriendo.value) return // evita lanzar dos tareas a la vez
         trabajo = viewModelScope.launch {
@@ -44,12 +42,8 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             _mensaje.value = "Trabajando..."
             Log.d(TAG, "Antes: ${Thread.currentThread().name}")
             try {
-                for (i in 1..100) {
-                    withContext(Dispatchers.Default) {
-                        if (i == 1) Log.d(TAG, "Dentro: ${Thread.currentThread().name}")
-                        delay(40)
-                    }
-                    _progreso.value = i / 100f
+                repo.progresoTarea().collect { valor ->
+                    _progreso.value = valor
                 }
                 Log.d(TAG, "Despues: ${Thread.currentThread().name}")
                 _mensaje.value = "Terminó"
