@@ -1,32 +1,28 @@
 package com.reyes.centrotareas.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
-private val LightColorScheme = lightColorScheme(
+// Diseño claro: se usa el mismo esquema aunque el teléfono esté en modo oscuro
+private val Esquema = lightColorScheme(
     primary = Azul,
-    onPrimary = Color.White,
-    secondary = AzulGris,
-    tertiary = AzulGris
-)
-
-private val DarkColorScheme = darkColorScheme(
-    primary = AzulClaro,
-    secondary = AzulGris,
-    tertiary = AzulGris
+    onPrimary = Blanco,
+    secondary = AzulCielo,
+    onSecondary = Tinta,
+    tertiary = Amarillo,
+    background = Crema,
+    onBackground = Tinta,
+    surface = Papel,
+    onSurface = Tinta,
+    onSurfaceVariant = TintaSuave,
+    outlineVariant = CremaOscuro
 )
 
 @Composable
-fun CentrotareasTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
+fun CentrotareasTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
+        colorScheme = Esquema,
         typography = Typography,
         content = content
     )

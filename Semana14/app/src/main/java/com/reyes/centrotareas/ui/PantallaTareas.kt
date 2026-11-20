@@ -1,22 +1,26 @@
 package com.reyes.centrotareas.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -24,22 +28,29 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Switch
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.sp
 import com.reyes.centrotareas.model.CargaUi
 import com.reyes.centrotareas.model.PrimosUi
-import com.reyes.centrotareas.ui.theme.VerdeFondo
-import com.reyes.centrotareas.ui.theme.VerdeTexto
+import com.reyes.centrotareas.ui.theme.Amarillo
+import com.reyes.centrotareas.ui.theme.Azul
+import com.reyes.centrotareas.ui.theme.AzulCielo
+import com.reyes.centrotareas.ui.theme.AzulPalido
+import com.reyes.centrotareas.ui.theme.Blanco
+import com.reyes.centrotareas.ui.theme.Crema
+import com.reyes.centrotareas.ui.theme.Papel
+import com.reyes.centrotareas.ui.theme.RojoFondo
+import com.reyes.centrotareas.ui.theme.RojoTexto
+import com.reyes.centrotareas.ui.theme.Tinta
+import com.reyes.centrotareas.ui.theme.TintaSuave
 import com.reyes.centrotareas.viewmodel.TareasViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaTareas(vm: TareasViewModel) {
     val mensaje by vm.mensaje.collectAsState()
@@ -55,197 +66,259 @@ fun PantallaTareas(vm: TareasViewModel) {
     // Prueba de vida: si deja de sumar, la pantalla está congelada
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
+    val calculando = primos is PrimosUi.Calculando
+    val cargando = carga is CargaUi.Cargando
+    val enCurso = listOf(corriendo, calculando, cargando).count { it }
+    val animo = when {
+        carga is CargaUi.Error -> Animo.Triste
+        enCurso > 0 -> Animo.Ocupado
+        else -> Animo.Feliz
+    }
+
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("CentroTareas", fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+        containerColor = Crema,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        bottomBar = {
+            BarraInferior(
+                toques = toques,
+                enCurso = enCurso,
+                listas = tiempos.values.sumOf { it.veces },
+                onTocar = { toques++ }
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // ----- Tarea con progreso (pasos 1 a 4)
-            Tarjeta(titulo = "Tarea con progreso") {
-                Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
-                        onClick = { vm.tareaLarga() },
-                        enabled = !corriendo
-                    ) { Text("Iniciar") }
-                    OutlinedButton(
-                        onClick = { vm.cancelar() },
-                        enabled = corriendo
-                    ) { Text("Cancelar") }
-                }
-                LinearProgressIndicator(
-                    progress = { progreso },
-                    modifier = Modifier.fillMaxWidth(),
-                    gapSize = 0.dp,
-                    drawStopIndicator = {}
-                )
-                Text(
-                    text = "${(progreso * 100).toInt()} %",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    text = mensaje,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            // ----- Contar números primos (paso 5)
-            Tarjeta(titulo = "Contar números primos") {
-                OutlinedTextField(
-                    value = textoN,
-                    // ignora lo que no sean dígitos
-                    onValueChange = { nuevo -> if (nuevo.all { it.isDigit() }) textoN = nuevo },
-                    label = { Text("Hasta el número") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                val calculando = primos is PrimosUi.Calculando
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
-                        onClick = {
-                            val n = textoN.toIntOrNull()
-                            if (n != null && n >= 2) { // ignora menores que 2
-                                nCalculado = n
-                                vm.contar(n)
-                            }
-                        },
-                        enabled = !calculando
-                    ) { Text("Contar") }
-                    OutlinedButton(
-                        onClick = { vm.cancelarPrimos() },
-                        enabled = calculando
-                    ) { Text("Cancelar") }
-                }
-                when (val p = primos) {
-                    PrimosUi.Inicial -> Unit
-                    PrimosUi.Calculando -> Text(
-                        "Calculando...",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    PrimosUi.Cancelado -> Text(
-                        "Cancelado",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    is PrimosUi.Listo -> Recuadro(
-                        fondo = VerdeFondo,
-                        texto = VerdeTexto,
-                        lineas = listOf(
-                            "Primos hasta $nCalculado: ${p.cantidad}",
-                            "Tiempo: ${p.milisegundos} ms"
-                        )
-                    )
-                }
-            }
-
-            // ----- Dos cargas (pasos 6 y 7)
-            Tarjeta(titulo = "Dos cargas") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Switch(
-                        checked = simularError,
-                        onCheckedChange = { vm.cambiarSimularError(it) }
-                    )
-                    Text("Simular error", style = MaterialTheme.typography.bodyMedium)
-                }
-                // Mejora 2: tiempo máximo con withTimeout
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Switch(
-                        checked = tiempoMaximo,
-                        onCheckedChange = { vm.cambiarTiempoMaximo(it) }
-                    )
-                    Text("Tiempo máximo 4 s", style = MaterialTheme.typography.bodyMedium)
-                }
-                val cargando = carga is CargaUi.Cargando
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(
-                        onClick = { vm.cargarUnaPorUna() },
-                        enabled = !cargando
-                    ) { Text("Una por una") }
-                    Button(
-                        onClick = { vm.cargarALaVez() },
-                        enabled = !cargando
-                    ) { Text("A la vez") }
-                }
-                when (val c = carga) {
-                    CargaUi.Inicial -> Unit
-                    CargaUi.Cargando -> CircularProgressIndicator()
-                    is CargaUi.Exito -> Recuadro(
-                        fondo = VerdeFondo,
-                        texto = VerdeTexto,
-                        lineas = listOf(
-                            "Modo: ${c.modo}",
-                            "Perfil: ${c.perfil}",
-                            "Pedidos: ${c.pedidos}",
-                            "Tiempo: ${c.milisegundos} ms"
-                        )
-                    )
-                    is CargaUi.Error -> {
-                        Recuadro(
-                            fondo = MaterialTheme.colorScheme.errorContainer,
-                            texto = MaterialTheme.colorScheme.onErrorContainer,
-                            lineas = listOf(c.mensaje)
-                        )
-                        OutlinedButton(onClick = { vm.cargarALaVez() }) { Text("Reintentar") }
-                    }
-                }
-            }
-
-            // ----- Mejora 3: comparación de tiempos
-            Tarjeta(titulo = "Comparación de tiempos") {
-                if (tiempos.isEmpty()) {
+        Column(Modifier.padding(padding).fillMaxSize()) {
+            EncabezadoOndulado("CentroTareas", "La pantalla nunca se congela")
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                // ----- Mascota que reacciona al estado
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Mascota(animo, Modifier.size(96.dp))
+                    Spacer(Modifier.size(10.dp))
                     Text(
-                        "Aún no hay cargas exitosas. Prueba \"Una por una\" y \"A la vez\".",
-                        style = MaterialTheme.typography.bodyMedium
+                        text = when (animo) {
+                            Animo.Feliz -> "¡Nunca es tarde para empezar una tarea!"
+                            Animo.Ocupado -> "Estoy trabajando… ¡tú sigue tocando!"
+                            Animo.Triste -> "Uy, algo falló. ¡Reintentemos!"
+                        },
+                        color = Tinta,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(Papel)
+                            .border(2.dp, Tinta, RoundedCornerShape(18.dp))
+                            .padding(14.dp)
                     )
-                } else {
-                    listOf("Una por una", "A la vez").forEach { modo ->
-                        val r = tiempos[modo]
+                }
+
+                // ----- Tarea con progreso (pasos 1 a 4)
+                Tarjeta(titulo = "Tarea con progreso", fondo = AzulPalido, etiqueta = "Pasos 1–4") {
+                    // cuadro tipo temporizador con el porcentaje
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(18.dp))
+                            .background(Papel)
+                            .border(2.dp, Tinta, RoundedCornerShape(18.dp))
+                            .padding(horizontal = 18.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            if (r == null) "$modo: sin datos"
-                            else "$modo: ${r.veces} vez(es) · promedio ${r.promedioMs} ms · último ${r.ultimoMs} ms",
-                            style = MaterialTheme.typography.bodyMedium
+                            "${(progreso * 100).toInt()} %",
+                            color = Tinta,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 34.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(mensaje, color = TintaSuave, fontSize = 14.sp)
+                    }
+                    BarraPastilla(
+                        progreso = progreso,
+                        pista = Papel,
+                        relleno = Azul,
+                        rayas = Blanco.copy(alpha = 0.25f)
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        BotonPastilla(
+                            texto = "Iniciar",
+                            onClick = { vm.tareaLarga() },
+                            fondo = Azul,
+                            contenido = Blanco,
+                            enabled = !corriendo
+                        )
+                        BotonPastilla(
+                            texto = "Cancelar",
+                            onClick = { vm.cancelar() },
+                            fondo = Papel,
+                            contenido = Tinta,
+                            enabled = corriendo
                         )
                     }
-                    val serie = tiempos["Una por una"]
-                    val paralelo = tiempos["A la vez"]
-                    if (serie != null && paralelo != null) {
-                        Recuadro(
-                            fondo = VerdeFondo,
-                            texto = VerdeTexto,
+                }
+
+                // ----- Contar números primos (paso 5)
+                Tarjeta(titulo = "Contar números primos", fondo = Papel, etiqueta = "Paso 5") {
+                    OutlinedTextField(
+                        value = textoN,
+                        // ignora lo que no sean dígitos
+                        onValueChange = { nuevo -> if (nuevo.all { it.isDigit() }) textoN = nuevo },
+                        label = { Text("Hasta el número") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(16.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Blanco,
+                            unfocusedContainerColor = Blanco,
+                            focusedBorderColor = Azul,
+                            unfocusedBorderColor = Tinta,
+                            focusedLabelColor = Azul,
+                            unfocusedLabelColor = TintaSuave,
+                            cursorColor = Azul
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        BotonPastilla(
+                            texto = "Contar",
+                            onClick = {
+                                val n = textoN.toIntOrNull()
+                                if (n != null && n >= 2) { // ignora menores que 2
+                                    nCalculado = n
+                                    vm.contar(n)
+                                }
+                            },
+                            fondo = Amarillo,
+                            contenido = Tinta,
+                            enabled = !calculando
+                        )
+                        BotonPastilla(
+                            texto = "Cancelar",
+                            onClick = { vm.cancelarPrimos() },
+                            fondo = Papel,
+                            contenido = Tinta,
+                            enabled = calculando
+                        )
+                    }
+                    when (val p = primos) {
+                        PrimosUi.Inicial -> Unit
+                        PrimosUi.Calculando -> Text("Calculando...", color = TintaSuave, fontSize = 14.sp)
+                        PrimosUi.Cancelado -> Text("Cancelado", color = TintaSuave, fontSize = 14.sp)
+                        is PrimosUi.Listo -> Recuadro(
+                            fondo = Amarillo.copy(alpha = 0.35f),
+                            texto = Tinta,
                             lineas = listOf(
-                                "A la vez ahorra ${serie.promedioMs - paralelo.promedioMs} ms en promedio",
-                                "Es ${"%.1f".format(serie.promedioMs.toDouble() / paralelo.promedioMs)} veces más rápido"
+                                "Primos hasta $nCalculado: ${p.cantidad}",
+                                "Tiempo: ${p.milisegundos} ms"
                             )
                         )
                     }
-                    OutlinedButton(onClick = { vm.limpiarTiempos() }) { Text("Limpiar") }
                 }
+
+                // ----- Dos cargas (pasos 6 y 7)
+                Tarjeta(titulo = "Dos cargas", fondo = AzulCielo, etiqueta = "Pasos 6–7") {
+                    Interruptor("Simular error", simularError) { vm.cambiarSimularError(it) }
+                    // Mejora 2: tiempo máximo con withTimeout
+                    Interruptor("Tiempo máximo 4 s", tiempoMaximo) { vm.cambiarTiempoMaximo(it) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        BotonPastilla(
+                            texto = "Una por una",
+                            onClick = { vm.cargarUnaPorUna() },
+                            fondo = Papel,
+                            contenido = Tinta,
+                            enabled = !cargando
+                        )
+                        BotonPastilla(
+                            texto = "A la vez",
+                            onClick = { vm.cargarALaVez() },
+                            fondo = Tinta,
+                            contenido = Blanco,
+                            enabled = !cargando
+                        )
+                    }
+                    when (val c = carga) {
+                        CargaUi.Inicial -> Unit
+                        CargaUi.Cargando -> CircularProgressIndicator(
+                            color = Tinta,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                        is CargaUi.Exito -> Recuadro(
+                            fondo = Papel,
+                            texto = Tinta,
+                            lineas = listOf(
+                                "Modo: ${c.modo}",
+                                "Perfil: ${c.perfil}",
+                                "Pedidos: ${c.pedidos}",
+                                "Tiempo: ${c.milisegundos} ms"
+                            )
+                        )
+                        is CargaUi.Error -> {
+                            Recuadro(fondo = RojoFondo, texto = RojoTexto, lineas = listOf(c.mensaje))
+                            BotonPastilla(
+                                texto = "Reintentar",
+                                onClick = { vm.cargarALaVez() },
+                                fondo = Papel,
+                                contenido = Tinta
+                            )
+                        }
+                    }
+                }
+
+                // ----- Mejora 3: comparación de tiempos
+                Tarjeta(titulo = "Comparación de tiempos", fondo = Papel, etiqueta = "Mejora 3") {
+                    val serie = tiempos["Una por una"]
+                    val paralelo = tiempos["A la vez"]
+                    FilaCheck(
+                        if (serie == null) "Una por una: sin datos"
+                        else "Una por una · ${serie.veces} vez(es) · prom. ${serie.promedioMs} ms · últ. ${serie.ultimoMs} ms",
+                        serie != null
+                    )
+                    FilaCheck(
+                        if (paralelo == null) "A la vez: sin datos"
+                        else "A la vez · ${paralelo.veces} vez(es) · prom. ${paralelo.promedioMs} ms · últ. ${paralelo.ultimoMs} ms",
+                        paralelo != null
+                    )
+                    if (tiempos.isNotEmpty()) {
+                        val maximo = maxOf(serie?.promedioMs ?: 0L, paralelo?.promedioMs ?: 0L)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            BarraVertical("Una por una", serie?.promedioMs, maximo, Azul, Blanco.copy(alpha = 0.25f))
+                            BarraVertical("A la vez", paralelo?.promedioMs, maximo, Amarillo, Tinta.copy(alpha = 0.15f))
+                        }
+                        if (serie != null && paralelo != null) {
+                            Recuadro(
+                                fondo = AzulPalido,
+                                texto = Tinta,
+                                lineas = listOf(
+                                    "A la vez ahorra ${serie.promedioMs - paralelo.promedioMs} ms en promedio",
+                                    "Es ${"%.1f".format(serie.promedioMs.toDouble() / paralelo.promedioMs)} veces más rápido"
+                                )
+                            )
+                        }
+                        BotonPastilla(
+                            texto = "Limpiar",
+                            onClick = { vm.limpiarTiempos() },
+                            fondo = Papel,
+                            contenido = Tinta
+                        )
+                    } else {
+                        Text(
+                            "Aún no hay cargas exitosas. Prueba \"Una por una\" y \"A la vez\".",
+                            color = TintaSuave,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
             }
         }
     }
