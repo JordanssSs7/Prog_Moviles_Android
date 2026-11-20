@@ -2,24 +2,21 @@ package com.reyes.campusgps.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Estilo "exploración": negro, grises y un acento verde lima
+val Negro = Color(0xFF111111)
+val GrisOscuro = Color(0xFF2B2B2B)
+val Lima = Color(0xFFC6F135)
+val LimaOscuro = Color(0xFF8FB80F)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Fondos y textos
+val FondoHoja = Color(0xFFF2F2F0)
+val Superficie = Color(0xFFFFFFFF)
+val GrisClaro = Color(0xFFE6E6E3)
+val TextoPrincipal = Color(0xFF111111)
+val TextoSecundario = Color(0xFF6E6E6A)
 
-// Azul de CampusGPS
-val Azul40 = Color(0xFF1B6CA8)
-val AzulGris40 = Color(0xFF4A6375)
-val Azul80 = Color(0xFF9ECAFF)
-val AzulGris80 = Color(0xFFB4CAD9)
-
-// Colores de la lista, el mapa y los errores (como en las capturas)
-val AzulMarcador = Color(0xFF2B7BC0)
-val VerdeCercano = Color(0xFF2E9E4F)
-val TarjetaFondo = Color(0xFFEEF2F7)
-val TarjetaSeleccionada = Color(0xFFDCEAF6)
-val ErrorFondo = Color(0xFFFBE3E3)
-val ErrorTexto = Color(0xFF9E2A2A)
+// Lista, mapa y errores
+val VerdeCercano = Lima
+val TarjetaFondo = Superficie
+val ErrorFondo = Color(0xFFFFFFFF)
+val ErrorTexto = Color(0xFFD92D20)

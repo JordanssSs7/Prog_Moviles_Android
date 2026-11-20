@@ -1,56 +1,30 @@
 package com.reyes.campusgps.ui.theme
 
-import android.app.Activity
-import android.os.Build
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Azul80,
-    secondary = AzulGris80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Azul40,
-    secondary = AzulGris40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+// Un solo esquema claro: negro como color principal y lima como acento
+private val EsquemaClaro = lightColorScheme(
+    primary = Negro,
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary = Lima,
+    onSecondary = Negro,
+    background = FondoHoja,
+    onBackground = TextoPrincipal,
+    surface = Superficie,
+    onSurface = TextoPrincipal,
+    surfaceVariant = GrisClaro,
+    onSurfaceVariant = TextoSecundario,
+    outline = GrisClaro,
+    error = ErrorTexto
 )
 
 @Composable
-fun CampusgpsTheme(
-    darkTheme: Boolean = false, // siempre claro, como en las capturas
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
+fun CampusgpsTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = EsquemaClaro,
         typography = Typography,
         content = content
     )
