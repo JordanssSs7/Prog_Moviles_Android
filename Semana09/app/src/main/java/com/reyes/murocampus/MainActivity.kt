@@ -4,13 +4,24 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import com.reyes.murocampus.data.PostRepositoryRemote
 import com.reyes.murocampus.data.remote.RetrofitClient
+import com.reyes.murocampus.ui.PantallaDetalle
 import com.reyes.murocampus.ui.PantallaLista
 import com.reyes.murocampus.ui.theme.MurocampusTheme
 import com.reyes.murocampus.viewmodel.PostsViewModel
 import com.reyes.murocampus.viewmodel.PostsViewModelFactory
+
+private val IdSeleccionadoSaver = Saver<Int?, Int>(
+    save = { it ?: -1 },
+    restore = { if (it == -1) null else it }
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +34,25 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MurocampusTheme {
-                PantallaLista(vm = vm)
+                var idSeleccionado by rememberSaveable(stateSaver = IdSeleccionadoSaver) {
+                    mutableStateOf<Int?>(null)
+                }
+
+                if (idSeleccionado != null) {
+                    PantallaDetalle(
+                        vm = vm,
+                        id = idSeleccionado ?: 0,
+                        onVolver = { idSeleccionado = null }
+                    )
+                } else {
+                    PantallaLista(
+                        vm = vm,
+                        onPostClick = { id ->
+                            vm.abrir(id)
+                            idSeleccionado = id
+                        }
+                    )
+                }
             }
         }
     }
