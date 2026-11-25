@@ -15,6 +15,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,8 +39,38 @@ fun PantallaDetalle(
     modifier: Modifier = Modifier
 ) {
     val estado by vm.detalle.collectAsStateWithLifecycle()
+    val borrado by vm.borrado.collectAsStateWithLifecycle()
+    var confirmar by remember { mutableStateOf(false) }
 
-    BackHandler { onVolver() }
+    BackHandler {
+        vm.limpiarBorrado()
+        onVolver()
+    }
+
+    // Mejora 3: al borrar con éxito se vuelve a la lista
+    LaunchedEffect(borrado) {
+        if (borrado is UiState.Exito) {
+            vm.limpiarBorrado()
+            onVolver()
+        }
+    }
+
+    if (confirmar) {
+        AlertDialog(
+            onDismissRequest = { confirmar = false },
+            title = { Text("¿Eliminar publicación?") },
+            text = { Text("Se enviará DELETE posts/$id al servidor.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmar = false
+                    vm.borrar(id)
+                }) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmar = false }) { Text("Cancelar") }
+            }
+        )
+    }
 
     Scaffold(
         modifier = modifier,
@@ -73,6 +111,23 @@ fun PantallaDetalle(
                                     text = datos.post.body,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Button(
+                                    onClick = { confirmar = true },
+                                    enabled = borrado !is UiState.Cargando,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.error
+                                    )
+                                ) {
+                                    Text(if (borrado is UiState.Cargando) "Eliminando..." else "Eliminar")
+                                }
+                                if (borrado is UiState.Error) {
+                                    Text(
+                                        text = (borrado as UiState.Error).mensaje,
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             }
                         }
                     }

@@ -3,7 +3,9 @@ package com.reyes.murocampus.data.remote
 import com.reyes.murocampus.model.Comentario
 import com.reyes.murocampus.model.NuevoPost
 import com.reyes.murocampus.model.Post
+import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.POST
@@ -24,4 +26,8 @@ interface PostApi {
 
     @POST("posts")
     suspend fun crear(@Body nuevo: NuevoPost): Post
+
+    // Mejora 3: borrar; Response<Unit> permite revisar el código HTTP
+    @DELETE("posts/{id}")
+    suspend fun borrar(@Path("id") id: Int): Response<Unit>
 }
