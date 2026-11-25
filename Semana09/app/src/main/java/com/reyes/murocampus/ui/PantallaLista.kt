@@ -4,12 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,8 +33,9 @@ fun PantallaLista(
     onCrearClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val estado by vm.lista.collectAsStateWithLifecycle()
+    val estado by vm.resultados.collectAsStateWithLifecycle()
     val filtro by vm.usuarioFiltro.collectAsStateWithLifecycle()
+    val busqueda by vm.busqueda.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier,
@@ -47,6 +51,20 @@ fun PantallaLista(
         }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
+            OutlinedTextField(
+                value = busqueda,
+                onValueChange = vm::buscar,
+                label = { Text("Buscar por título") },
+                singleLine = true,
+                trailingIcon = {
+                    if (busqueda.isNotEmpty()) {
+                        TextButton(onClick = { vm.buscar("") }) { Text("Limpiar") }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp, top = 8.dp)
+            )
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -80,7 +98,8 @@ fun PantallaLista(
                     val posts = (estado as UiState.Exito).datos
                     if (posts.isEmpty()) {
                         Text(
-                            text = "Sin publicaciones",
+                            text = if (busqueda.isBlank()) "Sin publicaciones"
+                            else "Sin resultados para \"$busqueda\"",
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier
                                 .fillMaxSize()

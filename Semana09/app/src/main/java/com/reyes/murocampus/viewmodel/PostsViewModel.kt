@@ -9,8 +9,11 @@ import com.reyes.murocampus.model.Post
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class DetalleUi(val post: Post, val comentarios: List<Comentario>)
@@ -29,6 +32,19 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _creacion = MutableStateFlow<UiState<Post>?>(null)
     val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
 
+    // Mejora 2: búsqueda por título sobre las publicaciones ya descargadas
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
+    val resultados: StateFlow<UiState<List<Post>>> =
+        combine(_lista, _busqueda) { estado, texto ->
+            if (estado is UiState.Exito && texto.isNotBlank()) {
+                UiState.Exito(estado.datos.filter { it.title.contains(texto.trim(), ignoreCase = true) })
+            } else {
+                estado
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UiState.Cargando)
+
     private var idDetalleActual: Int? = null
 
     init {
@@ -46,6 +62,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
                 .onSuccess { _lista.value = UiState.Exito(it) }
                 .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
         }
+    }
+
+    fun buscar(texto: String) {
+        _busqueda.value = texto
     }
 
     fun filtrar(userId: Int?) {
