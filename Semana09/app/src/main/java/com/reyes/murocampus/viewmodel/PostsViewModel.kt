@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reyes.murocampus.data.PostRepository
 import com.reyes.murocampus.model.Comentario
+import com.reyes.murocampus.model.NuevoPost
 import com.reyes.murocampus.model.Post
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -24,6 +25,9 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
+
+    private val _creacion = MutableStateFlow<UiState<Post>?>(null)
+    val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
 
     private var idDetalleActual: Int? = null
 
@@ -77,5 +81,19 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     fun reintentarDetalle() {
         idDetalleActual?.let { abrir(it) }
+    }
+
+    fun publicar(titulo: String, contenido: String) {
+        viewModelScope.launch {
+            _creacion.value = UiState.Cargando
+            val nuevo = NuevoPost(userId = 1, title = titulo, body = contenido)
+            repo.crear(nuevo)
+                .onSuccess { _creacion.value = UiState.Exito(it) }
+                .onFailure { _creacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    fun limpiarCreacion() {
+        _creacion.value = null
     }
 }

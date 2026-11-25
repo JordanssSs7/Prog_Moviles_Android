@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reyes.murocampus.viewmodel.UiState
 import com.reyes.murocampus.viewmodel.PostsViewModel
@@ -24,7 +26,8 @@ import com.reyes.murocampus.viewmodel.PostsViewModel
 @Composable
 fun PantallaLista(
     vm: PostsViewModel,
-    onPostClick: (Int) -> Unit = {},
+    onPostClick: (Int) -> Unit,
+    onCrearClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val estado by vm.lista.collectAsStateWithLifecycle()
@@ -32,7 +35,16 @@ fun PantallaLista(
 
     Scaffold(
         modifier = modifier,
-        topBar = { MuroTopBar() }
+        topBar = { MuroTopBar() },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onCrearClick) {
+                Text(
+                    text = "+",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             LazyRow(
@@ -78,7 +90,7 @@ fun PantallaLista(
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(bottom = 16.dp)
+                            contentPadding = PaddingValues(bottom = 88.dp)
                         ) {
                             items(posts, key = { it.id }) { post ->
                                 TarjetaPost(

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -12,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import com.reyes.murocampus.data.PostRepositoryRemote
 import com.reyes.murocampus.data.remote.RetrofitClient
+import com.reyes.murocampus.ui.PantallaCrear
 import com.reyes.murocampus.ui.PantallaDetalle
 import com.reyes.murocampus.ui.PantallaLista
 import com.reyes.murocampus.ui.theme.MurocampusTheme
@@ -37,20 +39,27 @@ class MainActivity : ComponentActivity() {
                 var idSeleccionado by rememberSaveable(stateSaver = IdSeleccionadoSaver) {
                     mutableStateOf<Int?>(null)
                 }
+                var mostrandoCrear by rememberSaveable { mutableStateOf(false) }
 
-                if (idSeleccionado != null) {
-                    PantallaDetalle(
+                when {
+                    idSeleccionado != null -> PantallaDetalle(
                         vm = vm,
                         id = idSeleccionado ?: 0,
                         onVolver = { idSeleccionado = null }
                     )
-                } else {
-                    PantallaLista(
+
+                    mostrandoCrear -> PantallaCrear(
+                        vm = vm,
+                        onVolver = { mostrandoCrear = false }
+                    )
+
+                    else -> PantallaLista(
                         vm = vm,
                         onPostClick = { id ->
                             vm.abrir(id)
                             idSeleccionado = id
-                        }
+                        },
+                        onCrearClick = { mostrandoCrear = true }
                     )
                 }
             }
