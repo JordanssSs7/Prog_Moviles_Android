@@ -13,7 +13,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Scaffold
@@ -44,23 +46,22 @@ fun PantallaLista(
 
     Scaffold(
         modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = { MuroTopBar() },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onCrearClick) {
-                Text(
-                    text = "+",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
+        bottomBar = { BarraInferior(seleccion = 0, onMuro = {}, onPublicar = onCrearClick) }
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             OutlinedTextField(
                 value = busqueda,
                 onValueChange = vm::buscar,
-                label = { Text("Buscar por título") },
+                placeholder = { Text("Buscar por título") },
                 singleLine = true,
+                shape = RoundedCornerShape(14.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedBorderColor = Color.Transparent
+                ),
                 trailingIcon = {
                     if (busqueda.isNotEmpty()) {
                         TextButton(onClick = { vm.buscar("") }) { Text("Limpiar") }
@@ -68,7 +69,7 @@ fun PantallaLista(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 12.dp, end = 12.dp, top = 8.dp)
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
             )
             mensaje?.let { texto ->
                 Card(

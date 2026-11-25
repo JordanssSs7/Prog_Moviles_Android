@@ -74,7 +74,17 @@ fun PantallaDetalle(
 
     Scaffold(
         modifier = modifier,
-        topBar = { MuroTopBar() }
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            MuroTopBar(
+                titulo = "Publicación #$id",
+                subtitulo = fechaDeHoy(),
+                onVolver = {
+                    vm.limpiarBorrado()
+                    onVolver()
+                }
+            )
+        }
     ) { innerPadding ->
         when (estado) {
             UiState.Cargando -> Cargando(modifier = Modifier.fillMaxSize().padding(innerPadding))
@@ -94,7 +104,7 @@ fun PantallaDetalle(
                     item {
                         Card(
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                containerColor = MaterialTheme.colorScheme.surface
                             ),
                             modifier = Modifier.fillMaxWidth()
                         ) {
@@ -148,6 +158,7 @@ fun PantallaDetalle(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 5.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
                             androidx.compose.foundation.layout.Column(

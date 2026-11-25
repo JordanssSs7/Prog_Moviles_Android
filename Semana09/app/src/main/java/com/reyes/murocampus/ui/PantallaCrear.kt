@@ -60,7 +60,27 @@ fun PantallaCrear(
 
     Scaffold(
         modifier = modifier,
-        topBar = { MuroTopBar() }
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            MuroTopBar(
+                titulo = "Nueva publicación",
+                subtitulo = "Comparte con el campus",
+                onVolver = {
+                    vm.limpiarCreacion()
+                    onVolver()
+                }
+            )
+        },
+        bottomBar = {
+            BarraInferior(
+                seleccion = 1,
+                onMuro = {
+                    vm.limpiarCreacion()
+                    onVolver()
+                },
+                onPublicar = {}
+            )
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
