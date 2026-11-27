@@ -9,6 +9,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.content.ContextCompat
+import com.reyes.avisoscampus.receiver.CargadorReceiver
 import com.reyes.avisoscampus.receiver.ModoAvionReceiver
 import com.reyes.avisoscampus.ui.theme.TextoSuave
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -105,6 +106,25 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 receptor,
                 IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
                 ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose { contexto.unregisterReceiver(receptor) } // siempre se quita
+        } else {
+            onDispose { }
+        }
+    }
+
+    // Mejora 3: receptor del cargador, con su propio switch
+    val escuchandoCargador by vm.escuchandoCargador.collectAsState()
+
+    DisposableEffect(escuchandoCargador) {
+        if (escuchandoCargador) {
+            val receptor = CargadorReceiver { conectado -> vm.alCambiarCargador(conectado) }
+            val filtro = IntentFilter().apply {
+                addAction(Intent.ACTION_POWER_CONNECTED)
+                addAction(Intent.ACTION_POWER_DISCONNECTED)
+            }
+            ContextCompat.registerReceiver(
+                contexto, receptor, filtro, ContextCompat.RECEIVER_NOT_EXPORTED
             )
             onDispose { contexto.unregisterReceiver(receptor) } // siempre se quita
         } else {
@@ -226,6 +246,22 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
                 Text(
                     "Activa o desactiva el modo avión del celular",
+                    color = TextoSuave,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                // Mejora 3
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Escuchar el cargador", modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = escuchandoCargador,
+                        onCheckedChange = { vm.cambiarEscuchaCargador(it) }
+                    )
+                }
+                Text(
+                    "Conecta o desconecta el cargador del celular",
                     color = TextoSuave,
                     style = MaterialTheme.typography.bodySmall
                 )

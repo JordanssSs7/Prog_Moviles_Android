@@ -19,6 +19,7 @@ import com.reyes.avisoscampus.model.Aviso
 import com.reyes.avisoscampus.model.Origen
 import com.reyes.avisoscampus.ui.theme.FilaHistorial
 import com.reyes.avisoscampus.ui.theme.OrigenBoton
+import com.reyes.avisoscampus.ui.theme.OrigenCargador
 import com.reyes.avisoscampus.ui.theme.OrigenModoAvion
 import com.reyes.avisoscampus.ui.theme.OrigenRecordatorio
 import com.reyes.avisoscampus.ui.theme.TextoSuave
@@ -74,6 +75,7 @@ private fun EtiquetaOrigen(origen: Origen) {
         Origen.BOTON -> OrigenBoton
         Origen.RECORDATORIO -> OrigenRecordatorio
         Origen.MODO_AVION -> OrigenModoAvion
+        Origen.CARGADOR -> OrigenCargador // Mejora 3
     }
     Surface(color = color, shape = RoundedCornerShape(50)) {
         Text(

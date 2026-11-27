@@ -3,7 +3,8 @@ package com.reyes.avisoscampus.model
 enum class Origen(val texto: String) {
     BOTON("Botón"),
     RECORDATORIO("Recordatorio"),
-    MODO_AVION("Modo avión")
+    MODO_AVION("Modo avión"),
+    CARGADOR("Cargador") // Mejora 3
 }
 
 data class Aviso(

@@ -22,3 +22,4 @@ val RojoTexto = Color(0xFF9E2A2A)
 val OrigenBoton = Color(0xFF3D7BC4)
 val OrigenRecordatorio = Color(0xFFE3A238)
 val OrigenModoAvion = Color(0xFF7E57C2)
+val OrigenCargador = Color(0xFF2E9E5B) // Mejora 3

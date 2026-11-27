@@ -100,6 +100,23 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
         }
     }
 
+    // Mejora 3: escuchar el cargador (el receptor vive en la pantalla, no aquí)
+    private val _escuchandoCargador = MutableStateFlow(false)
+    val escuchandoCargador: StateFlow<Boolean> = _escuchandoCargador.asStateFlow()
+
+    fun cambiarEscuchaCargador(valor: Boolean) {
+        _escuchandoCargador.value = valor
+    }
+
+    fun alCambiarCargador(conectado: Boolean) {
+        viewModelScope.launch {
+            val aviso = repo.registrar(
+                "Cargador", if (conectado) "Conectado" else "Desconectado", Origen.CARGADOR
+            )
+            _eventos.emit(aviso)
+        }
+    }
+
     // Paso 8: la pantalla no pudo mostrar la notificación (sin permiso)
     fun noSePudoMostrar() {
         _mensaje.value = "Sin permiso: el aviso se guardó en el historial, pero no se mostró"
