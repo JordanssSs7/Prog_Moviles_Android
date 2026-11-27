@@ -7,6 +7,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -68,6 +70,9 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         vm.permisoRespondido(concedido)
     }
 
+    // Paso 5: segundos que faltan del recordatorio (null = no hay)
+    val faltan by vm.faltan.collectAsState()
+
     LaunchedEffect(Unit) {
         // Si ya estaba concedido (o es Android < 13), se lo decimos al ViewModel
         if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
@@ -114,7 +119,34 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
             }
             Tarjeta("Recordatorio") {
-                // TODO Paso 5: "Recordar en 10 s", "Cancelar" y "Faltan N s"
+                val corriendo = faltan != null
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+                ) {
+                    Button(
+                        onClick = { vm.recordarEn(10) },
+                        enabled = !corriendo
+                    ) {
+                        Text("Recordar en 10 s", fontWeight = FontWeight.Bold)
+                    }
+                    OutlinedButton(
+                        onClick = { vm.cancelarRecordatorio() },
+                        enabled = corriendo,
+                        border = BorderStroke(
+                            1.5.dp,
+                            if (corriendo) MaterialTheme.colorScheme.primary else BordeTarjeta
+                        ),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("Cancelar", fontWeight = FontWeight.Bold)
+                    }
+                }
+                faltan?.let {
+                    Text("Faltan $it s", fontWeight = FontWeight.Bold)
+                }
             }
             Tarjeta("Receptor de anuncios") {
                 // TODO Paso 6: Switch "Escuchar el modo avión"
