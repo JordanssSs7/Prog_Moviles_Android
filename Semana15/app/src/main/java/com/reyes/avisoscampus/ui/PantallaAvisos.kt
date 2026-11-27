@@ -1,6 +1,22 @@
 package com.reyes.avisoscampus.ui
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.reyes.avisoscampus.model.PermisoUi
+import com.reyes.avisoscampus.ui.theme.GrisFondo
+import com.reyes.avisoscampus.ui.theme.GrisTexto
+import com.reyes.avisoscampus.ui.theme.RojoFondo
+import com.reyes.avisoscampus.ui.theme.RojoTexto
+import com.reyes.avisoscampus.ui.theme.VerdeFondo
+import com.reyes.avisoscampus.ui.theme.VerdeTexto
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -43,6 +59,20 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         }
     }
 
+    // Paso 2: pedir el permiso y mostrar su estado
+    val permiso by vm.permiso.collectAsState()
+
+    val lanzador = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        vm.permisoRespondido(concedido)
+    }
+
+    LaunchedEffect(Unit) {
+        // Si ya estaba concedido (o es Android < 13), se lo decimos al ViewModel
+        if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -64,7 +94,19 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Tarjeta("Permiso de notificaciones") {
-                // TODO Paso 2: estado del permiso y botón "Permitir notificaciones"
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Estado: ")
+                    EtiquetaPermiso(permiso)
+                }
+                Button(onClick = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        lanzador.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        vm.permisoRespondido(true)
+                    }
+                }) {
+                    Text("Permitir notificaciones", fontWeight = FontWeight.Bold)
+                }
             }
             Tarjeta("Avisos") {
                 // TODO Paso 3: botón "Mostrar aviso"
@@ -77,6 +119,25 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             }
             // TODO Paso 7: HistorialAvisos(avisos)
         }
+    }
+}
+
+/** Etiqueta de color: Sin pedir (gris), Permitido (verde) o Denegado (rojo). */
+@Composable
+fun EtiquetaPermiso(permiso: PermisoUi) {
+    val (texto, fondo, color) = when (permiso) {
+        PermisoUi.SinPedir -> Triple("Sin pedir", GrisFondo, GrisTexto)
+        PermisoUi.Concedido -> Triple("Permitido", VerdeFondo, VerdeTexto)
+        PermisoUi.Denegado -> Triple("Denegado", RojoFondo, RojoTexto)
+    }
+    Surface(color = fondo, shape = RoundedCornerShape(50)) {
+        Text(
+            text = texto,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+            color = color,
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelMedium
+        )
     }
 }
 
