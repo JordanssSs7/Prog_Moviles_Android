@@ -85,6 +85,9 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
     }
 
+    // Paso 7: lista de avisos para el historial
+    val avisos by vm.avisos.collectAsState()
+
     // Paso 6: registrar el receptor solo mientras el switch esté activo
     val escuchando by vm.escuchandoAvion.collectAsState()
 
@@ -190,7 +193,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            // TODO Paso 7: HistorialAvisos(avisos)
+            HistorialAvisos(avisos)
         }
     }
 }
