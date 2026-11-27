@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.provider.Settings
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.DisposableEffect
 import androidx.core.content.ContextCompat
@@ -64,9 +66,13 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
             val mostrado = Notificador.mostrar(contexto, aviso)
-            // TODO Paso 8: si no se mostró, avisar al ViewModel
+            // Paso 8: si no se mostró, avisar al ViewModel
+            if (!mostrado) vm.noSePudoMostrar()
         }
     }
+
+    // Paso 8: mensaje de error (null = no hay)
+    val mensaje by vm.mensaje.collectAsState()
 
     // Paso 2: pedir el permiso y mostrar su estado
     val permiso by vm.permiso.collectAsState()
@@ -139,6 +145,37 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     }
                 }) {
                     Text("Permitir notificaciones", fontWeight = FontWeight.Bold)
+                }
+            }
+            // Paso 8: recuadro de error y botón para ir a Ajustes
+            mensaje?.let { texto ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = texto,
+                        modifier = Modifier.padding(16.dp),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            if (permiso == PermisoUi.Denegado) {
+                OutlinedButton(
+                    onClick = {
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                            .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                        contexto.startActivity(intent)
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text("Abrir ajustes", fontWeight = FontWeight.Bold)
                 }
             }
             Tarjeta("Avisos") {
