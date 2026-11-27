@@ -80,6 +80,10 @@ object Notificador {
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
+            // Mejora 2: al expandir la notificación se ve el texto completo
+            .setStyle(
+                NotificationCompat.BigTextStyle().bigText(aviso.detalle ?: aviso.texto)
+            )
             .setPriority(prioridad)
             .setContentIntent(pendiente)
             .setAutoCancel(true) // se quita al tocarla

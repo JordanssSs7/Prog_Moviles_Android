@@ -40,7 +40,12 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
     // Paso 3: registra el aviso y emite el evento (la pantalla lo muestra)
     fun avisarAhora() {
         viewModelScope.launch {
-            val aviso = repo.registrar("Tarea lista", "Tu entrega fue registrada", Origen.BOTON)
+            val aviso = repo.registrar(
+                "Tarea lista", "Tu entrega fue registrada", Origen.BOTON,
+                detalle = "Tu entrega fue registrada. El Laboratorio 15 (AvisosCampus) " +
+                    "quedó guardado y el docente lo revisará. Verás tu nota en el " +
+                    "aula virtual cuando esté calificado."
+            )
             _eventos.emit(aviso)
         }
     }
@@ -62,7 +67,10 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
                 // Mejora 1: el ViewModel decide que el recordatorio es urgente
                 val aviso = repo.registrar(
                     "Recordatorio", "Revisa tu laboratorio pendiente", Origen.RECORDATORIO,
-                    urgente = true
+                    urgente = true,
+                    detalle = "Revisa tu laboratorio pendiente: completa las pruebas " +
+                        "de aceptación, agrega las capturas al README y sube la rama " +
+                        "de mejoras antes de la fecha límite."
                 )
                 _eventos.emit(aviso)
             } finally {
