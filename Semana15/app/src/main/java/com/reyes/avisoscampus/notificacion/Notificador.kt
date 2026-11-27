@@ -4,12 +4,15 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.reyes.avisoscampus.MainActivity
 import com.reyes.avisoscampus.R
 import com.reyes.avisoscampus.model.Aviso
 
@@ -46,13 +49,23 @@ object Notificador {
         // 1. Sin permiso no se muestra nada (y no se lanza error)
         if (!tienePermiso(context)) return false
 
+        // Paso 4: al tocar la notificación se abre MainActivity
+        val intent = Intent(context, MainActivity::class.java).apply {
+            // si la app ya está abierta, se reutiliza la misma pantalla
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val pendiente = PendingIntent.getActivity(
+            context, 0, intent, PendingIntent.FLAG_IMMUTABLE
+        )
+
         // 2. Construir la notificación
         val notificacion = NotificationCompat.Builder(context, CANAL)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
+            .setContentIntent(pendiente)
+            .setAutoCancel(true) // se quita al tocarla
             .build()
 
         // 3. Mostrarla con el id del aviso: cada aviso es una notificación distinta
