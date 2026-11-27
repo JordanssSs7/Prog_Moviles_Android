@@ -1,7 +1,14 @@
 package com.reyes.avisoscampus.ui
 
 import android.Manifest
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
+import androidx.compose.material3.Switch
+import androidx.compose.runtime.DisposableEffect
+import androidx.core.content.ContextCompat
+import com.reyes.avisoscampus.receiver.ModoAvionReceiver
+import com.reyes.avisoscampus.ui.theme.TextoSuave
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -78,6 +85,24 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
     }
 
+    // Paso 6: registrar el receptor solo mientras el switch esté activo
+    val escuchando by vm.escuchandoAvion.collectAsState()
+
+    DisposableEffect(escuchando) {
+        if (escuchando) {
+            val receptor = ModoAvionReceiver { activo -> vm.alCambiarModoAvion(activo) }
+            ContextCompat.registerReceiver(
+                contexto,
+                receptor,
+                IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose { contexto.unregisterReceiver(receptor) } // siempre se quita
+        } else {
+            onDispose { }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -149,7 +174,21 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
             }
             Tarjeta("Receptor de anuncios") {
-                // TODO Paso 6: Switch "Escuchar el modo avión"
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Escuchar el modo avión", modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = escuchando,
+                        onCheckedChange = { vm.cambiarEscucha(it) }
+                    )
+                }
+                Text(
+                    "Activa o desactiva el modo avión del celular",
+                    color = TextoSuave,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
             // TODO Paso 7: HistorialAvisos(avisos)
         }
