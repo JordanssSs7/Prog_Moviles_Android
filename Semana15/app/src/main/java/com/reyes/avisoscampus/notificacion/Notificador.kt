@@ -19,6 +19,7 @@ import com.reyes.avisoscampus.model.Aviso
 object Notificador {
 
     const val CANAL = "avisos"
+    const val CANAL_URGENTE = "urgentes" // Mejora 1
 
     fun crearCanal(context: Context) {
         // Los canales existen desde Android 8 (API 26)
@@ -30,8 +31,16 @@ object Notificador {
             ).apply {
                 description = "Notificaciones de la app"
             }
+            // Mejora 1: canal con importancia alta -> la notificación sale emergente
+            val urgente = NotificationChannel(
+                CANAL_URGENTE,
+                "Urgentes",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Recordatorios que no puedes perderte"
+            }
             val manager = context.getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(canal)
+            manager.createNotificationChannels(listOf(canal, urgente))
         }
     }
 
@@ -58,12 +67,20 @@ object Notificador {
             context, 0, intent, PendingIntent.FLAG_IMMUTABLE
         )
 
+        // Mejora 1: el canal depende de si el aviso es urgente
+        val canal = if (aviso.urgente) CANAL_URGENTE else CANAL
+        val prioridad = if (aviso.urgente) {
+            NotificationCompat.PRIORITY_HIGH // Android < 8 usa la prioridad
+        } else {
+            NotificationCompat.PRIORITY_DEFAULT
+        }
+
         // 2. Construir la notificación
-        val notificacion = NotificationCompat.Builder(context, CANAL)
+        val notificacion = NotificationCompat.Builder(context, canal)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(prioridad)
             .setContentIntent(pendiente)
             .setAutoCancel(true) // se quita al tocarla
             .build()

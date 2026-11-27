@@ -1,0 +1,7 @@
+# PROMPTS.md · Fase 2 (rama avisoscampus-ia)
+
+Registro de los prompts importantes que usé con el asistente de IA para mejorar AvisosCampus sin romper la arquitectura MVVM + Repository.
+
+| Prompt que escribí | Qué respondió la IA | Qué cambié o descarté | Por qué |
+|---|---|---|---|
+| «Agrega un segundo canal *Urgentes* con IMPORTANCE_HIGH para que el recordatorio salga como notificación emergente; los demás avisos siguen en el canal *Avisos*. No pongas Context en el ViewModel.» | Propuso crear los dos canales con `createNotificationChannels`, agregar `urgente: Boolean = false` a `Aviso` y a `registrar(...)` del Repository, y que el ViewModel marque el recordatorio con `urgente = true`. El Notificador elige el canal según `aviso.urgente`. | Acepté la propuesta. Descarté la alternativa de que el Notificador decidiera el canal mirando `aviso.origen == RECORDATORIO`. | Decidir qué es urgente es una regla de la app y le toca al ViewModel. El Notificador solo traduce esa decisión a un canal, y el ViewModel sigue sin conocer `NotificationManager`. |

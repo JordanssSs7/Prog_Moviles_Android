@@ -11,7 +11,9 @@ data class Aviso(
     val titulo: String,
     val texto: String,
     val origen: Origen,
-    val hora: String
+    val hora: String,
+    // Mejora 1: si es urgente se muestra por el canal "Urgentes" (emergente)
+    val urgente: Boolean = false
 )
 
 sealed interface PermisoUi {
